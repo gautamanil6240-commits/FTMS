@@ -1,0 +1,72 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>FTMS</title>
+
+    <link rel="stylesheet"
+          href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+
+    <nav>
+
+        <div class="logo">
+
+            ⚽ FTMS
+
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="/">Home</a>
+            </li>
+
+            <li>
+                <a href="/login-selection/">Login</a>
+            </li>
+
+            <li>
+                <a href="/tournaments/">Tournament</a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- Dynamic Content -->
+
+    {% block content %}
+
+    {% endblock %}
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        <p>
+
+            © 2026 FTMS | Football Tournament Management System
+
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

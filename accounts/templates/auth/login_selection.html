@@ -1,0 +1,151 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet"
+      href="{% static 'css/login_selection.css' %}">
+
+
+<section class="login-selection">
+
+    <h1>
+
+        Select Login Role
+
+    </h1>
+
+    <div class="role-container">
+
+
+        <!-- Admin -->
+
+        <div class="role-card">
+
+            <h2>🛡 Software Admin</h2>
+
+            <p>
+
+                Full system control and verification.
+
+            </p>
+
+            <a href="#">
+
+                Login
+
+            </a>
+
+        </div>
+
+
+        <!-- Organizer -->
+
+        <div class="role-card">
+
+            <h2>🏆 Organizer</h2>
+
+            <p>
+
+                Create and manage tournaments.
+
+            </p>
+
+            <a href="#">
+
+                Login
+
+            </a>
+
+        </div>
+
+
+        <!-- Manager -->
+
+        <div class="role-card">
+
+            <h2>⚽ Club Manager</h2>
+
+            <p>
+
+                Manage teams and players.
+
+            </p>
+
+            <a href="#">
+
+                Login
+
+            </a>
+
+        </div>
+
+
+        <!-- Coach -->
+
+        <div class="role-card">
+
+            <h2>📋 Coach</h2>
+
+            <p>
+
+                Select squad and player lineup.
+
+            </p>
+
+            <a href="#">
+
+                Login
+
+            </a>
+
+        </div>
+
+
+        <!-- Player -->
+
+        <div class="role-card">
+
+            <h2>👕 Player</h2>
+
+            <p>
+
+                View performance and profile.
+
+            </p>
+
+            <a href="#">
+
+                Login
+
+            </a>
+
+        </div>
+
+
+        <!-- Viewer -->
+
+        <div class="role-card">
+
+            <h2>👥 Viewer</h2>
+
+            <p>
+
+                Watch tournaments and standings.
+
+            </p>
+
+            <a href="#">
+
+                Enter
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
