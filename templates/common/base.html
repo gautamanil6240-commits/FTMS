@@ -7,65 +7,231 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Football Tournament Management System">
 
-    <title>FTMS</title>
+    <meta name="keywords" content="Football Tournament, FTMS">
 
-    <link rel="stylesheet"
-          href="{% static 'css/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}FTMS{% endblock %}
+    </title>
+
+    <!-- Main CSS -->
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <!-- Extra CSS -->
+
+    {% block extra_css %}{% endblock %}
 
 </head>
 
 <body>
 
-    <!-- Navbar -->
+    <!-- ================= NAVBAR ================= -->
 
-    <nav>
+    <nav class="main-navbar">
 
-        <div class="logo">
+        <div class="nav-logo">
 
-            ⚽ FTMS
+            <a href="{% url 'home' %}">
+
+                ⚽ FTMS
+
+            </a>
 
         </div>
 
-        <ul>
+        <div class="nav-links">
 
-            <li>
-                <a href="/">Home</a>
-            </li>
+            <a href="{% url 'home' %}">
 
-            <li>
-                <a href="/login-selection/">Login</a>
-            </li>
+                Home
 
-            <li>
-                <a href="/tournaments/">Tournament</a>
-            </li>
+            </a>
 
-        </ul>
+            <a href="#"></a>
+
+            Tournaments
+
+            </a>
+
+        </div>
+
+        <div class="nav-buttons">
+
+            <a href="{% url 'login_selection' %}" class="login-btn">
+
+                🔐 Login
+
+            </a>
+
+            <!-- Django Admin -->
+
+            <a href="/admin/" class="admin-btn">
+
+                ⚙️ Admin
+
+            </a>
+
+        </div>
 
     </nav>
 
+    <!-- ================= PAGE CONTENT ================= -->
 
-    <!-- Dynamic Content -->
+    <div class="page-container">
 
-    {% block content %}
+        {% block content %}
 
-    {% endblock %}
+        {% endblock %}
 
+    </div>
 
-    <!-- Footer -->
+    <!-- ================= FOOTER ================= -->
 
-    <footer>
+    <footer class="main-footer">
 
-        <p>
+        <div class="footer-container">
 
-            © 2026 FTMS | Football Tournament Management System
+            <!-- Left -->
 
-        </p>
+            <div class="footer-box">
+
+                <h2>
+
+                    ⚽ FTMS
+
+                </h2>
+
+                <p>
+
+                    Football Tournament Management System
+                    helps organizers manage tournaments,
+                    clubs, players and match schedules.
+
+                </p>
+
+                <span>
+
+                    © 2025 FTMS Nepal
+
+                </span>
+
+            </div>
+
+            <!-- Middle -->
+
+            <div class="footer-box">
+
+                <h3>
+
+                    Quick Links
+
+                </h3>
+
+                <ul>
+
+                    <li>
+
+                        <a href="{% url 'home' %}">
+
+                            🏠 Home
+
+                        </a>
+
+                    </li>
+
+                    <li>
+
+                        <a href="#">
+
+                            🏆 Tournaments
+
+                        </a>
+
+                    </li>
+
+                    <li>
+
+                        <a href="{% url 'login_selection' %}">
+
+                            🔐 Login
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <!-- Right -->
+
+            <div class="footer-box">
+
+                <h3>
+
+                    Contact
+
+                </h3>
+
+                <ul>
+
+                    <li>
+
+                        📧 ftms@gmail.com
+
+                    </li>
+
+                    <li>
+
+                        📞 +977-9800000000
+
+                    </li>
+
+                    <li>
+
+                        📍 Kathmandu, Nepal
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <!-- Bottom -->
+
+        <div class="footer-bottom">
+
+            Developed <br>
+            <span>
+
+                Anil Gautam <br>
+                Roshan Adhikari <br>
+
+            </span>
+
+            <br>
+
+        BCA 4th Semester | Milton International College
+
+        <br>
+
+        Affiliated to Tribhuvan University
+        
+        </div>
 
     </footer>
+
+    <!-- Extra JS -->
+
+    {% block extra_js %}
+
+    {% endblock %}
 
 </body>
 

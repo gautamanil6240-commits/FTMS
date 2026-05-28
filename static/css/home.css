@@ -1,129 +1,76 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial;
-}
-
-body{
+.hero{
 
     height:100vh;
 
-    background:
-    linear-gradient(rgba(0,0,0,0.6),
-    rgba(0,0,0,0.7)),
-
-   url("/static/images/homebg.png") no-repeat center center fixed;
+   background:url('/static/images/homebg.png') no-repeat;
 
     background-size:cover;
+
     background-position:center;
-
-    color:white;
 }
-
-/* Overlay */
 
 .overlay{
-    height:100vh;
-    width:100%;
-}
 
-/* Navbar */
+    background:rgba(0,0,0,0.7);
 
-nav{
-
-    padding:25px 60px;
+    height:100%;
 
     display:flex;
-    justify-content:space-between;
+
+    justify-content:center;
+
     align-items:center;
+
+    text-align:center;
 }
-
-.logo{
-
-    font-size:35px;
-    font-weight:bold;
-
-    color:#00ff88;
-}
-
-/* Home Content */
 
 .home-content{
 
-    height:80vh;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-
-    text-align:center;
-
-    padding:20px;
+    width:800px;
 }
 
 .home-content h1{
 
-    font-size:75px;
-
-    width:80%;
+    font-size:70px;
 
     margin-bottom:25px;
 
-    text-shadow:3px 3px 10px black;
+    color:#00ff88;
 }
 
 .home-content p{
 
-    font-size:24px;
+    font-size:22px;
 
-    width:60%;
-
-    line-height:1.7;
+    line-height:1.8;
 
     margin-bottom:40px;
 }
 
-/* Buttons */
+.buttons a{
 
-.buttons{
-    display:flex;
-    gap:25px;
-}
+    display:inline-block;
 
-.btn{
+    margin:15px;
 
-    padding:16px 40px;
+    padding:15px 35px;
 
-    border-radius:10px;
+    background:#00ff88;
+
+    color:black;
 
     text-decoration:none;
 
-    font-size:18px;
+    border-radius:10px;
 
     font-weight:bold;
 
     transition:0.3s;
 }
 
-.login-btn{
+.buttons a:hover{
 
-    background:#00ff88;
+    transform:scale(1.05);
 
-    color:black;
-}
-
-.tournament-btn{
-
-    border:2px solid #00ff88;
-
-    color:white;
-}
-
-.btn:hover{
-
-    transform:scale(1.08);
-
-    box-shadow:0px 0px 20px #00ff88;
+    background:white;
 }

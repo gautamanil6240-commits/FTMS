@@ -1,0 +1,40 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-box">
+
+        <h1>
+
+            Register Account
+
+        </h1>
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit">
+
+                Register
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

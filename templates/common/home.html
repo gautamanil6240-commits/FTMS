@@ -1,46 +1,17 @@
+{% extends 'common/base.html' %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block content %}
 
-<head>
+<link rel="stylesheet"
+      href="{% static 'css/home.css' %}">
 
-    <meta charset="UTF-8">
-
-    <meta name="description" content="Football Tournament Management System">
-
-    <meta name="keywords" content="Football Tournament">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>FTMS</title>
-
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
-
-</head>
-
-<body>
-
-    <!-- Overlay -->
+<section class="hero">
 
     <div class="overlay">
 
-        <!-- Navbar -->
-
-        <nav>
-
-            <div class="logo">
-
-                ⚽ FTMS
-
-            </div>
-
-        </nav>
-
-
-        <!-- Main Content -->
-
-        <section class="home-content">
+        <div class="home-content">
 
             <h1>
 
@@ -51,26 +22,32 @@
 
             <p>
 
-                Professional football tournament software
-                for organizers, clubs, coaches and players.
+                Professional football software
+                for organizers, clubs,
+                coaches and players.
 
             </p>
 
             <div class="buttons">
-                <a href="{% url 'login_selection' %}" class="btn login-btn">
+
+                <a href="/login-selection/">
+
                     Login System
+
                 </a>
 
-                <a href="#" class="btn tournament-btn">
+                <a href="/tournaments/">
+
                     Available Tournament
+
                 </a>
+
             </div>
 
-
-        </section>
+        </div>
 
     </div>
 
-</body>
+</section>
 
-</html>
+{% endblock %}

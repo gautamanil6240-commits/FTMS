@@ -1,5 +1,5 @@
-from django.urls import path             # type: ignore
-from .views import organizer_dashboard      # type: ignore
+from django.urls import path             
+from .views import organizer_dashboard     
 
 
 urlpatterns = [

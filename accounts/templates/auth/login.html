@@ -1,0 +1,43 @@
+{% extends 'common/base.html' %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-box">
+
+        <h1>
+
+            Login
+
+        </h1>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input type="text"
+                   name="username"
+                   placeholder="Username">
+
+            <input type="password"
+                   name="password"
+                   placeholder="Password">
+
+            <button type="submit">
+
+                Login
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
