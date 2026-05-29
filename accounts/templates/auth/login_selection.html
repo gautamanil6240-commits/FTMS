@@ -1,42 +1,89 @@
 {% extends 'common/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block title %}FTMS — Login Selection{% endblock %}
 
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/login_selection.css' %}">
+<style>
+.sel-page {
+    min-height: 100vh;
+    padding-top: 65px;
+    background:
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.80)),
+        url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
 
-<div class="login-selection-page">
+{% block content %}
+<div class="sel-page">
+    <div class="sel-container">
 
-    <div class="overlay">
-
-        <h1>Select Login Role</h1>
+        <div class="sel-header">
+            <h1>⚽ Select Your Role</h1>
+            <p>Choose role to login or create a new account</p>
+        </div>
 
         <div class="role-grid">
 
-            <a href="{% url 'viewer_login' %}">
-                <button>👀 Viewer</button>
-            </a>
+            <div class="role-card">
+                <div class="role-icon">📋</div>
+                <div class="role-name">Organizer</div>
+                <div class="role-desc">Manage tournaments</div>
+                <div class="role-btns">
+                    <a href="{% url 'organizer_login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' %}?role=organizer" class="rbtn-reg">Register</a>
+                </div>
+            </div>
 
-            <a href="{% url 'player_login' %}">
-                <button>⚽ Player</button>
-            </a>
+            <div class="role-card">
+                <div class="role-icon">🏆</div>
+                <div class="role-name">Club Manager</div>
+                <div class="role-desc">Register your club</div>
+                <div class="role-btns">
+                    <a href="{% url 'manager_login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' %}?role=manager" class="rbtn-reg">Register</a>
+                </div>
+            </div>
 
-            <a href="{% url 'coach_login' %}">
-                <button>🧠 Coach</button>
-            </a>
+            <div class="role-card">
+                <div class="role-icon">🧠</div>
+                <div class="role-name">Coach</div>
+                <div class="role-desc">Manage your squad</div>
+                <div class="role-btns">
+                    <a href="{% url 'coach_login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' %}?role=coach" class="rbtn-reg">Register</a>
+                </div>
+            </div>
 
-            <a href="{% url 'manager_login' %}">
-                <button>🏆 Club Manager</button>
-            </a>
+            <div class="role-card">
+                <div class="role-icon">⚽</div>
+                <div class="role-name">Player</div>
+                <div class="role-desc">Join a team</div>
+                <div class="role-btns">
+                    <a href="{% url 'player_login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' %}?role=player" class="rbtn-reg">Register</a>
+                </div>
+            </div>
 
-            <a href="{% url 'organizer_login' %}">
-                <button>📋 Organizer</button>
-            </a>
+            <div class="role-card">
+                <div class="role-icon">👀</div>
+                <div class="role-name">Viewer</div>
+                <div class="role-desc">Watch tournaments</div>
+                <div class="role-btns">
+                    <a href="{% url 'viewer_login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' %}?role=viewer" class="rbtn-reg">Register</a>
+                </div>
+            </div>
 
         </div>
 
     </div>
-
 </div>
-
 {% endblock %}

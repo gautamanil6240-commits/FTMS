@@ -1,34 +1,78 @@
 {% extends 'common/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block title %}FTMS — {{ role }} Login{% endblock %}
 
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
+<style>
+.login-page {
+    min-height: 100vh;
+    padding-top: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(rgba(0,0,0,0.78), rgba(0,0,0,0.82)),
+        url('https://images.unsplash.com/photo-1551958219-acbc608c6377?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+}
+</style>
+{% endblock %}
 
+{% block content %}
 <div class="login-page">
-
     <div class="login-box">
 
-        <h1>{{ role }} Login</h1>
+        <div class="login-top">
+            <span class="login-emoji">⚽</span>
+            <h1>{{ role }} Login</h1>
+            <p>Enter your credentials to continue</p>
+        </div>
+
+        {% if messages %}
+        <div class="login-msgs">
+            {% for message in messages %}
+            <div class="login-msg {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <form method="POST">
-
             {% csrf_token %}
 
-            <input type="text"
-                   placeholder="Username">
+            <div class="field-wrap">
+                <label>Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                    autocomplete="off"
+                >
+            </div>
 
-            <input type="password"
-                   placeholder="Password">
+            <div class="field-wrap">
+                <label>Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
 
-            <button type="submit">
-                Login
+            <button type="submit" class="login-submit">
+                🔐 Login as {{ role }}
             </button>
 
         </form>
 
+        <div class="login-foot">
+            <a href="{% url 'login_selection' %}">← Back to role selection</a>
+        </div>
+
     </div>
-
 </div>
-
 {% endblock %}

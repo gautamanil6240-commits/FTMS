@@ -1,53 +1,95 @@
-.login-selection-page{
-    width:100%;
-    min-height:100vh;
-
-    background:
-    linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
-    url('/static/images/loginbg.jpg');
-
-    background-size:cover;
-    background-position:center;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
+.sel-container {
+    width: 90%;
+    max-width: 1000px;
+    text-align: center;
+    padding: 40px 20px;
 }
 
-.overlay{
-    text-align:center;
+.sel-header {
+    margin-bottom: 45px;
 }
 
-.overlay h1{
-    color:white;
-    font-size:55px;
-    margin-bottom:40px;
+.sel-header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
 }
 
-.role-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:20px;
+.sel-header p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
 }
 
-.role-grid button{
-    width:280px;
-    padding:18px;
-
-    border:none;
-    border-radius:12px;
-
-    background:#16a34a;
-    color:white;
-
-    font-size:20px;
-    font-weight:bold;
-
-    cursor:pointer;
-    transition:0.3s;
+/* 3 cards row 1, 2 cards row 2 centered */
+.role-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 22px;
 }
 
-.role-grid button:hover{
-    transform:translateY(-5px);
-    background:#15803d;
+.role-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 30px 20px;
+    width: 175px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.role-card:hover {
+    border-color: #22c55e;
+    background: rgba(34,197,94,0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
+.role-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.role-name {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.role-desc {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    margin-bottom: 18px;
+}
+
+.role-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.rbtn-login, .rbtn-reg {
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.rbtn-login {
+    background: #22c55e;
+    color: #0a0f1e;
+}
+
+.rbtn-login:hover { background: #16a34a; }
+
+.rbtn-reg {
+    border: 1.5px solid #22c55e;
+    color: #22c55e;
+}
+
+.rbtn-reg:hover {
+    background: rgba(34,197,94,0.15);
 }
