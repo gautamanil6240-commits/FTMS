@@ -1,24 +1,20 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-from django.contrib.auth.models import AbstractUser
 
-
-class CustomUser(AbstractUser):
+class UserProfile(models.Model):
 
     ROLE_CHOICES = (
-
-        ('admin', 'Software Admin'),
-
-        ('organizer', 'Tournament Organizer'),
-
-        ('manager', 'Club Manager'),
-
+        ('organizer', 'Organizer'),
+        ('manager', 'Manager'),
         ('coach', 'Coach'),
-
         ('player', 'Player'),
-
         ('viewer', 'Viewer'),
+    )
 
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
     )
 
     role = models.CharField(
@@ -26,48 +22,71 @@ class CustomUser(AbstractUser):
         choices=ROLE_CHOICES
     )
 
-    approved = models.BooleanField(
-        default=False
-    )
-
-    is_verified = models.BooleanField(
-        default=False
-    )
-
-    # =====================
-    # BASIC INFORMATION
-    # =====================
-
     phone_number = models.CharField(
-        max_length=15,
-        blank=True,
-        null=True
-    )
-
-    address = models.CharField(
-        max_length=255,
+        max_length=20,
         blank=True,
         null=True
     )
 
     profile_photo = models.ImageField(
-        upload_to='profiles/',
+        upload_to='profile_photos/',
         blank=True,
         null=True
     )
 
-    # =====================
-    # CLUB DETAILS
-    # =====================
+    is_verified = models.BooleanField(default=False)
+
+    # =========================
+    # ORGANIZER
+    # =========================
+
+    organization_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    pan_number = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    organizer_logo = models.ImageField(
+        upload_to='organizer_logos/',
+        blank=True,
+        null=True
+    )
+
+    authorization_letter = models.FileField(
+        upload_to='authorization_letters/',
+        blank=True,
+        null=True
+    )
+
+    tournament_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    office_address = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    # =========================
+    # MANAGER
+    # =========================
 
     club_name = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         null=True
     )
 
-    club_city = models.CharField(
-        max_length=100,
+    founded_year = models.CharField(
+        max_length=20,
         blank=True,
         null=True
     )
@@ -78,44 +97,61 @@ class CustomUser(AbstractUser):
         null=True
     )
 
-    # =====================
-    # DOCUMENTS
-    # =====================
-
-    pan_document = models.FileField(
-        upload_to='documents/pan/',
+    government_registration = models.FileField(
+        upload_to='government_registration/',
         blank=True,
         null=True
     )
 
-    government_document = models.FileField(
-        upload_to='documents/government/',
+    club_address = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    # =========================
+    # COACH
+    # =========================
+
+    coach_license = models.FileField(
+        upload_to='coach_license/',
+        blank=True,
+        null=True
+    )
+
+    experience_certificate = models.FileField(
+        upload_to='experience_certificates/',
         blank=True,
         null=True
     )
 
     citizenship_document = models.FileField(
-        upload_to='documents/citizenship/',
+        upload_to='citizenship_documents/',
         blank=True,
         null=True
     )
 
-    # =====================
-    # PLAYER STATUS
-    # =====================
+    # =========================
+    # PLAYER
+    # =========================
 
-    is_active_player = models.BooleanField(
-        default=True
+    date_of_birth = models.DateField(
+        blank=True,
+        null=True
     )
 
-    injured = models.BooleanField(
-        default=False
+    jersey_number = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True
     )
 
-    suspension_matches = models.IntegerField(
-        default=0
+    preferred_position = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
     )
+
+    medical_status = models.BooleanField(default=True)
 
     def __str__(self):
-
-        return self.username
+        return self.user.username

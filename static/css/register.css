@@ -1,63 +1,102 @@
-.register-page{
-
-    min-height:100vh;
-
-    background:url('../images/stadium.png');
-
-    background-size:cover;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
+.register-page {
+    min-height: 100vh;
+    padding: 80px 20px;
+    background:
+        linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.88)),
+        url('https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
 }
 
-.register-container{
+.reg-wrap{
+    max-width:900px;
+    margin:auto;
+}
 
-    width:1000px;
+.reg-section{
+    background:rgba(10,15,30,0.9);
+    border:1px solid rgba(34,197,94,0.2);
+    border-radius:14px;
+    padding:25px;
+    margin-bottom:20px;
+}
 
+.reg-section-title{
+    color:#22c55e;
+    font-size:14px;
+    margin-bottom:20px;
+    font-weight:700;
+}
+
+.form-grid{
     display:grid;
-
     grid-template-columns:1fr 1fr;
-
-    background:rgba(0,0,0,0.8);
-
-    border-radius:20px;
-
-    overflow:hidden;
-
+    gap:15px;
 }
 
-.register-left{
-
-    padding:50px;
-
-    background:#00ff8820;
-
-}
-
-.register-right{
-
-    padding:50px;
-
-}
-
-.register-right form{
-
+.form-field{
     display:flex;
     flex-direction:column;
-
-    gap:15px;
-
 }
 
-.register-right input,
-.register-right select{
+.form-field.full{
+    grid-column:1/-1;
+}
 
-    padding:14px;
+.form-field label{
+    color:#bbb;
+    margin-bottom:6px;
+    font-size:13px;
+}
 
+.form-field input,
+.form-field select{
+    padding:12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.05);
+    color:white;
+}
+
+.form-field input[type=file]{
+    padding:10px;
+}
+
+.reg-submit{
+    width:100%;
+    padding:15px;
     border:none;
-
+    background:#22c55e;
+    color:#000;
     border-radius:10px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.verify-box{
+    background:rgba(34,197,94,0.08);
+    border:1px solid rgba(34,197,94,0.2);
+    padding:18px;
+    border-radius:10px;
+    margin-bottom:20px;
+    color:#ddd;
+}
+
+.role-badge{
+    display:inline-block;
+    background:#22c55e;
+    color:black;
+    padding:8px 18px;
+    border-radius:50px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+@media(max-width:768px){
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
 
 }

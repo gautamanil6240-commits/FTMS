@@ -1,78 +1,85 @@
 from django import forms
-
 from django.contrib.auth.forms import UserCreationForm
-
 from .models import CustomUser
 
 
-class CustomUserRegisterForm(UserCreationForm):
+class ViewerRegisterForm(UserCreationForm):
 
     class Meta:
-
         model = CustomUser
-
-        fields = (
-
+        fields = [
             'username',
-
             'email',
-
-            'role',
-
-            'phone',
-
-            'profile_image',
-
-            # ORGANIZER
-
-            'pan_document',
-
-            'organizer_letter',
-
-            'club_logo',
-
-            # MANAGER / COACH / PLAYER
-
-            'citizenship_document',
-
-            # COACH
-
-            'coach_license',
-
-            # PLAYER
-
-            'medical_report',
-
             'password1',
+            'password2'
+        ]
 
-            'password2',
 
-        )
+class PlayerRegisterForm(UserCreationForm):
 
-        widgets = {
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',
+            'email',
+            'phone_number',
+            'date_of_birth',
+            'jersey_number',
+            'preferred_position',
+            'medical_status',
+            'citizenship_document',
+            'password1',
+            'password2'
+        ]
 
-            'username': forms.TextInput(
 
-                attrs={
-                    'placeholder': 'Username'
-                }
+class CoachRegisterForm(UserCreationForm):
 
-            ),
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',
+            'email',
+            'phone_number',
+            'coach_license',
+            'experience_certificate',
+            'citizenship_document',
+            'password1',
+            'password2'
+        ]
 
-            'email': forms.EmailInput(
 
-                attrs={
-                    'placeholder': 'Email'
-                }
+class ClubRegisterForm(UserCreationForm):
 
-            ),
+    class Meta:
+        model = CustomUser
+        fields = [
+            'club_name',
+            'email',
+            'phone_number',
+            'club_logo',
+            'government_registration',
+            'pan_number',
+            'address',
+            'founded_year',
+            'password1',
+            'password2'
+        ]
 
-            'phone': forms.TextInput(
 
-                attrs={
-                    'placeholder': 'Phone Number'
-                }
+class OrganizerRegisterForm(UserCreationForm):
 
-            ),
-
-        }
+    class Meta:
+        model = CustomUser
+        fields = [
+            'organization_name',
+            'email',
+            'phone_number',
+            'organizer_logo',
+            'authorization_letter',
+            'pan_number',
+            'office_address',
+            'tournament_name',
+            'password1',
+            'password2'
+        ]

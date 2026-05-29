@@ -37,8 +37,8 @@
                 <div class="role-name">Organizer</div>
                 <div class="role-desc">Manage tournaments</div>
                 <div class="role-btns">
-                    <a href="{% url 'organizer_login' %}" class="rbtn-login">Login</a>
-                    <a href="{% url 'register' %}?role=organizer" class="rbtn-reg">Register</a>
+                    <a href="{% url 'login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' role='organizer' %}" class="rbtn-reg">Register</a>
                 </div>
             </div>
 
@@ -47,8 +47,8 @@
                 <div class="role-name">Club Manager</div>
                 <div class="role-desc">Register your club</div>
                 <div class="role-btns">
-                    <a href="{% url 'manager_login' %}" class="rbtn-login">Login</a>
-                    <a href="{% url 'register' %}?role=manager" class="rbtn-reg">Register</a>
+                    <a href="{% url 'login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' role='manager' %}" class="rbtn-reg">Register</a>
                 </div>
             </div>
 
@@ -57,8 +57,8 @@
                 <div class="role-name">Coach</div>
                 <div class="role-desc">Manage your squad</div>
                 <div class="role-btns">
-                    <a href="{% url 'coach_login' %}" class="rbtn-login">Login</a>
-                    <a href="{% url 'register' %}?role=coach" class="rbtn-reg">Register</a>
+                    <a href="{% url 'login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' role='coach' %}" class="rbtn-reg">Register</a>
                 </div>
             </div>
 
@@ -67,8 +67,8 @@
                 <div class="role-name">Player</div>
                 <div class="role-desc">Join a team</div>
                 <div class="role-btns">
-                    <a href="{% url 'player_login' %}" class="rbtn-login">Login</a>
-                    <a href="{% url 'register' %}?role=player" class="rbtn-reg">Register</a>
+                    <a href="{% url 'login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' role='player' %}" class="rbtn-reg">Register</a>
                 </div>
             </div>
 
@@ -77,8 +77,8 @@
                 <div class="role-name">Viewer</div>
                 <div class="role-desc">Watch tournaments</div>
                 <div class="role-btns">
-                    <a href="{% url 'viewer_login' %}" class="rbtn-login">Login</a>
-                    <a href="{% url 'register' %}?role=viewer" class="rbtn-reg">Register</a>
+                    <a href="{% url 'login' %}" class="rbtn-login">Login</a>
+                    <a href="{% url 'register' role='viewer' %}" class="rbtn-reg">Register</a>
                 </div>
             </div>
 
