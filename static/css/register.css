@@ -1,0 +1,63 @@
+.register-page{
+
+    min-height:100vh;
+
+    background:url('../images/stadium.png');
+
+    background-size:cover;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.register-container{
+
+    width:1000px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    background:rgba(0,0,0,0.8);
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+.register-left{
+
+    padding:50px;
+
+    background:#00ff8820;
+
+}
+
+.register-right{
+
+    padding:50px;
+
+}
+
+.register-right form{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.register-right input,
+.register-right select{
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:10px;
+
+}

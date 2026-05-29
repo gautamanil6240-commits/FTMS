@@ -1,0 +1,114 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Player Register
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{% static 'css/register.css' %}">
+
+<link rel="stylesheet"
+      href="{% static 'css/auth.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+<div class="register-container">
+
+<div class="register-left">
+
+<h1>
+🔵 Player Registration
+</h1>
+
+<p>
+
+Register football player account
+for tournaments and clubs.
+
+</p>
+
+</div>
+
+<div class="register-right">
+
+<form method="POST"
+      enctype="multipart/form-data"
+      class="auth-form">
+
+{% csrf_token %}
+
+<input type="text"
+       name="full_name"
+       placeholder="Full Name">
+
+<input type="date"
+       name="date_of_birth">
+
+<select name="position">
+
+<option>
+Select Position
+</option>
+
+<option>
+Goalkeeper
+</option>
+
+<option>
+Defender
+</option>
+
+<option>
+Midfielder
+</option>
+
+<option>
+Forward
+</option>
+
+</select>
+
+<input type="number"
+       name="jersey_number"
+       placeholder="Jersey Number">
+
+<input type="file"
+       name="citizenship_document">
+
+<input type="file"
+       name="birth_certificate">
+
+<input type="file"
+       name="profile_photo">
+
+<input type="password"
+       name="password1"
+       placeholder="Password">
+
+<input type="password"
+       name="password2"
+       placeholder="Confirm Password">
+
+<button type="submit">
+
+Register Player
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Manager Register
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{% static 'css/register.css' %}">
+
+<link rel="stylesheet"
+      href="{% static 'css/auth.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+<div class="register-container">
+
+<div class="register-left">
+
+<h1>
+🟠 Club Manager Registration
+</h1>
+
+<p>
+
+Register football club manager account.
+
+</p>
+
+</div>
+
+<div class="register-right">
+
+<form method="POST"
+      enctype="multipart/form-data"
+      class="auth-form">
+
+{% csrf_token %}
+
+<input type="text"
+       name="club_name"
+       placeholder="Club Name">
+
+<input type="text"
+       name="club_city"
+       placeholder="Club City">
+
+<input type="text"
+       name="username"
+       placeholder="Username">
+
+<input type="email"
+       name="email"
+       placeholder="Email">
+
+<input type="text"
+       name="phone"
+       placeholder="Phone Number">
+
+<input type="file"
+       name="club_logo">
+
+<input type="file"
+       name="pan_document">
+
+<input type="file"
+       name="government_document">
+
+<input type="file"
+       name="citizenship_document">
+
+<input type="password"
+       name="password1"
+       placeholder="Password">
+
+<input type="password"
+       name="password2"
+       placeholder="Confirm Password">
+
+<button type="submit">
+
+Register Manager
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

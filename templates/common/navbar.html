@@ -1,40 +1,45 @@
+{% load static %}
+
 <nav class="navbar">
 
     <div class="logo">
 
-        ⚽ FTMS
+        <a href="{% url 'home' %}">
+            ⚽ FTMS
+        </a>
 
     </div>
 
     <ul class="nav-links">
 
         <li>
-            <a href="/">Home</a>
-        </li>
-
-        <li>
-            <a href="/tournaments/">
-
-                Tournaments
-
+            <a href="{% url 'home' %}">
+                Home
             </a>
         </li>
 
         <li>
-            <a href="/login-selection/">
-
-                Login
-
+            <a href="#">
+                Tournaments
             </a>
         </li>
 
     </ul>
 
-    <div class="admin-btn">
+    <div class="nav-buttons">
 
-        <a href="/admin/">
+        <a href="{% url 'login_selection' %}"
+           class="login-btn">
 
-            Admin Login
+            Login
+
+        </a>
+
+        <!-- Django Admin -->
+        <a href="/admin/"
+           class="admin-btn">
+
+            ⚙ Admin
 
         </a>
 

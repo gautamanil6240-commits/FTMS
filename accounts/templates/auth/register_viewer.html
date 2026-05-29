@@ -1,0 +1,77 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Viewer Register
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{% static 'css/register.css' %}">
+
+<link rel="stylesheet"
+      href="{% static 'css/auth.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+<div class="register-container">
+
+<div class="register-left">
+
+<h1>
+⚪ Viewer Registration
+</h1>
+
+<p>
+
+Create fan/viewer account
+to follow tournaments.
+
+</p>
+
+</div>
+
+<div class="register-right">
+
+<form method="POST"
+      class="auth-form">
+
+{% csrf_token %}
+
+<input type="text"
+       name="username"
+       placeholder="Username">
+
+<input type="email"
+       name="email"
+       placeholder="Email">
+
+<input type="password"
+       name="password1"
+       placeholder="Password">
+
+<input type="password"
+       name="password2"
+       placeholder="Confirm Password">
+
+<button type="submit">
+
+Register Viewer
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

@@ -1,130 +1,42 @@
 {% extends 'common/base.html' %}
-
 {% load static %}
 
 {% block content %}
 
-<link rel="stylesheet"
-      href="{% static 'css/login_selection.css' %}">
+<link rel="stylesheet" href="{% static 'css/login_selection.css' %}">
 
+<div class="login-selection-page">
 
-<section class="login-selection">
+    <div class="overlay">
 
-    <h1>
+        <h1>Select Login Role</h1>
 
-        Select Login Role
+        <div class="role-grid">
 
-    </h1>
-
-    <div class="role-container">
-
-
-        <!-- Organizer -->
-
-        <div class="role-card">
-
-            <h2>🏆 Organizer</h2>
-
-            <p>
-
-                Create and manage tournaments.
-
-            </p>
-
-            <a href="#">
-
-                Login
-
+            <a href="{% url 'viewer_login' %}">
+                <button>👀 Viewer</button>
             </a>
 
-        </div>
-
-
-        <!-- Manager -->
-
-        <div class="role-card">
-
-            <h2>⚽ Club Manager</h2>
-
-            <p>
-
-                Manage teams and players.
-
-            </p>
-
-            <a href="#">
-
-                Login
-
+            <a href="{% url 'player_login' %}">
+                <button>⚽ Player</button>
             </a>
 
-        </div>
-
-
-        <!-- Coach -->
-
-        <div class="role-card">
-
-            <h2>📋 Coach</h2>
-
-            <p>
-
-                Select squad and player lineup.
-
-            </p>
-
-            <a href="#">
-
-                Login
-
+            <a href="{% url 'coach_login' %}">
+                <button>🧠 Coach</button>
             </a>
 
-        </div>
-
-
-        <!-- Player -->
-
-        <div class="role-card">
-
-            <h2>👕 Player</h2>
-
-            <p>
-
-                View performance and profile.
-
-            </p>
-
-            <a href="#">
-
-                Login
-
+            <a href="{% url 'manager_login' %}">
+                <button>🏆 Club Manager</button>
             </a>
 
-        </div>
-
-
-        <!-- Viewer -->
-
-        <div class="role-card">
-
-            <h2>👥 Viewer</h2>
-
-            <p>
-
-                Watch tournaments and standings.
-
-            </p>
-
-            <a href="#">
-
-                Enter
-
+            <a href="{% url 'organizer_login' %}">
+                <button>📋 Organizer</button>
             </a>
 
         </div>
 
     </div>
 
-</section>
+</div>
 
 {% endblock %}

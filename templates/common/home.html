@@ -1,13 +1,16 @@
 {% extends 'common/base.html' %}
-
 {% load static %}
 
-{% block content %}
+{% block extra_css %}
 
 <link rel="stylesheet"
       href="{% static 'css/home.css' %}">
 
-<section class="hero">
+{% endblock %}
+
+{% block content %}
+
+<section class="home-page">
 
     <div class="overlay">
 
@@ -22,21 +25,24 @@
 
             <p>
 
-                Professional football software
-                for organizers, clubs,
-                coaches and players.
+                Manage football tournaments,
+                clubs, players, fixtures,
+                standings and statistics
+                professionally.
 
             </p>
 
-            <div class="buttons">
+            <div class="home-buttons">
 
-                <a href="/login-selection/">
+                <a href="{% url 'login_selection' %}"
+                   class="btn">
 
                     Login System
 
                 </a>
 
-                <a href="/tournaments/">
+                <a href="#"
+                   class="btn btn2">
 
                     Available Tournament
 

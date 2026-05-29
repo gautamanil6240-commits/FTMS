@@ -1,0 +1,50 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+<style>
+.register-page {
+    background:
+        linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.88)),
+        url("{% static 'images/homebg.png' %}")
+        no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    padding: 90px 20px 60px;
+    display: flex;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-page">
+    <div class="register-wrap">
+
+        <div class="reg-header">
+            <div class="reg-logo">{{ role_emoji }}</div>
+            <h1>{{ role_title }} Registration</h1>
+            <p>{{ role_desc }}</p>
+            <a href="{% url 'login_selection' %}" class="back-link">
+                ← Back to role selection
+            </a>
+        </div>
+
+        {% if messages %}
+        <div style="margin-bottom:20px;">
+            {% for message in messages %}
+            <div class="msg {{ message.tags }}"
+                 style="padding:12px 18px;border-radius:8px;
+                        margin-bottom:8px;font-size:14px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block register_form %}{% endblock %}
+
+    </div>
+</div>
+{% endblock %}

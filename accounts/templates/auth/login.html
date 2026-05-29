@@ -1,37 +1,28 @@
 {% extends 'common/base.html' %}
-
-{% block title %}
-Login
-{% endblock %}
+{% load static %}
 
 {% block content %}
 
-<div class="form-container">
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 
-    <div class="form-box">
+<div class="login-page">
 
-        <h1>
+    <div class="login-box">
 
-            Login
-
-        </h1>
+        <h1>{{ role }} Login</h1>
 
         <form method="POST">
 
             {% csrf_token %}
 
             <input type="text"
-                   name="username"
                    placeholder="Username">
 
             <input type="password"
-                   name="password"
                    placeholder="Password">
 
             <button type="submit">
-
                 Login
-
             </button>
 
         </form>

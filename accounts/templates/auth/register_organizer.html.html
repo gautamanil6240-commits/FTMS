@@ -1,0 +1,92 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Organizer Register
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{% static 'css/register.css' %}">
+
+<link rel="stylesheet"
+      href="{% static 'css/auth.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+<div class="register-container">
+
+<div class="register-left">
+
+<h1>
+🏆 Tournament Organizer Registration
+</h1>
+
+<p>
+
+Register tournament organizer account
+for managing football competitions.
+
+</p>
+
+</div>
+
+<div class="register-right">
+
+<form method="POST"
+      enctype="multipart/form-data"
+      class="auth-form">
+
+{% csrf_token %}
+
+<input type="text"
+       name="organization_name"
+       placeholder="Organization Name">
+
+<input type="text"
+       name="username"
+       placeholder="Username">
+
+<input type="email"
+       name="email"
+       placeholder="Email">
+
+<input type="text"
+       name="phone"
+       placeholder="Phone Number">
+
+<input type="file"
+       name="organization_document">
+
+<input type="file"
+       name="profile_photo">
+
+<input type="password"
+       name="password1"
+       placeholder="Password">
+
+<input type="password"
+       name="password2"
+       placeholder="Confirm Password">
+
+<button type="submit">
+
+Register Organizer
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

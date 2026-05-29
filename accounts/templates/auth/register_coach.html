@@ -1,0 +1,87 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block title %}
+Coach Register
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{% static 'css/register.css' %}">
+
+<link rel="stylesheet"
+      href="{% static 'css/auth.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+<div class="register-container">
+
+<div class="register-left">
+
+<h1>
+🟡 Coach Registration
+</h1>
+
+<p>
+
+Register professional football coach account.
+
+</p>
+
+</div>
+
+<div class="register-right">
+
+<form method="POST"
+      enctype="multipart/form-data"
+      class="auth-form">
+
+{% csrf_token %}
+
+<input type="text"
+       name="full_name"
+       placeholder="Coach Full Name">
+
+<input type="text"
+       name="license_number"
+       placeholder="Coaching License Number">
+
+<input type="email"
+       name="email"
+       placeholder="Email">
+
+<input type="file"
+       name="license_document">
+
+<input type="file"
+       name="profile_photo">
+
+<input type="password"
+       name="password1"
+       placeholder="Password">
+
+<input type="password"
+       name="password2"
+       placeholder="Confirm Password">
+
+<button type="submit">
+
+Register Coach
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

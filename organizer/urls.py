@@ -1,12 +1,13 @@
-from django.urls import path             
-from .views import organizer_dashboard     
+from django.urls import path
+
+from . import views
 
 
 urlpatterns = [
 
     path(
         'dashboard/',
-        organizer_dashboard,
+        views.organizer_dashboard,
         name='organizer_dashboard'
     ),
 
