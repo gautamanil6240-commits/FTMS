@@ -3,20 +3,21 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-     # Tournament List
+    # Tournament List
     path(
-         'tournaments/',
-       views.tournament_list,
-       name='tournament_list'
+        'tournaments/',
+        views.tournament_list,
+        name='tournament_list'
     ),
-    #  Login Selection
+
+    # Login Selection
     path(
         'login-selection/',
         views.login_selection,
         name='login_selection'
     ),
 
-    #  Added: Register
+    # Added: Register
     path(
         'register/<str:role>/',
         views.register,
@@ -72,5 +73,4 @@ urlpatterns = [
         ),
         name='password_reset_complete'
     ),
-
 ]

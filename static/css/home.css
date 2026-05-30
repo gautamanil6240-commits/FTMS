@@ -1,51 +1,93 @@
-.home-page{
-    width:100%;
-    height:100vh;
-    background:url('/static/images/homebg.png');
-    background-size:cover;
-    background-position:center;
+/* home.css */
+
+.home-page {
+    width: 100%;
+    height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.60), rgba(0,0,0,0.65)),
+        url('/static/images/homebg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
-.overlay{
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.7);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
+.overlay {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-.home-content h1{
-    font-size:70px;
-    margin-bottom:20px;
+.home-content {
+    max-width: 800px;
+    padding: 20px;
 }
 
-.home-content p{
-    font-size:22px;
-    margin-bottom:40px;
+.home-content h1 {
+    font-size: 70px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 15px rgba(0,0,0,0.8);
+    line-height: 1.1;
 }
 
-.home-buttons{
-    display:flex;
-    justify-content:center;
-    gap:20px;
+.home-content h1 span {
+    color: #22c55e;
 }
 
-.btn{
-    background:#22c55e;
-    padding:15px 35px;
-    border-radius:10px;
-    text-decoration:none;
-    color:white;
-    font-size:18px;
-    transition:0.3s;
+.home-content p {
+    font-size: 20px;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 45px;
+    line-height: 1.7;
 }
 
-.btn:hover{
-    transform:scale(1.05);
+.home-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.btn2{
-    background:#2563eb;
+/* Both buttons same size and shape */
+.btn {
+    padding: 16px 40px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 700;
+    transition: all 0.3s;
+    display: inline-block;
+    letter-spacing: 0.5px;
+}
+
+/* Button 1 - Login - filled green */
+.btn-login-home {
+    background: #22c55e;
+    color: #0a0f1e;
+    border: 2px solid #22c55e;
+}
+
+.btn-login-home:hover {
+    background: #16a34a;
+    border-color: #16a34a;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(34,197,94,0.4);
+}
+
+/* Button 2 - Tournament - outline green */
+.btn-tournament-home {
+    background: transparent;
+    color: #22c55e;
+    border: 2px solid #22c55e;
+}
+
+.btn-tournament-home:hover {
+    background: #22c55e;
+    color: #0a0f1e;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(34,197,94,0.4);
 }

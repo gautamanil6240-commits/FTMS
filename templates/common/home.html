@@ -3,8 +3,7 @@
 
 {% block extra_css %}
 
-<link rel="stylesheet"
-      href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 {% endblock %}
 
@@ -17,10 +16,8 @@
         <div class="home-content">
 
             <h1>
-
-                Football Tournament
-                Management System
-
+                Football Tournament <br>
+                <span>Management System</span>
             </h1>
 
             <p>
@@ -31,25 +28,17 @@
                 professionally.
 
             </p>
-
             <div class="home-buttons">
 
-                <a href="{% url 'login_selection' %}"
-                   class="btn">
-
-                    Login System
-
+                <a href="{% url 'login_selection' %}" class="btn btn-login-home">
+                    🔐 Login System
                 </a>
 
-                <a href="#"
-                   class="btn btn2">
-
-                    Available Tournament
-
+                <a href="{% url 'tournament_list' %}" class="btn btn-tournament-home">
+                    🏆 Available Tournament
                 </a>
 
             </div>
-
         </div>
 
     </div>

@@ -158,16 +158,21 @@ def user_login(request):
         }
     )
 
+
 # =========================
 # tournament list          
 # =========================
+
 def tournament_list(request):
 
     from organizer.models import Tournament
 
-    tournaments = Tournament.objects.all().order_by(
-        '-created_at'
-    )
+    try:
+        tournaments = Tournament.objects.all().order_by(
+            '-created_at'
+        )
+    except Exception:
+        tournaments = Tournament.objects.all()
 
     return render(
         request,
@@ -181,6 +186,7 @@ def tournament_list(request):
 # =========================
 # Password setup            
 # =========================
+
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import (
     PasswordResetView,
