@@ -3,45 +3,46 @@
 <nav class="navbar">
 
     <div class="logo">
-
         <a href="{% url 'home' %}">
             ⚽ FTMS
         </a>
-
     </div>
 
     <ul class="nav-links">
-
         <li>
             <a href="{% url 'home' %}">
                 Home
             </a>
         </li>
-
         <li>
             <a href="#">
                 Tournaments
             </a>
         </li>
-
     </ul>
 
     <div class="nav-buttons">
 
-        <a href="{% url 'login_selection' %}"
-           class="login-btn">
+        {% if user.is_authenticated %}
 
-            Login
+            <a href="{% url 'organizer_dashboard' %}"
+               class="login-btn">
+                Dashboard
+            </a>
 
-        </a>
+            <a href="{% url 'logout' %}"
+               class="admin-btn">
+                Logout
+            </a>
 
-        <!-- Django Admin -->
-        <a href="/admin/"
-           class="admin-btn">
+        {% else %}
 
-            ⚙ Admin
+            <a href="/admin/"
+               class="admin-btn">
+                ⚙ Admin
+            </a>
 
-        </a>
+        {% endif %}
 
     </div>
 

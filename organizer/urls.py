@@ -14,5 +14,10 @@ urlpatterns = [
         views.create_tournament,
         name='create_tournament'
     ),
+    path(
+    'tournament/<int:pk>/',
+    views.organizer_tournament_detail,
+    name='organizer_tournament_detail'
+    ),
 
 ]

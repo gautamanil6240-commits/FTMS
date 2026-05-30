@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect,render
+from django.shortcuts import render
 
 
 def home_view(request):
@@ -10,6 +10,8 @@ def home_view(request):
 
 
 urlpatterns = [
+
+    # Admin
     path('admin/', admin.site.urls),
 
     # Home
@@ -20,7 +22,11 @@ urlpatterns = [
 
     # Organizer
     path('organizer/', include('organizer.urls')),
+
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )

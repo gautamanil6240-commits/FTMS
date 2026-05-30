@@ -83,7 +83,36 @@
 .field-wrap input::placeholder {
     color: rgba(255,255,255,0.2);
 }
+/* Forgot password link */
 
+.forgot-link{
+    color:#22c55e;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.forgot-link:hover{
+    color:#16a34a;
+    text-decoration:underline;
+}
+
+.forgot-password{
+    text-align:right;
+    margin-top:10px;
+    margin-bottom:20px;
+}
+
+.forgot-password a{
+    color:#22c55e;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.forgot-password a:hover{
+    color:white;
+}
 /* Submit button */
 .login-submit {
     width: 100%;

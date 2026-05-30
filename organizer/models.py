@@ -72,3 +72,10 @@ class Tournament(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def teams_count(self):
+        return 0
+
+    def __str__(self):
+        return self.name    

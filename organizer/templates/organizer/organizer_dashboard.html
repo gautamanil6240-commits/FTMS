@@ -1,47 +1,277 @@
-<a href="{% url 'create_tournament' %}"
-   class="btn btn-success mb-4">
-
-    Create Tournament
-
-</a>
 {% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}FTMS — Organizer Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-page {
+    min-height: 100vh;
+    padding: 80px 50px 60px;
+    background:
+        linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.92)),
+        url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+}
+
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.dash-welcome h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.dash-welcome p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+}
+
+.dash-welcome span { color: #22c55e; }
+
+.btn-create {
+    padding: 12px 28px;
+    background: #22c55e;
+    color: #0a0f1e;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-create:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34,197,94,0.35);
+}
+
+/* Stats */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background: rgba(6,10,20,0.85);
+    border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    border-color: #22c55e;
+    transform: translateY(-4px);
+}
+
+.stat-icon { font-size: 32px; margin-bottom: 10px; }
+
+.stat-num {
+    font-size: 38px;
+    font-weight: 700;
+    color: #22c55e;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Tournament list */
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.t-table {
+    background: rgba(6,10,20,0.85);
+    border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.t-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.t-table th {
+    background: rgba(34,197,94,0.1);
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(34,197,94,0.15);
+}
+
+.t-table td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.t-table tr:last-child td { border-bottom: none; }
+
+.t-table tr:hover td {
+    background: rgba(34,197,94,0.04);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-badge.registration { background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); }
+.status-badge.active       { background:rgba(34,197,94,0.15);  color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
+.status-badge.upcoming     { background:rgba(255,214,0,0.15);  color:gold;    border:1px solid rgba(255,214,0,0.3); }
+.status-badge.completed    { background:rgba(255,255,255,0.08); color:#888;   border:1px solid rgba(255,255,255,0.1); }
+
+.btn-view {
+    padding: 6px 16px;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #22c55e;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-view:hover { background: rgba(34,197,94,0.2); }
+
+.empty-box {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.3);
+}
+
+.empty-box .empty-icon { font-size: 50px; margin-bottom: 15px; }
+.empty-box p { font-size: 14px; margin-bottom: 20px; }
+
+@media (max-width: 768px) {
+    .dashboard-page { padding: 80px 20px 40px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="dashboard-page">
 
-<div class="dashboard-container">
-
-    <h1>
-        Organizer Dashboard
-    </h1>
-
-    <div class="dashboard-cards">
-
-        <a href="" class="dashboard-card">
-
-            Create Tournament
-
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-welcome">
+            <h1>Welcome, <span>{{ user.first_name|default:user.username }}</span> 👋</h1>
+            <p>Organizer Dashboard — Manage your tournaments here</p>
+        </div>
+        <a href="{% url 'create_tournament' %}" class="btn-create">
+            ➕ Create Tournament
         </a>
+    </div>
 
-        <a href="" class="dashboard-card">
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-num">{{ total }}</div>
+            <div class="stat-label">Total Tournaments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-num">{{ active }}</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔵</div>
+            <div class="stat-num">{{ registration }}</div>
+            <div class="stat-label">Registration Open</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-num">{{ completed }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
 
-            Tournament List
+    <!-- Tournament List -->
+    <div class="section-title">🏆 My Tournaments</div>
 
-        </a>
-
-        <a href="" class="dashboard-card">
-
-            Approve Teams
-
-        </a>
-
-        <a href="" class="dashboard-card">
-
-            Match Schedule
-
-        </a>
-
+    <div class="t-table">
+        {% if tournaments %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tournament Name</th>
+                    <th>Location</th>
+                    <th>Start Date</th>
+                    <th>Teams</th>
+                    <th>Format</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tournaments %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong style="color:white;">{{ t.name }}</strong></td>
+                    <td>{{ t.location }}</td>
+                    <td>{{ t.start_date|date:"M d, Y" }}</td>
+                    <td>{{ t.teams_count }}/{{ t.max_teams }}</td>
+                    <td>{{ t.get_format_display }}</td>
+                    <td>
+                        <span class="status-badge {{ t.status }}">
+                            {{ t.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'organizer_tournament_detail' t.pk %}"
+                           class="btn-view">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-box">
+            <div class="empty-icon">🏆</div>
+            <p>No tournaments created yet.</p>
+            <a href="{% url 'create_tournament' %}" class="btn-create">
+                ➕ Create First Tournament
+            </a>
+        </div>
+        {% endif %}
     </div>
 
 </div>
-
 {% endblock %}

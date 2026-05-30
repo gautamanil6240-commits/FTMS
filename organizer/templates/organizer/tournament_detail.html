@@ -1,0 +1,62 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h1>{{ tournament.name }}</h1>
+
+    {% if tournament.banner %}
+        <img src="{{ tournament.banner.url }}"
+             width="500">
+    {% endif %}
+
+    <hr>
+
+    <p><strong>Location:</strong>
+        {{ tournament.location }}
+    </p>
+
+    <p><strong>Format:</strong>
+        {{ tournament.get_format_display }}
+    </p>
+
+    <p><strong>Status:</strong>
+        {{ tournament.get_status_display }}
+    </p>
+
+    <p><strong>Start:</strong>
+        {{ tournament.start_date }}
+    </p>
+
+    <p><strong>End:</strong>
+        {{ tournament.end_date }}
+    </p>
+
+    <p><strong>Max Teams:</strong>
+        {{ tournament.max_teams }}
+    </p>
+
+    <p><strong>Players Per Team:</strong>
+        {{ tournament.players_per_team }}
+    </p>
+
+    <hr>
+
+    <h3>Description</h3>
+
+    <p>
+        {{ tournament.description }}
+    </p>
+
+    <hr>
+
+    <h3>Rules</h3>
+
+    <p>
+        {{ tournament.rules }}
+    </p>
+
+</div>
+
+{% endblock %}

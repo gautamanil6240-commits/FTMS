@@ -101,6 +101,7 @@ def register(request, role):
 # =========================
 
 def user_login(request):
+    role = request.GET.get('role', '')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -112,11 +113,19 @@ def user_login(request):
         )
 
         if user is not None:
-           
+            
             login(request, user)
 
             try:
                 profile = UserProfile.objects.get(user=user)
+
+                if not profile.is_verified:
+                    messages.error(
+                        request,
+                        "Your account is awaiting admin approval."
+                    )
+                    logout(request)
+                    return redirect('login')
 
                 if profile.role == 'organizer':
                     return redirect('organizer_dashboard')
@@ -143,7 +152,10 @@ def user_login(request):
 
     return render(
         request,
-        'auth/login.html'
+        'auth/login.html',
+        {
+            'role': role
+        }
     )
 
 

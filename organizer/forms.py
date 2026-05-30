@@ -9,16 +9,19 @@ class TournamentForm(forms.ModelForm):
         model = Tournament
 
         fields = [
-
             'name',
-            'tournament_type',
-            'season',
+            'description',
+            'location',
+            'banner',
             'start_date',
             'end_date',
-            'location',
-            'description',
-            'logo',
-
+            'format',
+            'max_teams',
+            'players_per_team',
+            'prize_first',
+            'prize_second',
+            'prize_third',
+            'rules',
         ]
 
         widgets = {
@@ -31,4 +34,11 @@ class TournamentForm(forms.ModelForm):
                 attrs={'type': 'date'}
             ),
 
+            'description': forms.Textarea(
+                attrs={'rows': 4}
+            ),
+
+            'rules': forms.Textarea(
+                attrs={'rows': 6}
+            ),
         }

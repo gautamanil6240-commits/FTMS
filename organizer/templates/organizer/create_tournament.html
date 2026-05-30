@@ -1,33 +1,282 @@
 {% extends 'common/base.html' %}
+{% load static %}
 
-{% block title %}
-Create Tournament
+{% block title %}FTMS — Create Tournament{% endblock %}
+
+{% block extra_css %}
+<style>
+.create-page {
+    min-height: 100vh;
+    padding: 80px 20px 60px;
+    background:
+        linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.90)),
+        url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+}
+
+.create-wrap {
+    width: 100%;
+    max-width: 800px;
+}
+
+.create-header {
+    margin-bottom: 30px;
+}
+
+.create-header h1 {
+    font-size: 34px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+}
+
+.create-header p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+}
+
+.form-section {
+    background: rgba(6,10,20,0.88);
+    border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 14px;
+    padding: 25px;
+    margin-bottom: 18px;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(34,197,94,0.1);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field.full { grid-column: 1 / -1; }
+
+.form-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%;
+}
+
+.form-field textarea { resize: vertical; min-height: 90px; }
+.form-field select option { background: #0a0f1e; }
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.08);
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+.form-field input[type="file"] {
+    background: rgba(34,197,94,0.04);
+    border: 1px dashed rgba(34,197,94,0.3);
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #22c55e;
+    color: #0a0f1e;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 15px;
+}
+
+.submit-btn:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(34,197,94,0.3);
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+}
+
+.back-link a { color: #22c55e; }
+
+@media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div class="create-page">
+<div class="create-wrap">
 
-<div class="container mt-5">
+    <div class="create-header">
+        <h1>🏆 Create New Tournament</h1>
+        <p>Fill in the details to create your tournament</p>
+    </div>
 
-    <h2>
-        Create Tournament
-    </h2>
-
-    <hr>
+    {% if messages %}
+    {% for message in messages %}
+    <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;
+                background:#0d2b1a;border:1px solid #22c55e;color:#22c55e;font-size:13px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
 
     <form method="POST" enctype="multipart/form-data">
-
         {% csrf_token %}
 
-        {{ form.as_p }}
+        <!-- Basic Info -->
+        <div class="form-section">
+            <div class="section-label">📋 Basic Information</div>
+            <div class="form-grid">
+                <div class="form-field full">
+                    <label>Tournament Name</label>
+                    <input type="text" name="name"
+                           placeholder="e.g. Kathmandu Cup 2025" required>
+                </div>
+                <div class="form-field full">
+                    <label>Description</label>
+                    <textarea name="description"
+                              placeholder="Brief description of the tournament"></textarea>
+                </div>
+                <div class="form-field">
+                    <label>Location / Venue</label>
+                    <input type="text" name="location"
+                           placeholder="e.g. Dasharath Stadium, Kathmandu" required>
+                </div>
+                <div class="form-field">
+                    <label>Tournament Banner</label>
+                    <input type="file" name="banner" accept="image/*">
+                </div>
+            </div>
+        </div>
 
-        <button type="submit" class="btn btn-primary">
+        <!-- Dates -->
+        <div class="form-section">
+            <div class="section-label">📅 Schedule</div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" required>
+                </div>
+                <div class="form-field">
+                    <label>End Date</label>
+                    <input type="date" name="end_date" required>
+                </div>
+            </div>
+        </div>
 
-            Create Tournament
+        <!-- Format -->
+        <div class="form-section">
+            <div class="section-label">⚽ Tournament Format</div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label>Format</label>
+                    <select name="format" required>
+                        <option value="league">League</option>
+                        <option value="knockout">Knockout</option>
+                        <option value="group_ko">Group + Knockout</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Maximum Teams</label>
+                    <input type="number" name="max_teams"
+                           value="8" min="2" max="64" required>
+                </div>
+                <div class="form-field">
+                    <label>Players Per Team</label>
+                    <input type="number" name="players_per_team"
+                           value="18" min="11" max="30" required>
+                </div>
+            </div>
+        </div>
 
+        <!-- Prize -->
+        <div class="form-section">
+            <div class="section-label">🏅 Prize Distribution</div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label>🥇 1st Place Prize</label>
+                    <input type="text" name="prize_first"
+                           placeholder="e.g. NPR 1,00,000">
+                </div>
+                <div class="form-field">
+                    <label>🥈 2nd Place Prize</label>
+                    <input type="text" name="prize_second"
+                           placeholder="e.g. NPR 50,000">
+                </div>
+                <div class="form-field">
+                    <label>🥉 3rd Place Prize</label>
+                    <input type="text" name="prize_third"
+                           placeholder="e.g. NPR 25,000">
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules -->
+        <div class="form-section">
+            <div class="section-label">📜 Rules & Regulations</div>
+            <div class="form-field">
+                <textarea name="rules" rows="6"
+                          placeholder="Write tournament rules here... (one rule per line)"></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            🏆 Create Tournament
         </button>
 
+        <div class="back-link">
+            <a href="{% url 'organizer_dashboard' %}">← Back to Dashboard</a>
+        </div>
+
     </form>
-
 </div>
-
+</div>
 {% endblock %}
