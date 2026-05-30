@@ -158,6 +158,24 @@ def user_login(request):
         }
     )
 
+# =========================
+# tournament list          
+# =========================
+def tournament_list(request):
+
+    from organizer.models import Tournament
+
+    tournaments = Tournament.objects.all().order_by(
+        '-created_at'
+    )
+
+    return render(
+        request,
+        'common/tournament_list.html',
+        {
+            'tournaments': tournaments
+        }
+    )
 
 
 # =========================

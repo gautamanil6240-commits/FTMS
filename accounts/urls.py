@@ -3,7 +3,12 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-
+     # Tournament List
+    path(
+         'tournaments/',
+       views.tournament_list,
+       name='tournament_list'
+    ),
     #  Login Selection
     path(
         'login-selection/',
