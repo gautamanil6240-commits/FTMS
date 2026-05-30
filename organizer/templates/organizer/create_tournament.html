@@ -1,0 +1,33 @@
+{% extends 'common/base.html' %}
+
+{% block title %}
+Create Tournament
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2>
+        Create Tournament
+    </h2>
+
+    <hr>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">
+
+            Create Tournament
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

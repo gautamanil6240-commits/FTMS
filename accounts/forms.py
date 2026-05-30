@@ -1,24 +1,22 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from django.contrib.auth.models import User
 
 
 class ViewerRegisterForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
             'username',
             'email',
-            'password1',
-            'password2'
         ]
 
 
 class PlayerRegisterForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
             'username',
             'email',
@@ -28,15 +26,13 @@ class PlayerRegisterForm(UserCreationForm):
             'preferred_position',
             'medical_status',
             'citizenship_document',
-            'password1',
-            'password2'
         ]
 
 
 class CoachRegisterForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
             'username',
             'email',
@@ -44,17 +40,15 @@ class CoachRegisterForm(UserCreationForm):
             'coach_license',
             'experience_certificate',
             'citizenship_document',
-            'password1',
-            'password2'
         ]
 
 
 class ClubRegisterForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
-            'club_name',
+            'username',
             'email',
             'phone_number',
             'club_logo',
@@ -62,17 +56,15 @@ class ClubRegisterForm(UserCreationForm):
             'pan_number',
             'address',
             'founded_year',
-            'password1',
-            'password2'
         ]
 
 
 class OrganizerRegisterForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
-            'organization_name',
+            'username',
             'email',
             'phone_number',
             'organizer_logo',
@@ -80,6 +72,4 @@ class OrganizerRegisterForm(UserCreationForm):
             'pan_number',
             'office_address',
             'tournament_name',
-            'password1',
-            'password2'
         ]

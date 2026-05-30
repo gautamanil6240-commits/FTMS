@@ -11,7 +11,6 @@ from .models import UserProfile
 # =========================
 
 def login_selection(request):
-
     return render(
         request,
         'auth/login_selection.html'
@@ -23,9 +22,7 @@ def login_selection(request):
 # =========================
 
 def register(request, role):
-
     if request.method == 'POST':
-
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         username = request.POST.get('username')
@@ -73,18 +70,13 @@ def register(request, role):
         )
 
         # FILES
-
         profile.profile_photo = request.FILES.get('profile_photo')
-
         profile.organizer_logo = request.FILES.get('organizer_logo')
         profile.authorization_letter = request.FILES.get('authorization_letter')
-
         profile.club_logo = request.FILES.get('club_logo')
         profile.government_registration = request.FILES.get('government_registration')
-
         profile.coach_license = request.FILES.get('coach_license')
         profile.experience_certificate = request.FILES.get('experience_certificate')
-
         profile.citizenship_document = request.FILES.get('citizenship_document')
 
         profile.save()
@@ -93,7 +85,6 @@ def register(request, role):
             request,
             "Registration submitted successfully. Wait for admin verification."
         )
-
         return redirect('login')
 
     return render(
@@ -110,9 +101,7 @@ def register(request, role):
 # =========================
 
 def user_login(request):
-
     if request.method == 'POST':
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -123,13 +112,30 @@ def user_login(request):
         )
 
         if user is not None:
-
+           
             login(request, user)
 
+            try:
+                profile = UserProfile.objects.get(user=user)
+
+                if profile.role == 'organizer':
+                    return redirect('organizer_dashboard')
+                elif profile.role == 'manager':
+                    return redirect('manager_dashboard')
+                elif profile.role == 'coach':
+                    return redirect('coach_dashboard')
+                elif profile.role == 'player':
+                    return redirect('player_dashboard')
+                elif profile.role == 'viewer':
+                    return redirect('viewer_dashboard')
+                    
+            except UserProfile.DoesNotExist:
+                
+                if user.is_superuser:
+                    return redirect('/admin/')
+
             return redirect('/')
-
         else:
-
             messages.error(
                 request,
                 "Invalid username or password"
@@ -141,12 +147,23 @@ def user_login(request):
     )
 
 
+
+# =========================
+# Password setup            
+# =========================
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import (
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)
+
+
 # =========================
 # LOGOUT
 # =========================
 
 def user_logout(request):
-
     logout(request)
-
     return redirect('login')
