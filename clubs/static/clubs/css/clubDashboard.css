@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Club Manager Dashboard - Dark Premium Theme
+   ========================================================================== */
+
+body {
+    background: linear-gradient(rgba(11, 15, 26, 0.80), rgba(11, 15, 26, 0.85)), 
+                url('/static/clubs/images/manager.webp') no-repeat center center fixed;
+    background-size: cover;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Glassmorphic Dark Cards */
+.bg-dark-card {
+    background: rgba(18, 24, 38, 0.70) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Color Accents */
+.text-accent {
+    color: #00e676 !important; /* Neon Green */
+}
+.border-bottom-dark {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Header Elements */
+.club-logo-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #00e676;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.25);
+}
+
+.club-logo-placeholder {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
+
+/* Quick Stats Accent Borders */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+}
+.border-left-primary { border-left: 4px solid #3b82f6 !important; }
+.border-left-info    { border-left: 4px solid #06b6d4 !important; }
+.border-left-success { border-left: 4px solid #00e676 !important; }
+.border-left-danger  { border-left: 4px solid #ef4444 !important; }
+
+/* Dashboard Action Buttons */
+.btn-outline-success {
+    color: #00e676;
+    border-color: #00e676;
+    transition: all 0.2s ease;
+}
+.btn-outline-success:hover {
+    background-color: #00e676;
+    color: #0b0f1a;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+}
+.btn-outline-primary   { color: #3b82f6; border-color: #3b82f6; }
+.btn-outline-primary:hover { background-color: #3b82f6; color: #fff; }
+.btn-outline-info      { color: #06b6d4; border-color: #06b6d4; }
+.btn-outline-info:hover { background-color: #06b6d4; color: #fff; }
+.btn-outline-secondary { color: #94a3b8; border-color: #475569; }
+.btn-outline-secondary:hover { background-color: #475569; color: #fff; }
+
+/* Table styling adjustments */
+.table-dark {
+    background: transparent !important;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+.bg-success-soft { background-color: rgba(0, 230, 118, 0.12) !important; }
+.bg-danger-soft  { background-color: rgba(239, 68, 68, 0.12) !important; }

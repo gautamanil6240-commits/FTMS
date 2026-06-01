@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTMS - Club Manager Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .glass-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-cover bg-center bg-no-repeat min-h-screen font-sans text-slate-100" 
+      style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('{% static "manager.webp" %}');">
+
+    <nav class="w-full bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">⚽</span>
+            <span class="text-xl font-bold tracking-wider text-emerald-500">FTMS</span>
+        </div>
+        <div class="flex gap-6 text-sm font-medium text-slate-300">
+            <a href="#" class="hover:text-emerald-400 transition">Home</a>
+            <a href="#" class="hover:text-emerald-400 transition">Tournaments</a>
+        </div>
+        <div>
+            <a href="/admin/" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 transition">⚙️ Admin Panel</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        
+        <div class="flex justify-between items-start mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight">Welcome, <span class="text-emerald-400">Manager</span> 👋</h1>
+                <p class="text-slate-400 mt-1">Club Profile Dashboard — Oversee team stats and player rosters</p>
+                <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    ⏱️ Pending Verification
+                </span>
+            </div>
+            <div class="flex gap-3">
+                <button class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2.5 rounded-lg text-sm shadow-lg shadow-emerald-500/20 transition flex items-center gap-1">
+                    ➕ Add Player
+                </button>
+                <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-700 transition">
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="glass-card rounded-xl p-6 text-center transition hover:scale-[1.02]">
+                <span class="text-2xl block mb-2">🏃‍♂️</span>
+                <div class="text-3xl font-black tracking-tight text-white">{{ total_players }}</div>
+                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Total Players</div>
+            </div>
+            <div class="glass-card rounded-xl p-6 text-center transition hover:scale-[1.02]">
+                <span class="text-2xl block mb-2">🏟️</span>
+                <div class="text-3xl font-black tracking-tight text-white">{{ matches_played }}</div>
+                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Matches Played</div>
+            </div>
+            <div class="glass-card rounded-xl p-6 text-center transition hover:scale-[1.02]">
+                <span class="text-2xl block mb-2">🟢</span>
+                <div class="text-3xl font-black tracking-tight text-emerald-400">{{ wins }}</div>
+                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Wins</div>
+            </div>
+            <div class="glass-card rounded-xl p-6 text-center transition hover:scale-[1.02]">
+                <span class="text-2xl block mb-2">🔴</span>
+                <div class="text-3xl font-black tracking-tight text-rose-400">{{ losses }} <span class="text-slate-500 text-xl">/</span> <span class="text-amber-400 text-2xl">{{ draws }}</span></div>
+                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Losses / Draws</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="glass-card rounded-xl p-6 lg:col-span-1">
+                <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">📋 Club Details</h3>
+                <div class="space-y-3 text-sm">
+                    <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Club Name</span> <span class="text-slate-200 font-medium">{{ club.name|default:"Demo FC" }}</span></div>
+                    <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Established Year</span> <span class="text-slate-200 font-medium">{{ club.founded_year|default:"2024" }}</span></div>
+                    <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">PAN Number</span> <span class="text-mono text-slate-200 font-medium">{{ club.pan_number|default:"123456789" }}</span></div>
+                    <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">HQ Address</span> <span class="text-slate-200 font-medium">{{ club.address|default:"Kathmandu, Nepal" }}</span></div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-6 lg:col-span-2">
+                <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">👥 Recent Squad Additions</h3>
+                
+                {% if recent_players %}
+                    <div class="divide-y divide-slate-800/60">
+                        {% for player in recent_players %}
+                            <div class="py-3 flex justify-between items-center">
+                                <div class="font-medium text-slate-200">{{ player.name }}</div>
+                                <div class="text-xs text-slate-400">{{ player.position }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-10">
+                        <span class="text-3xl block mb-2">📋</span>
+                        <p class="text-slate-400 text-sm">No active player profiles linked to this management key yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </main>
+</body>
+</html>
