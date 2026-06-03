@@ -7,4 +7,5 @@ app_name = 'clubs'
 urlpatterns = [
     # Maps 'localhost:8000/clubs/dashboard/' to your dashboard view logic
     path('dashboard/', views.ClubManagerDashboardView.as_view(), name='manager_dashboard'),
+    path('player/add/', views.AddPlayerView.as_view(), name='add_player'),
 ]

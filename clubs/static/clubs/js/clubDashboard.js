@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const initialAction = e.currentTarget.getAttribute("data-action");
             console.log(`Action selected by manager: ${initialAction}`);
             
-            // Temporary interface notification until full application forms are mapped
-            alert(`${initialAction} pipeline will be called. Route handlers initialization pending.`);
+            // UI confirmation layer before backend endpoint processing
+            alert(`${initialAction} engine pipeline initialization pending registration callback.`);
         });
     });
 });

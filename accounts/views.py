@@ -79,7 +79,38 @@ def register(request, role):
         profile.experience_certificate = request.FILES.get('experience_certificate')
         profile.citizenship_document = request.FILES.get('citizenship_document')
 
-        profile.save()
+       # Save the manager profile details first
+        profile.save()        
+
+        # =======================================================
+        # AUTO CREATE CLUB ENGINE — Links Manager to Club Instantly
+        # =======================================================
+        if role == 'manager':            
+            from clubs.models import Club            
+            
+            # --- SAFE DATE PARSING LOGIC ---
+            raw_founded_year = request.POST.get('founded_year')
+            parsed_year = None
+            
+            if raw_founded_year:
+                # If the form sends a date like '2020/05/01' or '2020-05-01', extract just the first 4 characters
+                try:
+                    parsed_year = int(str(raw_founded_year)[:4])
+                except (ValueError, TypeError):
+                    parsed_year = 2026 # Fallback default year if parsing somehow fails
+            # -------------------------------
+
+            Club.objects.get_or_create(                
+                manager=user,                
+                defaults={                    
+                    'name': request.POST.get('club_name') or f"{username}'s Club",                    
+                    'founded_year': parsed_year, # 🧠 Now safely an Integer!
+                    'address': request.POST.get('club_address', ''),                    
+                    'government_registration': request.FILES.get('government_registration'),                    
+                    'logo': request.FILES.get('club_logo'),                
+                }            
+            )
+        # =======================================================
 
         messages.success(
             request,
@@ -130,7 +161,7 @@ def user_login(request):
                 if profile.role == 'organizer':
                     return redirect('organizer_dashboard')
                 elif profile.role == 'manager':
-                    return redirect('manager_dashboard')
+                    return redirect('clubs:manager_dashboard')
                 elif profile.role == 'coach':
                     return redirect('coach_dashboard')
                 elif profile.role == 'player':
