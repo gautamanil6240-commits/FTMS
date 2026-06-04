@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
 
+app_name = 'players'
+
 urlpatterns = [
-    # This maps the path right to your view function
-    path('register/player/', views.register_player, name='register_player'),
+    path('register/<str:role>/', views.register, name='register'),
     path('dashboard/', views.player_dashboard, name='player_dashboard'),
+    path('list/', views.player_list, name='player_list'),
 ]

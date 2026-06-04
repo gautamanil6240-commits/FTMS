@@ -144,10 +144,10 @@ def user_login(request):
         )
 
         if user is not None:
-            
             login(request, user)
 
             try:
+                # 1. Try to fetch the standard UserProfile
                 profile = UserProfile.objects.get(user=user)
 
                 if not profile.is_verified:
@@ -165,12 +165,27 @@ def user_login(request):
                 elif profile.role == 'coach':
                     return redirect('coach_dashboard')
                 elif profile.role == 'player':
-                    return redirect('player_dashboard')
+                    # 🟢 Updated to use the correct namespace route prefix!
+                    return redirect('players:player_dashboard')
                 elif profile.role == 'viewer':
                     return redirect('viewer_dashboard')
                     
             except UserProfile.DoesNotExist:
+                # 🧪 DIAGNOSTIC PRINT STATEMENTS
+                print("--- DEBUGGING PLAYER LOGIN ---")
+                print(f"Logged in User Email from auth_user table: '{user.email}'")
                 
+                from players.models import Player
+                # Let's see what emails actually exist in your Player database table
+                all_player_emails = list(Player.objects.values_list('email', flat=True))
+                print(f"Emails currently inside the Player table: {all_player_emails}")
+                
+                if Player.objects.filter(email=user.email).exists():
+                    print("MATCH FOUND! Redirecting to players:player_dashboard")
+                    return redirect('players:player_dashboard')
+                else:
+                    print("NO MATCH FOUND! Falling back to homepage.")
+
                 if user.is_superuser:
                     return redirect('/admin/')
 

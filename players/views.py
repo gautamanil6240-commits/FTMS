@@ -1,53 +1,81 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import PlayerRegistrationForm
+from django.contrib.auth.models import User
+from .forms import PlayerRawRegistrationForm
+from .models import Player  
 from clubs.models import Club  
 
-@login_required
-def register_player(request):
-    # 🧠 Logic: Every player must belong to a club. 
-    # We look up the club managed by the currently logged-in user.
-    try:
-        user_club = Club.objects.get(manager=request.user)
-    except Club.DoesNotExist:
-        messages.error(request, "Access Denied: You must be registered as a Club Manager to access player enrollment.")
-        return redirect('login') # Fallback if user doesn't own a club node
-
-    if request.method == 'POST':
-        # Pass both text data (POST) and media files (FILES) to the form
-        form = PlayerRegistrationForm(request.POST, request.FILES)
-        
-        if form.is_valid():
-            # Commit=False holds the transaction open so we can inject the club relation
-            player = form.save(commit=False)
-            player.club = user_club
-            player.save()
+def register(request, role):
+    """Processes registration based on the role passed from the URL string."""
+    if role == 'player':
+        if request.method == 'POST':
+            post_data = request.POST.copy()
             
-            messages.success(request, f"Registration initialized successfully for {player.full_name}!")
-            return redirect('/clubs/dashboard/')  # Redirects straight to your dashboard url path
-        else:
-            messages.error(request, "System Validation Fault. Please correct the highlighted errors below.")
+            # Map credentials
+            email_input = request.POST.get('email', '')
+            post_data['username'] = email_input
+            
+            phone_input = request.POST.get('phone', '')
+            post_data['password'] = phone_input
+
+            form = PlayerRawRegistrationForm(post_data, request.FILES)
+
+            if form.is_valid():
+                # 1. Create basic User account
+                user = User.objects.create_user(
+                    username=form.cleaned_data['username'],
+                    email=form.cleaned_data['email'],
+                    password=form.cleaned_data['password']
+                )
+
+                # 2. Grab fallback club link
+                default_club = Club.objects.first()
+                if not default_club:
+                    default_club = Club.objects.create(name="Unassigned Players Pool")
+
+                # 3. Create database entry in Player table
+                Player.objects.create(
+                    club=default_club,
+                    full_name=form.cleaned_data['full_name'],
+                    profile_photo=form.cleaned_data['profile_photo'],
+                    date_of_birth=form.cleaned_data['dob'],
+                    gender=form.cleaned_data['gender'].lower(), 
+                    nationality=form.cleaned_data['nationality'],
+                    phone_number=form.cleaned_data['phone'],
+                    email=form.cleaned_data['email'],
+                    citizenship_document=form.cleaned_data['id_document'], 
+                    preferred_position=form.cleaned_data['position'].lower(), 
+                    preferred_jersey_number=form.cleaned_data['jersey_no'] if form.cleaned_data['jersey_no'] else None,
+                    height=form.cleaned_data['height'],
+                    weight=form.cleaned_data['weight'],
+                    medical_status=form.cleaned_data['medical_status'].lower() 
+                )
+
+                messages.success(
+                    request, 
+                    f"Registration successful! Log in using your email ({user.email}) as your username."
+                )
+                return redirect('login') 
+
+            # ✅ FIXED: Pointing to where your template actually lives
+            return render(request, 'auth/register_player.html', {'errors': form.errors})
+
+        # ✅ FIXED: Pointing to where your template actually lives
+        return render(request, 'auth/register_player.html')
+        
     else:
-        form = PlayerRegistrationForm()
+        messages.info(request, f"Registration for role '{role}' is currently under development.")
+        return redirect('login_selection')
 
-    # ⚡ CENTRALIZED ROUTING: Points directly to the shared accounts directory structure
-    return render(request, 'accounts/register_player.html', {'form': form})
 
-@login_required
 def player_dashboard(request):
-    # 🧠 Look up the player record tied to this logged-in account
-    try:
-        # Since your teammate linked Player to Club, we fetch the player row 
-        # matching the user's email or full name, or via a profile relation.
-        # Assuming email matches user email for the player record:
-        player = Player.objects.get(email=request.user.email)
-    except Player.DoesNotExist:
-        messages.error(request, "Profile Not Found: You do not have an active Player enrollment profile.")
-        return redirect('login')
+    """Displays the custom dashboard panel once a player logs in successfully."""
+    # This path is already 100% correct based on your tree!
+    return render(request, 'players/player_dashboard.html')
 
-    context = {
-        'player': player,
-        'club': player.club, # Fetches their current assigned team/club node
-    }
-    return render(request, 'players/player_dashboard.html', context)
+
+def player_list(request):
+    """Fetches all registered players from the database and lists them."""
+    players = Player.objects.all()
+    # Note: If you don't have a player_list.html template yet, you can build it later!
+    return render(request, 'players/player_list.html', {'players': players})
