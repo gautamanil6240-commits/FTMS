@@ -160,3 +160,5 @@ EMAIL_HOST_PASSWORD = 'bojp rjln vfga bdtq'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 LOGIN_REDIRECT_URL = '/clubs/dashboard/'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

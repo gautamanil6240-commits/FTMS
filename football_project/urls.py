@@ -11,21 +11,23 @@ urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
 
-    # Home
+    # Home Landing Portal
     path('', home_view, name='home'),
 
-    # Accounts (Added explicit path prefix for route safety)
+    # Accounts Authentication Flow
     path('accounts/', include('accounts.urls')),
+    
+    # ⚡ FIXED: Isolated the players app to prevent URL prefix collisions
+    path('players/', include('players.urls')),
 
-    # Organizer
+    # Organizer Portal
     path('organizer/', include('organizer.urls')),
 
-    # Club
+    # Club Management Portal
     path('clubs/', include('clubs.urls')),
-
-    
 ]
 
+# Media file asset streamer for profile photos and verification PDFs
 if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL,

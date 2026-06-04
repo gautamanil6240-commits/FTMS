@@ -1,114 +1,314 @@
-{% extends 'common/base.html' %}
-
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Registration</title>
 
-{% block title %}
-Player Register
-{% endblock %}
+   <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
 
-{% block extra_css %}
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{% url 'home' %}">
+                ⚽ FTMS
+            </a>
+        </div>
 
-<link rel="stylesheet"
-      href="{% static 'css/register.css' %}">
+        <ul class="nav-links">
+            <li>
+                <a href="{% url 'home' %}">
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    Tournaments
+                </a>
+            </li>
+        </ul>
 
-<link rel="stylesheet"
-      href="{% static 'css/auth.css' %}">
+        <div class="nav-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'organizer_dashboard' %}" class="login-btn">
+                    Dashboard
+                </a>
+                <a href="{% url 'logout' %}" class="admin-btn">
+                    Logout
+                </a>
+            {% else %}
+                <a href="/admin/" class="admin-btn">
+                    ⚙ Admin
+                </a>
+            {% endif %}
+        </div>
+    </nav>
 
-{% endblock %}
+    <div class="main-content">
+        <div class="page-wrapper">
 
-{% block content %}
+            <aside class="sidebar">
+                <h1>Player Registration</h1>
+                <p>
+                    Register football players with complete personal details,
+                    profile photo, identification documents, and medical status.
+                    This registration portal is designed for club and tournament
+                    management systems.
+                </p>
+            </aside>
 
-<section class="register-page">
+            <main class="form-section">
+                <div class="form-container">
 
-<div class="register-container">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-<div class="register-left">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
 
-<h1>
-🔵 Player Registration
-</h1>
+                        <div class="form-group">
+                            <label for="full_name">Full Name</label>
+                            <input
+                                type="text"
+                                id="full_name"
+                                name="full_name"
+                                required
+                                placeholder="First & Last Name">
+                        </div>
 
-<p>
+                        <div class="form-grid-3">
 
-Register football player account
-for tournaments and clubs.
+                            <div class="form-group">
+                                <label for="dob">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    id="dob"
+                                    name="dob"
+                                    required>
+                            </div>
 
-</p>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input
+                                    type="text"
+                                    id="age"
+                                    readonly
+                                    placeholder="Auto Calculated">
+                            </div>
 
-</div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
 
-<div class="register-right">
+                        </div>
 
-<form method="POST"
-      enctype="multipart/form-data"
-      class="auth-form">
+                        <div class="form-grid-3">
 
-{% csrf_token %}
+                            <div class="form-group">
+                                <label for="nationality">Nationality</label>
+                                <input
+                                    type="text"
+                                    id="nationality"
+                                    name="nationality"
+                                    required
+                                    placeholder="e.g. Nepali">
+                            </div>
 
-<input type="text"
-       name="full_name"
-       placeholder="Full Name">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input
+                                    type="text"
+                                    id="phone"
+                                    name="phone"
+                                    required
+                                    placeholder="98XXXXXXXX">
+                            </div>
 
-<input type="date"
-       name="date_of_birth">
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    placeholder="player@example.com">
+                            </div>
 
-<select name="position">
+                        </div>
 
-<option>
-Select Position
-</option>
+                        <div class="form-grid-3">
 
-<option>
-Goalkeeper
-</option>
+                            <div class="form-group">
+                                <label for="position">Preferred Position</label>
+                                <select id="position" name="position" required>
+                                    <option value="">Select Position</option>
+                                    <option value="Goalkeeper">Goalkeeper</option>
+                                    <option value="Defender">Defender</option>
+                                    <option value="Midfielder">Midfielder</option>
+                                    <option value="Forward">Forward</option>
+                                </select>
+                            </div>
 
-<option>
-Defender
-</option>
+                            <div class="form-group">
+                                <label for="jersey_no">Favorite Jersey Number</label>
+                                <input
+                                    type="number"
+                                    id="jersey_no"
+                                    name="jersey_no"
+                                    required
+                                    placeholder="e.g. 10">
+                            </div>
 
-<option>
-Midfielder
-</option>
+                            <div class="form-group">
+                                <label for="medical_status">Medical Status</label>
+                                <select id="medical_status" name="medical_status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="Fit">Fit</option>
+                                    <option value="Injured">Injured</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
 
-<option>
-Forward
-</option>
+                        </div>
 
-</select>
+                        <div class="form-grid-2">
 
-<input type="number"
-       name="jersey_number"
-       placeholder="Jersey Number">
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    id="height"
+                                    name="height"
+                                    placeholder="e.g. 175.5">
+                            </div>
 
-<input type="file"
-       name="citizenship_document">
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    id="weight"
+                                    name="weight"
+                                    placeholder="e.g. 70.5">
+                            </div>
 
-<input type="file"
-       name="birth_certificate">
+                        </div>
 
-<input type="file"
-       name="profile_photo">
+                        <div class="form-grid-2">
 
-<input type="password"
-       name="password1"
-       placeholder="Password">
+                            <div class="form-group">
+                                <label for="profile_photo">Player Profile Photo</label>
+                                <input
+                                    type="file"
+                                    id="profile_photo"
+                                    name="profile_photo"
+                                    accept="image/*"
+                                    required>
+                            </div>
 
-<input type="password"
-       name="password2"
-       placeholder="Confirm Password">
+                            <div class="form-group">
+                                <label for="id_document">Citizenship / ID Document</label>
+                                <input
+                                    type="file"
+                                    id="id_document"
+                                    name="id_document"
+                                    required>
+                            </div>
 
-<button type="submit">
+                        </div>
 
-Register Player
+                        <button type="submit" class="submit-btn">
+                            REGISTER PLAYER PROFILE
+                        </button>
 
-</button>
+                    </form>
 
-</form>
+                </div>
+            </main>
 
-</div>
+        </div>
+    </div>
 
-</div>
+    <footer class="footer">
+        <div class="footer-container">
 
-</section>
+            <div class="footer-box">
+                <h2>⚽ FTMS</h2>
+                <p>Professional Football Tournament Management System for Nepal.</p>
+                <p>Organize tournaments, manage clubs, players, fixtures and live standings.</p>
+            </div>
 
-{% endblock %}
+            <div class="footer-box">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="#">Tournament</a></li>
+                    <li><a href="{% url 'login_selection' %}">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-box">
+                <h3>Contact</h3>
+                <p>📍 Kathmandu, Nepal</p>
+                <p>📞 9800000000</p>
+                <p>📧 ftms@gmail.com</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            Developed by:
+            <br>
+            Anil Gautam & Roshan Adhikari
+            <br><br>
+            BCA 4th Semester | Milton International College
+            <br>
+            Affiliated to Tribhuvan University
+        </div>
+    </footer>
+
+    <script>
+    const dobInput = document.getElementById("dob");
+    const ageInput = document.getElementById("age");
+
+    dobInput.addEventListener("change", function () {
+
+        if (!this.value) {
+            ageInput.value = "";
+            return;
+        }
+
+        const dob = new Date(this.value);
+        const today = new Date();
+
+        let age = today.getFullYear() - dob.getFullYear();
+
+        const monthDiff = today.getMonth() - dob.getMonth();
+
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+            age--;
+        }
+
+        ageInput.value = age;
+    });
+    </script>
+
+</body>
+</html>

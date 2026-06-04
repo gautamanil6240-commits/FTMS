@@ -120,10 +120,10 @@ def register(request, role):
 
     return render(
         request,
-        'auth/register.html',
-        {
-            'selected_role': role
-        }
+        f'auth/register_{role}.html',
+        # {
+        #     'selected_role': role
+        # }
     )
 
 
