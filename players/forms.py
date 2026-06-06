@@ -1,7 +1,8 @@
+from datetime import date
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from datetime import date
+from .models import Player
 
 class PlayerRawRegistrationForm(forms.Form):
     # Core Account Authentication Fields
@@ -17,7 +18,7 @@ class PlayerRawRegistrationForm(forms.Form):
     phone = forms.CharField(max_length=20)
     position = forms.ChoiceField(choices=[('Goalkeeper', 'Goalkeeper'), ('Defender', 'Defender'), ('Midfielder', 'Midfielder'), ('Forward', 'Forward')])
     
-    # Changed from IntegerField to CharField for flexible, non-permanent numbering
+    # Flexible, non-permanent numbering
     jersey_no = forms.CharField(max_length=10, required=False) 
     
     medical_status = forms.ChoiceField(choices=[('Fit', 'Fit'), ('Injured', 'Injured'), ('Suspended', 'Suspended')])
@@ -46,3 +47,23 @@ class PlayerRawRegistrationForm(forms.Form):
             raise ValidationError("Date of birth cannot be in the future.")
         return dob
 
+
+class PlayerProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = Player
+        fields = [
+            'full_name', 'profile_photo', 'phone_number', 
+            'date_of_birth', 'gender', 'citizenship_document',
+            'preferred_position', 'preferred_jersey_number', 
+            'height', 'weight'
+        ]
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-input'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'gender': forms.Select(attrs={'class': 'form-input'}),
+            'preferred_position': forms.Select(attrs={'class': 'form-input'}),
+            'preferred_jersey_number': forms.NumberInput(attrs={'class': 'form-input'}),
+            'height': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1'}),
+            'weight': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1'}),
+        }

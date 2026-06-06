@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required  # Security check for logged-in users
-from .forms import PlayerRawRegistrationForm
+from .forms import PlayerRawRegistrationForm, PlayerProfileEditForm
 from .models import Player  
 from clubs.models import Club  
 
@@ -88,3 +88,27 @@ def player_list(request):
     """Fetches all registered players from the database and lists them."""
     players = Player.objects.all()
     return render(request, 'players/player_list.html', {'players': players})
+
+@login_required
+def player_dashboard(request):
+    """Displays dashboard and handles profile updates seamlessly on the same page."""
+    try:
+        player = Player.objects.get(email=request.user.email)
+    except Player.DoesNotExist:
+        player = None
+
+    # Handle the Edit Profile form submission
+    if request.method == 'POST' and player:
+        form = PlayerProfileEditForm(request.POST, request.FILES, instance=player)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your player profile has been updated successfully!")
+            return redirect('players:player_dashboard')
+    else:
+        form = PlayerProfileEditForm(instance=player) if player else None
+
+    context = {
+        'player': player,
+        'form': form,
+    }
+    return render(request, 'players/player_dashboard.html', context)

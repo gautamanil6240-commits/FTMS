@@ -1,161 +1,401 @@
 {% extends 'common/base.html' %}
 {% load static %}
 
-{% block title %}Player Dashboard - {{ request.user.username }}{% endblock %}
+{% block title %}
+  Player Dashboard - {{ request.user.username }}
+{% endblock %}
 
 {% block extra_css %}
-<style>
+  <style>
     .dashboard-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 60px auto 40px auto;
+      padding: 0 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+    
+    .alert-msg {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 5px solid #2ecc71;
+    }
+    
     .profile-card {
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        display: flex;
-        flex-wrap: wrap;
-        padding: 30px;
-        gap: 30px;
-        margin-bottom: 30px;
-        align-items: center;
+      background: linear-gradient(135deg, #061b56 0%, #0f172a 100%); /* Deep Navy to Slate Black */
+      color: #000000;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-wrap: wrap;
+      padding: 30px;
+      gap: 30px;
+      margin-top: 30px;
+      margin-bottom: 30px;
+      align-items: center;
+      position: relative;
     }
     .profile-pic-container {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 4px solid #1abc9c;
-        background: #ecf0f1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid #1abc9c;
+      background: #ecf0f1;
     }
     .profile-pic-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .profile-pic-placeholder {
-        font-size: 4rem;
+      font-size: 3.5rem;
+      text-align: center;
+      line-height: 120px;
     }
+    
     .profile-details {
-        flex: 1;
-        min-width: 280px;
+      flex: 1;
+      color: #ffffff !important;
+    margin: 0 0 8px 0;
     }
-    .profile-details h2 {
-        margin: 0 0 10px 0;
-        color: #2c3e50;
-        font-size: 2rem;
+    .profile-meta-text {
+      margin: 6px 0;
+      color: #93c5fd; /* Light blue accent color for secondary text */
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        text-transform: uppercase;
+    
+    .edit-trigger-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .badge-fit { background: #2ecc71; color: white; }
-    .badge-injured { background: #e74c3c; color: white; }
-    .badge-suspended { background: #f39c12; color: white; }
-
+    .edit-trigger-btn:hover {
+      background: #2980b9;
+    }
+    
     .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
     }
     .stat-card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        border-left: 5px solid #3498db;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      border-left: 5px solid #3498db;
     }
-    .stat-card.meta { border-left-color: #9b59b6; }
-    .stat-card.club { border-left-color: #2c3e50; }
+    .stat-card.meta {
+      border-left-color: #9b59b6;
+    }
+    .stat-card.club {
+      border-left-color: #2c3e50;
+    }
     .stat-label {
-        font-size: 0.85rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        font-weight: bold;
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      font-weight: bold;
     }
     .stat-value {
-        font-size: 1.4rem;
-        color: #2c3e50;
-        font-weight: bold;
+      font-size: 1.3rem;
+      color: #2c3e50;
+      font-weight: bold;
     }
-</style>
+    
+    /* MODAL OVERLAY STYLES */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+    .edit-profile-panel {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .edit-profile-panel {
+      transform: translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .modal-header h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    .close-modal-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #95a5a6;
+      cursor: pointer;
+    }
+    .close-modal-btn:hover {
+      color: #e74c3c;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #34495e;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+    .file-help {
+      font-size: 0.8rem;
+      color: #7f8c8d;
+      margin-top: 4px;
+    }
+    .save-btn {
+      width: 100%;
+      background: #1abc9c;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+    .save-btn:hover {
+      background: #16a085;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    
-    {% if player %}
-    <div class="profile-card">
-        <div class="profile-pic-container">
-            {% if player.profile_photo %}
-                <img src="{{ player.profile_photo.url }}" alt="{{ player.full_name }}">
-            {% else %}
-                <div class="profile-pic-placeholder">🏃‍♂️</div>
-            {% endif %}
-        </div>
-        
-        <div class="profile-details">
-            <h2>{{ player.full_name }}</h2>
-            <p style="margin: 0 0 15px 0; color: #7f8c8d;">System ID: {{ player.player_id }}</p>
-            <span class="badge badge-{{ player.medical_status }}">
-                Medical Status: {{ player.get_medical_status_display }}
-            </span>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card club">
-            <div class="stat-label">Current Club</div>
-            <div class="stat-value">{{ player.club.name }}</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-label">Preferred Position</div>
-            <div class="stat-value">{{ player.get_preferred_position_display }}</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-label">Jersey Number</div>
-            <div class="stat-value">
-                {% if player.preferred_jersey_number %} #{{ player.preferred_jersey_number }} {% else %} Unassigned {% endif %}
-            </div>
-        </div>
-
-        <div class="stat-card meta">
-            <div class="stat-label">Age / Nationality</div>
-            <div class="stat-value">{{ player.age }} Yrs / {{ player.nationality|default:"N/A" }}</div>
-        </div>
-
-        <div class="stat-card meta">
-            <div class="stat-label">Physical Attributes</div>
-            <div class="stat-value">
-                {% if player.height %}{{ player.height }} cm{% else %}-{% endif %} | 
-                {% if player.weight %}{{ player.weight }} kg{% else %}-{% endif %}
-            </div>
-        </div>
-
-        <div class="stat-card meta">
-            <div class="stat-label">Contact Phone</div>
-            <div class="stat-value">{{ player.phone_number|default:"No Phone Added" }}</div>
-        </div>
-    </div>
-    
-    {% else %}
-    <div style="background: #fff3cd; color: #856404; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: center;">
-        <h3>⚠️ Account Profile Synced Incompletely</h3>
-        <p>Your authentication credentials exist, but no entries were discovered under the Player structural database file. Please verify with system operations.</p>
-    </div>
+  <div class="dashboard-container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-msg">{{ message }}</div>
+      {% endfor %}
     {% endif %}
 
-</div>
+    {% if player %}
+      <div class="profile-card">
+        <div class="profile-pic-container">
+          {% if player.profile_photo %}
+            <img src="{{ player.profile_photo.url }}" alt="{{ player.full_name }}" />
+          {% else %}
+            <div class="profile-pic-placeholder">🏃‍♂️</div>
+          {% endif %}
+        </div>
+
+        <div class="profile-details">
+          <h2 style="margin:0 0 8px 0; color:black;">{{ player.full_name }}</h2>
+          <p class="profile-meta-text">
+            📧 <strong>Email:</strong> {{ player.email }}
+          </p>
+          <p class="profile-meta-text">
+            ⚧ <strong>Gender:</strong> {{ player.gender|capfirst }}
+          </p>
+          <p class="profile-meta-text" style="margin-bottom: 12px;">
+            🪪 <strong>ID:</strong> {{ player.player_id }}
+          </p>
+
+          <span style="background:#2ecc71; color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold;">Medical: {{ player.get_medical_status_display }}</span>
+        </div>
+
+        <div>
+          <button class="edit-trigger-btn" id="openModalBtn">⚙️ Edit Profile</button>
+        </div>
+      </div>
+
+      <h3 style="color:#2c3e50; margin: 40px 0 20px 0;">Profile Information</h3>
+      <div class="stats-grid">
+        <div class="stat-card club">
+          <div class="stat-label">Current Club</div>
+          <div class="stat-value">{{ player.club.name }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Preferred Position</div>
+          <div class="stat-value">{{ player.get_preferred_position_display }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Jersey Number</div>
+          <div class="stat-value">
+            {% if player.preferred_jersey_number %}
+              #{{ player.preferred_jersey_number }}
+            {% else %}
+              Unassigned
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Age / Nationality</div>
+          <div class="stat-value">{{ player.age }} Yrs / {{ player.nationality|default:'N/A' }}</div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Physical Specs</div>
+          <div class="stat-value">
+            {% if player.height %}
+              {{ player.height }} cm
+            {% else %}
+              -
+            {% endif %}|{% if player.weight %}
+              {{ player.weight }} kg
+            {% else %}
+              -
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Contact Phone</div>
+          <div class="stat-value">{{ player.phone_number|default:'No Phone Added' }}</div>
+        </div>
+
+        <div class="stat-card meta" style="border-left-color: #e67e22;">
+          <div class="stat-label">Verification Document</div>
+          <div class="stat-value" style="font-size: 1rem; margin-top: 5px;">
+            {% if player.citizenship_document %}
+              <a href="{{ player.citizenship_document.url }}" target="_blank" style="color: #e67e22; text-decoration: none; font-weight: bold;">📄 View Document</a>
+            {% else %}
+              <span style="color: #7f8c8d;">No Document Uploaded</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="editProfileModal">
+        <div class="edit-profile-panel">
+          <div class="modal-header">
+            <h3>⚙️ Edit Profile Settings</h3>
+            <button class="close-modal-btn" id="closeModalBtn">&times;</button>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label>Full Name</label>
+              {{ form.full_name }}
+            </div>
+            <div class="form-group">
+              <label>Change Profile Photo</label>
+              {{ form.profile_photo }}
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              {{ form.date_of_birth }}
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              {{ form.gender }}
+            </div>
+            <div class="form-group">
+              <label>Update ID / Citizenship Document</label>
+              {{ form.citizenship_document }}
+              {% if player.citizenship_document %}
+                <div class="file-help">Current: {{ player.citizenship_document.name }}</div>
+              {% endif %}
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              {{ form.phone_number }}
+            </div>
+            <div class="form-group">
+              <label>Preferred Position</label>
+              {{ form.preferred_position }}
+            </div>
+            <div class="form-group">
+              <label>Jersey Number</label>
+              {{ form.preferred_jersey_number }}
+            </div>
+            <div class="form-group">
+              <label>Height (cm)</label>
+              {{ form.height }}
+            </div>
+            <div class="form-group">
+              <label>Weight (kg)</label>
+              {{ form.weight }}
+            </div>
+
+            <button type="submit" class="save-btn">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div style="background: #fff3cd; color: #856404; padding: 20px; border-radius: 8px; text-align: center;">
+        <h3>⚠️ Account Profile Synced Incompletely</h3>
+        <p>No active database profile records match your current authenticated player user signature.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const modal = document.getElementById('editProfileModal')
+    const openBtn = document.getElementById('openModalBtn')
+    const closeBtn = document.getElementById('closeModalBtn')
+    
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('active')
+    })
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active')
+    })
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active')
+      }
+    })
+  </script>
 {% endblock %}
