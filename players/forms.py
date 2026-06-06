@@ -2,7 +2,8 @@ from datetime import date
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import Player
+from .models import Player  # Core Model Import
+import re
 
 class PlayerRawRegistrationForm(forms.Form):
     # Core Account Authentication Fields
@@ -15,17 +16,14 @@ class PlayerRawRegistrationForm(forms.Form):
     dob = forms.DateField()
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     nationality = forms.CharField(max_length=100)
-    phone = forms.CharField(max_length=20)
+    phone = forms.CharField(max_length=10)
     position = forms.ChoiceField(choices=[('Goalkeeper', 'Goalkeeper'), ('Defender', 'Defender'), ('Midfielder', 'Midfielder'), ('Forward', 'Forward')])
     
-    # Flexible, non-permanent numbering
     jersey_no = forms.CharField(max_length=10, required=False) 
-    
     medical_status = forms.ChoiceField(choices=[('Fit', 'Fit'), ('Injured', 'Injured'), ('Suspended', 'Suspended')])
     height = forms.DecimalField(max_digits=5, decimal_places=2)
     weight = forms.DecimalField(max_digits=5, decimal_places=2)
     
-    # Media & Identification Upload Fields
     profile_photo = forms.ImageField()
     id_document = forms.FileField()
 
@@ -49,6 +47,17 @@ class PlayerRawRegistrationForm(forms.Form):
 
 
 class PlayerProfileEditForm(forms.ModelForm):
+    # Strict 10-digit phone field handling
+    phone_number = forms.CharField(
+        max_length=10, 
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input', 
+            'placeholder': 'e.g., 9876543210',
+            'maxlength': '10'
+        })
+    )
+
     class Meta:
         model = Player
         fields = [
@@ -59,7 +68,6 @@ class PlayerProfileEditForm(forms.ModelForm):
         ]
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-input'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
             'gender': forms.Select(attrs={'class': 'form-input'}),
             'preferred_position': forms.Select(attrs={'class': 'form-input'}),
@@ -67,3 +75,10 @@ class PlayerProfileEditForm(forms.ModelForm):
             'height': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1'}),
             'weight': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1'}),
         }
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number')
+        clean_phone = re.sub(r'\D', '', str(phone)) 
+        if len(clean_phone) != 10:
+            raise ValidationError("Phone number must be exactly 10 digits long.")
+        return clean_phone

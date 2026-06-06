@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
 from datetime import date
+from django.core.validators import RegexValidator
  
 User = get_user_model()
  
@@ -62,9 +63,16 @@ class Player(models.Model):
         blank=True,
         null=True
     )
+
+    phone_validator = RegexValidator(
+        regex=r'^\d{10}$',
+        message="Phone number must be exactly 10 digits (e.g., 9876543210)."
+    )
  
     phone_number = models.CharField(
-        max_length=20,
+        max_length=10,
+        validators=[phone_validator],
+        help_text="Enter a 10-digit mobile number",
         blank=True,
         null=True
     )

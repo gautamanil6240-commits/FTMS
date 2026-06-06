@@ -25,7 +25,7 @@
     
     .profile-card {
       background: linear-gradient(135deg, #061b56 0%, #0f172a 100%); /* Deep Navy to Slate Black */
-      color: #000000;
+      color: #ffffff; /* Sets default fallback text color inside card to white */
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
       display: flex;
@@ -58,9 +58,13 @@
     
     .profile-details {
       flex: 1;
-      color: #ffffff !important;
-    margin: 0 0 8px 0;
     }
+    /* 🌟 Fixed text target rule to explicitly format the player name header tag */
+    .profile-details h2 {
+      color: #ffffff !important;
+      margin: 0 0 8px 0;
+    }
+    
     .profile-meta-text {
       margin: 6px 0;
       color: #93c5fd; /* Light blue accent color for secondary text */
@@ -70,19 +74,21 @@
       gap: 6px;
     }
     
+    /* Elegant ghost style edit button that fits perfectly against dark navy backgrounds */
     .edit-trigger-btn {
-      background: #3498db;
+      background: rgba(255, 255, 255, 0.12);
       color: white;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.35);
       padding: 10px 20px;
       font-size: 0.95rem;
       font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
     }
     .edit-trigger-btn:hover {
-      background: #2980b9;
+      background: #ffffff;
+      color: #061b56;
     }
     
     .stats-grid {
@@ -236,7 +242,7 @@
         </div>
 
         <div class="profile-details">
-          <h2 style="margin:0 0 8px 0; color:black;">{{ player.full_name }}</h2>
+          <h2>{{ player.full_name }}</h2>
           <p class="profile-meta-text">
             📧 <strong>Email:</strong> {{ player.email }}
           </p>
