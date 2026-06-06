@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required  # Security check for logged-in users
 from .forms import PlayerRawRegistrationForm
 from .models import Player  
 from clubs.models import Club  
@@ -57,10 +58,10 @@ def register(request, role):
                 )
                 return redirect('login') 
 
-            # ✅ FIXED: Pointing to where your template actually lives
+            # Return registration form with validation errors if invalid
             return render(request, 'auth/register_player.html', {'errors': form.errors})
 
-        # ✅ FIXED: Pointing to where your template actually lives
+        # Render blank registration template on GET request
         return render(request, 'auth/register_player.html')
         
     else:
@@ -68,14 +69,22 @@ def register(request, role):
         return redirect('login_selection')
 
 
+@login_required  # Stops unauthenticated users from viewing this dashboard
 def player_dashboard(request):
     """Displays the custom dashboard panel once a player logs in successfully."""
-    # This path is already 100% correct based on your tree!
-    return render(request, 'players/player_dashboard.html')
+    try:
+        # Fetches the registered profile details matching the current logged-in user's email address
+        player = Player.objects.get(email=request.user.email)
+    except Player.DoesNotExist:
+        player = None
+
+    context = {
+        'player': player,
+    }
+    return render(request, 'players/player_dashboard.html', context)
 
 
 def player_list(request):
     """Fetches all registered players from the database and lists them."""
     players = Player.objects.all()
-    # Note: If you don't have a player_list.html template yet, you can build it later!
     return render(request, 'players/player_list.html', {'players': players})

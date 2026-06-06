@@ -45,3 +45,4 @@ class PlayerRawRegistrationForm(forms.Form):
         if dob and dob > date.today():
             raise ValidationError("Date of birth cannot be in the future.")
         return dob
+
