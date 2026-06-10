@@ -25,6 +25,9 @@ urlpatterns = [
 
     # Club Management Portal
     path('clubs/', include('clubs.urls')),
+
+    #coach portal
+    path('coach/', include('coach.urls', namespace='coach')),
 ]
 
 # Media file asset streamer for profile photos and verification PDFs
