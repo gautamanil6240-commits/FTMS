@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Coach Registration</title>
-
     <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
   </head>
   <body>
@@ -13,16 +12,10 @@
       <div class="logo">
         <a href="{% url 'home' %}">⚽ FTMS</a>
       </div>
-
       <ul class="nav-links">
-        <li>
-          <a href="{% url 'home' %}">Home</a>
-        </li>
-        <li>
-          <a href="#">Tournaments</a>
-        </li>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="#">Tournaments</a></li>
       </ul>
-
       <div class="nav-buttons">
         {% if user.is_authenticated %}
           <a href="{% url 'organizer_dashboard' %}" class="login-btn">Dashboard</a>
@@ -42,6 +35,7 @@
 
         <main class="form-section">
           <div class="form-container">
+
             {% if messages %}
               {% for message in messages %}
                 <div class="alert">{{ message }}</div>
@@ -61,54 +55,62 @@
               </div>
             {% endif %}
 
-            <form method="POST" action="/players/register/coach/" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'coach:register_coach_view' %}" enctype="multipart/form-data">
               {% csrf_token %}
 
               <div class="form-group">
                 <label for="username">System Username</label>
-                <input type="text" id="username" name="username" required placeholder="Choose unique identity handle (e.g. coach_roshan)" />
+                <input type="text" id="username" name="username"
+                       value="{{ saved_inputs.username }}"
+                       class="form-control" required
+                       placeholder="Choose unique identity handle (e.g. coach_roshan)" />
               </div>
 
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label for="password1">Account Password</label>
-                  <input type="password" id="password1" name="password1" required placeholder="Create secure key" />
+                  <label for="password">Account Password</label>
+                  <input type="password" id="password" name="password"
+                         required placeholder="Create secure key (min 8 chars + number)" />
                 </div>
                 <div class="form-group">
-                  <label for="password2">Confirm Password</label>
-                  <input type="password" id="password2" name="password2" required placeholder="Verify key input entry" />
+                  <label for="confirm_password">Confirm Password</label>
+                  <input type="password" id="confirm_password" name="confirm_password"
+                         required placeholder="Re-enter your password" />
                 </div>
               </div>
 
               <div class="form-grid-2">
                 <div class="form-group">
                   <label for="first_name">First Name</label>
-                  <input type="text" id="first_name" name="first_name" required placeholder="First Name" />
+                  <input type="text" id="first_name" name="first_name"
+                         value="{{ saved_inputs.first_name }}"
+                         required placeholder="First Name" />
                 </div>
                 <div class="form-group">
                   <label for="last_name">Last Name</label>
-                  <input type="text" id="last_name" name="last_name" required placeholder="Last Name" />
+                  <input type="text" id="last_name" name="last_name"
+                         value="{{ saved_inputs.last_name }}"
+                         required placeholder="Last Name" />
                 </div>
               </div>
 
               <div class="form-grid-3">
                 <div class="form-group">
                   <label for="dob">Date of Birth</label>
-                  <input type="date" id="dob" name="dob" required />
+                  <input type="date" id="dob" name="dob"
+                         value="{{ saved_inputs.dob }}" required />
                 </div>
-
                 <div class="form-group">
                   <label for="age">Age</label>
                   <input type="text" id="age" readonly placeholder="Auto Calculated" />
                 </div>
-
                 <div class="form-group">
                   <label for="gender">Gender</label>
                   <select id="gender" name="gender" required>
                     <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="M" {% if saved_inputs.gender == "M" %}selected{% endif %}>Male</option>
+                    <option value="F" {% if saved_inputs.gender == "F" %}selected{% endif %}>Female</option>
+                    <option value="O" {% if saved_inputs.gender == "O" %}selected{% endif %}>Other</option>
                   </select>
                 </div>
               </div>
@@ -116,32 +118,43 @@
               <div class="form-grid-3">
                 <div class="form-group">
                   <label for="nationality">Nationality</label>
-                  <input type="text" id="nationality" name="nationality" required placeholder="e.g. Nepali" />
+                  <input type="text" id="nationality" name="nationality"
+                         value="{{ saved_inputs.nationality }}"
+                         required placeholder="e.g. Nepali" />
                 </div>
-
                 <div class="form-group">
                   <label for="phone">Phone Number</label>
-                  <input type="text" id="phone" name="phone" required placeholder="98XXXXXXXX" />
+                  <input type="text" id="phone" name="phone"
+                         value="{{ saved_inputs.phone }}"
+                         required placeholder="98XXXXXXXX"
+                         maxlength="10" pattern="\d{10}"
+                         title="Phone number must be exactly 10 digits" />
                 </div>
-
                 <div class="form-group">
                   <label for="email">Email Address</label>
-                  <input type="email" id="email" name="email" required placeholder="coach@example.com" />
+                  <input type="email" id="email" name="email"
+                         value="{{ saved_inputs.email }}"
+                         class="form-control" required
+                         placeholder="coach@example.com" />
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="education">Highest Education Level</label>
-                <input type="text" id="education" name="education" required placeholder="e.g. Bachelor of Computer Applications" />
+                <label for="highest_education">Highest Education Level</label>
+                <input type="text" id="highest_education" name="highest_education"
+                       value="{{ saved_inputs.highest_education }}"
+                       required placeholder="e.g. Bachelor of Computer Applications" />
               </div>
 
               <div class="form-group">
                 <label for="profile_photo">Coach Profile Photo</label>
-                <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required />
+                <input type="file" id="profile_photo" name="profile_photo"
+                       accept="image/*" />
               </div>
 
               <button type="submit" class="submit-btn">REGISTER COACH PROFILE</button>
             </form>
+
           </div>
         </main>
       </div>
@@ -154,22 +167,14 @@
           <p>Professional Football Tournament Management System for Nepal.</p>
           <p>Organize tournaments, manage clubs, players, fixtures and live standings.</p>
         </div>
-
         <div class="footer-box">
           <h3>Quick Links</h3>
           <ul>
-            <li>
-              <a href="{% url 'home' %}">Home</a>
-            </li>
-            <li>
-              <a href="#">Tournament</a>
-            </li>
-            <li>
-              <a href="{% url 'login_selection' %}">Login</a>
-            </li>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#">Tournament</a></li>
+            <li><a href="{% url 'login_selection' %}">Login</a></li>
           </ul>
         </div>
-
         <div class="footer-box">
           <h3>Contact</h3>
           <p>📍 Kathmandu, Nepal</p>
@@ -177,40 +182,44 @@
           <p>📧 ftms@gmail.com</p>
         </div>
       </div>
-
       <div class="footer-bottom">
-        Developed by:
-        <br />
-        Anil Gautam & Roshan Adhikari
-        <br /><br />
-        BCA 4th Semester | Milton International College
-        <br />
+        Developed by:<br />
+        Anil Gautam & Roshan Adhikari<br /><br />
+        BCA 4th Semester | Milton International College<br />
         Affiliated to Tribhuvan University
       </div>
     </footer>
 
     <script>
+      // Auto-calculate age from DOB
       const dobInput = document.getElementById('dob')
       const ageInput = document.getElementById('age')
-      
+
       dobInput.addEventListener('change', function () {
         if (!this.value) {
           ageInput.value = ''
           return
         }
-      
         const dob = new Date(this.value)
         const today = new Date()
-      
         let age = today.getFullYear() - dob.getFullYear()
-      
         const monthDiff = today.getMonth() - dob.getMonth()
-      
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
           age--
         }
-      
         ageInput.value = age
+      })
+
+      // Client-side password match check before submit
+      const form = document.querySelector('form')
+      form.addEventListener('submit', function (e) {
+        const pw = document.getElementById('password').value
+        const cpw = document.getElementById('confirm_password').value
+        if (pw !== cpw) {
+          e.preventDefault()
+          alert('Passwords do not match. Please verify before submitting.')
+          document.getElementById('confirm_password').focus()
+        }
       })
     </script>
   </body>

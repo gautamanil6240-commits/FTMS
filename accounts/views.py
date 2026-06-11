@@ -129,7 +129,6 @@ def register(request, role):
 
     return render(request, f'auth/register_{role}.html')
 
-
 # =========================
 # LOGIN
 # =========================
@@ -153,18 +152,30 @@ def user_login(request):
                     logout(request)
                     return redirect('login')
 
-                if profile.role == 'organizer':
+                # Prioritize Coach detection if role is set or matched
+                from coach.models import CoachProfile
+                if profile.role == 'coach' or CoachProfile.objects.filter(user=user).exists():
+                    return redirect('coach:coach_dashboard')
+                elif profile.role == 'organizer':
                     return redirect('organizer_dashboard')
                 elif profile.role == 'manager':
                     return redirect('clubs:manager_dashboard')
-                elif profile.role == 'coach':
-                    return redirect('coach:coach_dashboard')
                 elif profile.role == 'player':
                     return redirect('players:player_dashboard')
                 elif profile.role == 'viewer':
                     return redirect('viewer_dashboard')
+                
+                # If a profile exists but matching failed
+                messages.error(request, f"Authenticated as '{user.username}', but your profile role string '{profile.role}' didn't match any dashboard criteria.")
+                logout(request)
+                return render(request, 'auth/login.html', {'role': role})
                     
             except UserProfile.DoesNotExist:
+                # Structural fallbacks for accounts without a standard UserProfile entry
+                from coach.models import CoachProfile
+                if CoachProfile.objects.filter(user=user).exists():
+                    return redirect('coach:coach_dashboard')
+
                 from players.models import Player
                 if Player.objects.filter(email=user.email).exists():
                     return redirect('players:player_dashboard')
@@ -172,7 +183,11 @@ def user_login(request):
                 if user.is_superuser:
                     return redirect('/admin/')
 
-            return redirect('/')
+                # If absolutely no profile connection type matches anywhere
+                messages.error(request, f"Authenticated as '{user.username}', but no application profile role records (UserProfile, CoachProfile, or Player) were found.")
+                logout(request)
+                return render(request, 'auth/login.html', {'role': role})
+
         else:
             messages.error(request, "Invalid username or password")
 

@@ -38,7 +38,7 @@
         </div>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" action="{% if post_url %}{% url post_url %}{% else %}{% endif %}">
             {% csrf_token %}
 
             <div class="field-wrap">

@@ -1,0 +1,459 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}
+  Coach Dashboard - {{ request.user.username }}
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 80px auto 40px auto;
+      padding: 0 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .alert-msg {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border-left: 5px solid #2ecc71;
+      font-weight: 500;
+    }
+    
+    /* Hero Coach Card */
+    .profile-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      display: flex;
+      flex-wrap: wrap;
+      padding: 35px;
+      gap: 30px;
+      margin-top: 20px;
+      margin-bottom: 35px;
+      align-items: center;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .profile-pic-container {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid #38bdf8;
+      background: #f1f5f9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .profile-pic-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-pic-placeholder {
+      font-size: 4rem;
+      text-align: center;
+      line-height: 130px;
+      background: #e2e8f0;
+    }
+    
+    .profile-details {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .profile-details h2 {
+      color: #ffffff !important;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.5px;
+    }
+    
+    .profile-meta-text {
+      margin: 8px 0;
+      color: #cbd5e1;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-meta-text strong {
+      color: #38bdf8;
+    }
+    
+    .edit-trigger-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-trigger-btn:hover {
+      background: #ffffff;
+      color: #0f172a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+    }
+    
+    /* Metric Cards Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      border-left: 6px solid #38bdf8;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .stat-card.meta {
+      border-left-color: #a855f7;
+    }
+
+    .stat-card.club {
+      border-left-color: #0f172a;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    
+    /* Modal Form Layer Setup */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .edit-profile-panel {
+      background: #ffffff;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 550px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(-30px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .edit-profile-panel {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-modal-btn:hover {
+      color: #ef4444;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+      color: #1e293b;
+      background-color: #f8fafc;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus {
+      outline: none;
+      border-color: #38bdf8;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .form-group input[type="file"] {
+      padding: 8px;
+      background: #ffffff;
+    }
+
+    .file-help {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 6px;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .save-btn {
+      width: 100%;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      margin-top: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    .save-btn:hover {
+      background: #0369a1;
+    }
+
+    .save-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="dashboard-container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-msg">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if coach %}
+      <div class="profile-card">
+        <div class="profile-pic-container">
+          {% if coach.profile_photo %}
+            <img src="{{ coach.profile_photo.url }}" alt="{{ coach.full_name }}" />
+          {% else %}
+            <div class="profile-pic-placeholder">📋</div>
+          {% endif %}
+        </div>
+
+        <div class="profile-details">
+          <h2>{{ coach.full_name }}</h2>
+          <p class="profile-meta-text">
+            📧 <strong>Email:</strong> {{ request.user.email }}
+          </p>
+          <p class="profile-meta-text">
+            ⚧ <strong>Gender:</strong> {{ coach.get_gender_display|default:coach.gender }}
+          </p>
+          <p class="profile-meta-text" style="margin-bottom: 15px;">
+            🆔 <strong>Username:</strong> @{{ request.user.username }}
+          </p>
+
+          <span style="background:#10b981; color:white; padding:6px 14px; border-radius:20px; font-size:0.8rem; font-weight:bold; letter-spacing: 0.3px;">
+            Status: Active Official Coach
+          </span>
+        </div>
+
+        <div>
+          <button class="edit-trigger-btn" id="openModalBtn">⚙️ Edit Profile</button>
+        </div>
+      </div>
+
+      <h3 style="color:#0f172a; font-size: 1.5rem; font-weight: 700; margin: 40px 0 20px 0; letter-spacing: -0.5px;">Profile Information</h3>
+      
+      <div class="stats-grid">
+        <div class="stat-card club">
+          <div class="stat-label">Role Designation</div>
+          <div class="stat-value">Football Manager / Coach</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Coaching License</div>
+          <div class="stat-value">{{ coach.coaching_license|default:'None Registered' }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Highest Education</div>
+          <div class="stat-value">{{ coach.education|default:'Not Specified' }}</div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Date of Birth</div>
+          <div class="stat-value">{{ coach.date_of_birth }}</div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Nationality</div>
+          <div class="stat-value">{{ coach.nationality|default:'N/A' }}</div>
+        </div>
+
+        <div class="stat-card meta">
+          <div class="stat-label">Contact Phone</div>
+          <div class="stat-value">{{ coach.phone_number|default:'No Phone Added' }}</div>
+        </div>
+
+        <div class="stat-card meta" style="border-left-color: #f97316;">
+          <div class="stat-label">Credentials & Certificates</div>
+          <div class="stat-value" style="font-size: 1rem; margin-top: 5px;">
+            {% if coach.certificates %}
+              <a href="{{ coach.certificates.url }}" target="_blank" style="color: #f97316; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                📄 View Certificates
+              </a>
+            {% else %}
+              <span style="color: #94a3b8;">No Document Uploaded</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="editProfileModal">
+        <div class="edit-profile-panel">
+          <div class="modal-header">
+            <h3>⚙️ Edit Profile Settings</h3>
+            <button class="close-modal-btn" id="closeModalBtn">&times;</button>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label>Full Name</label>
+              {{ form.full_name }}
+            </div>
+            <div class="form-group">
+              <label>Change Profile Photo</label>
+              {{ form.profile_photo }}
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              {{ form.phone_number }}
+            </div>
+            <div class="form-group">
+              <label>Highest Education Level</label>
+              {{ form.education }}
+            </div>
+            <div class="form-group">
+              <label>Coaching License</label>
+              {{ form.coaching_license }}
+            </div>
+            <div class="form-group">
+              <label>Upload Credentials / Certificates</label>
+              {{ form.certificates }}
+              {% if coach.certificates %}
+                <div class="file-help">Current: {{ coach.certificates.name }}</div>
+              {% endif %}
+            </div>
+
+            <button type="submit" class="save-btn">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div style="background: #fef3c7; color: #92400e; padding: 25px; border-radius: 12px; text-align: center; border: 1px solid #fde68a; margin-top: 30px;">
+        <h3 style="margin-top: 0; font-weight: 700;">⚠️ Account Profile Synced Incompletely</h3>
+        <p style="margin-bottom: 0;">No active database profile records match your current authenticated coach user signature.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const modal = document.getElementById('editProfileModal')
+    const openBtn = document.getElementById('openModalBtn')
+    const closeBtn = document.getElementById('closeModalBtn')
+    
+    if (openBtn) {
+      openBtn.addEventListener('click', () => {
+        modal.classList.add('active')
+      })
+    }
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active')
+      })
+    }
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active')
+      }
+    })
+  </script>
+{% endblock %}
