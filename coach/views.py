@@ -183,32 +183,55 @@ def logout_coach_view(request):
     # FIXED: Targets your corrected login view name
     return redirect('coach:login_coach_view')
 
-
-# ==========================================
-# DASHBOARD VIEW
-# ==========================================
 @login_required
 def coach_dashboard(request):
     try:
-        # Handles default lowercase or user-defined properties safely
+        # Safely get the logged-in coach's profile record
         coach_profile = getattr(request.user, 'coach_profile', None) or request.user.coachprofile
     except Exception:
         messages.error(request, "Coach profile not found.")
         return redirect('coach:login_coach_view')
 
+    # Import the Player model early so it's accessible across handlers
+    from players.models import Player
+
+    # 🟢 1. Handle POST Requests
     if request.method == 'POST':
-        form = CoachProfileEditForm(request.POST, request.FILES, instance=coach_profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully!")
+        # Condition A: Adding selected players to your roster
+        if 'add_to_roster' in request.POST:
+            selected_player_ids = request.POST.getlist('selected_players')
+            if selected_player_ids:
+                # Safely check if the coach has an assigned club before linking
+                if hasattr(coach_profile, 'club') and coach_profile.club:
+                    Player.objects.filter(id__in=selected_player_ids).update(club=coach_profile.club)
+                    messages.success(request, f"Successfully added {len(selected_player_ids)} player(s) to your squad roster!")
+                else:
+                    messages.error(request, "Your coach profile isn't linked to a Club. Cannot assign players.")
+            else:
+                messages.warning(request, "No players were selected.")
             return redirect('coach:coach_dashboard')
+        
+        # Condition B: Handling existing coach profile edits
         else:
-            messages.error(request, "Please correct the errors below.")
+            form = CoachProfileEditForm(request.POST, request.FILES, instance=coach_profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Profile updated successfully!")
+                return redirect('coach:coach_dashboard')
+            else:
+                messages.error(request, "Please correct the profile errors below.")
+                # DO NOT REDIRECT on form invalid errors, so error annotations show up!
+    
+    # 🟢 2. Handle GET Requests (Initial page load)
     else:
         form = CoachProfileEditForm(instance=coach_profile)
 
+    # 🟢 3. Fetch all available players from the system who don't belong to any club yet
+    # This guarantees 'available_players' is ALWAYS evaluated and filled for rendering
+    available_players = Player.objects.all()
+
     return render(request, 'coach/coach_dashboard.html', {
         'coach': coach_profile,
-        'player': coach_profile,  # Assuming you want to show player info if related
         'form': form,
+        'available_players': available_players, # Sent to template layout cleanly
     })
