@@ -7,6 +7,8 @@ from django.contrib import messages
 from .models import CoachProfile
 from datetime import datetime
 from django.contrib.auth.models import User
+from players.models import Player
+from clubs.models import Club
 
 
 # ==========================================
@@ -158,8 +160,8 @@ def login_coach_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Note: Verify your profile relation name below matches your model's related_name or lowercase model name
-            if hasattr(user, 'coach_profile') or hasattr(user, 'coachprofile'):
+            # CoachProfile model uses related_name='coach_profile'
+            if hasattr(user, 'coach_profile'):
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name}!")
                 return redirect('coach:coach_dashboard')
@@ -185,53 +187,45 @@ def logout_coach_view(request):
 
 @login_required
 def coach_dashboard(request):
+    # 1. Attempt to get the profile
+    # CoachProfile model uses related_name='coach_profile'
     try:
-        # Safely get the logged-in coach's profile record
-        coach_profile = getattr(request.user, 'coach_profile', None) or request.user.coachprofile
+        coach_profile = request.user.coach_profile 
     except Exception:
-        messages.error(request, "Coach profile not found.")
-        return redirect('coach:login_coach_view')
+        # LOOP BREAKER: Instead of redirecting to login (which causes the loop),
+        # we return a simple error message to the screen.
+        return render(request, 'coach/error.html', {
+            'message': "Account logged in, but no Coach Profile found. Please create one in the Admin panel."
+        })
 
-    # Import the Player model early so it's accessible across handlers
-    from players.models import Player
-
-    # 🟢 1. Handle POST Requests
+    # 2. Handle POST Request
     if request.method == 'POST':
-        # Condition A: Adding selected players to your roster
         if 'add_to_roster' in request.POST:
             selected_player_ids = request.POST.getlist('selected_players')
             if selected_player_ids:
-                # Safely check if the coach has an assigned club before linking
-                if hasattr(coach_profile, 'club') and coach_profile.club:
-                    Player.objects.filter(id__in=selected_player_ids).update(club=coach_profile.club)
-                    messages.success(request, f"Successfully added {len(selected_player_ids)} player(s) to your squad roster!")
+                my_club = Club.objects.filter(manager=request.user).first()
+                if my_club:
+                    Player.objects.filter(id__in=selected_player_ids).update(club=my_club)
+                    messages.success(request, f"Successfully added {len(selected_player_ids)} player(s)!")
                 else:
-                    messages.error(request, "Your coach profile isn't linked to a Club. Cannot assign players.")
-            else:
-                messages.warning(request, "No players were selected.")
+                    messages.error(request, "No Club found. Please ensure you are a Manager for a Club.")
             return redirect('coach:coach_dashboard')
-        
-        # Condition B: Handling existing coach profile edits
+
         else:
             form = CoachProfileEditForm(request.POST, request.FILES, instance=coach_profile)
             if form.is_valid():
                 form.save()
-                messages.success(request, "Profile updated successfully!")
-                return redirect('coach:coach_dashboard')
-            else:
-                messages.error(request, "Please correct the profile errors below.")
-                # DO NOT REDIRECT on form invalid errors, so error annotations show up!
-    
-    # 🟢 2. Handle GET Requests (Initial page load)
+                messages.success(request, "Profile updated!")
+            return redirect('coach:coach_dashboard')
+
+    # 3. Handle GET Request
     else:
         form = CoachProfileEditForm(instance=coach_profile)
 
-    # 🟢 3. Fetch all available players from the system who don't belong to any club yet
-    # This guarantees 'available_players' is ALWAYS evaluated and filled for rendering
-    available_players = Player.objects.all()
+    available_players = Player.objects.filter(club__isnull=True)
 
     return render(request, 'coach/coach_dashboard.html', {
         'coach': coach_profile,
         'form': form,
-        'available_players': available_players, # Sent to template layout cleanly
+        'available_players': available_players,
     })
