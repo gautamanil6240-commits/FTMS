@@ -36,8 +36,8 @@ def register(request, role):
             username=username,
             email=email,
             password=password1,
-            first_name=first_name,
-            last_name=last_name
+            first_name=first_name or '',
+            last_name=last_name or ''
         )
 
         # Build standard authentication profile

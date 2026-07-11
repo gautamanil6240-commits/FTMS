@@ -4,6 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.contrib import messages
 from .models import Club
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # =======================================================
 # 1. CLUB MANAGER DASHBOARD VIEW
@@ -50,28 +52,34 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
 # =======================================================
 # 2. ADD PLAYER VIEW (FIXED CLASS WRAPPER)
 # =======================================================
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class AddPlayerView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'clubs/add_player.html')
 
     def post(self, request):
         name = request.POST.get('name')
-        jersey_number = request.POST.get('jersey_number')
+        jersey_no = request.POST.get('jersey_number')
         position = request.POST.get('position')
 
-        # 1. Direct Lookup via Model Filtering to bypass session attribute bugs
-        try:
-            club = Club.objects.get(manager=request.user)
-        except Club.DoesNotExist:
-            club = None
+        # [Keep your existing club lookup and error check here]
 
-        # 2. Safety block if no club entry exists in the DB row matching this user
-        if not club:
-            messages.error(
-                request, 
-                f"Management key error: No verified club registry found for the account user: '{request.user.username}'."
-            )
-            return redirect('clubs:manager_dashboard')
+        # 3. Check if jersey number is already taken
+        # Use 'preferred_jersey_number' to match your model
+        if club.players.filter(preferred_jersey_number=jersey_no).exists():
+            messages.error(request, f"Jersey number {jersey_no} is already taken.")
+            return render(request, 'clubs/add_player.html')
+
+        # 4. Create and attach
+        # Map the form fields to the exact model fields
+        club.players.create(
+            full_name=name,
+            preferred_jersey_number=jersey_no,
+            preferred_position=position.lower() # Matches your model's lowercase choice
+        )
+        
+        messages.success(request, f"Successfully registered {name} into your team roster!")
+        return redirect('clubs:manager_dashboard')
 
         # 3. Check if jersey number is already taken inside this club
         if club.players.filter(jersey_number=jersey_number).exists():

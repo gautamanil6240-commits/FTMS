@@ -15,7 +15,7 @@ class Club(models.Model):
     name = models.CharField(max_length=150, unique=True)
     founded_year = models.PositiveIntegerField(blank=True, null=True)
     pan_number = models.CharField(max_length=50, blank=True, null=True)  # Added from your screenshot
-    logo = models.ImageField(upload_to='team_logos/', blank=True, null=True)
+    logo = models.ImageField(upload_to='club_logos/', blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     
     # Document upload for the verification file input at the bottom

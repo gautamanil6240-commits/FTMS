@@ -15,6 +15,7 @@
         }
     </style>
 </head>
+
 <body class="bg-cover bg-center bg-no-repeat min-h-screen font-sans text-slate-100" 
       style="background-image: linear-gradient(rgba(11, 15, 26, 0.85), rgba(11, 15, 26, 0.95)), url('{% static "manager_2.webp" %}'); background-attachment: fixed;">
 
@@ -45,7 +46,7 @@
             {% endif %}
 
             <form method="POST" action="{% url 'clubs:add_player' %}" class="space-y-5">
-                {% csrf_token %}
+                {% csrf_token %} 
 
                 <!-- Player Name -->
                 <div>

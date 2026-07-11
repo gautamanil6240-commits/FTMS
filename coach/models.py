@@ -12,6 +12,8 @@ class CoachProfile(models.Model):
     # Links back to Account Details (Username, Password, Email)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coach_profile')
 
+    club = models.OneToOneField('clubs.Club', on_delete=models.SET_NULL, null=True, blank=True, related_name='manager_profile')
+
     # Personal Information
     # Note: User model holds first_name/last_name natively, but a dedicated full_name field keeps profile renders easy
     full_name = models.CharField(max_length=150)

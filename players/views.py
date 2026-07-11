@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required  # Security check for 
 from .forms import PlayerRawRegistrationForm, PlayerProfileEditForm
 from .models import Player  
 from clubs.models import Club  
+from django.shortcuts import get_object_or_404
 
 def register(request, role):
     """Processes registration based on the role passed from the URL string."""
@@ -29,14 +30,9 @@ def register(request, role):
                     password=form.cleaned_data['password']
                 )
 
-                # 2. Grab fallback club link
-                default_club = Club.objects.first()
-                if not default_club:
-                    default_club = Club.objects.create(name="Unassigned Players Pool")
-
-                # 3. Create database entry in Player table
+                # 2. Create database entry in Player table as a Free Agent
                 Player.objects.create(
-                    club=default_club,
+                    club=None,  # Explicitly set to None
                     full_name=form.cleaned_data['full_name'],
                     profile_photo=form.cleaned_data['profile_photo'],
                     date_of_birth=form.cleaned_data['dob'],
@@ -91,7 +87,8 @@ def player_list(request):
 
 @login_required
 def player_dashboard(request):
-    """Displays dashboard and handles profile updates seamlessly on the same page."""
+    """Displays dashboard and handles profile updates."""
+    # Try to find the player profile, but handle the case where it might not exist
     try:
         player = Player.objects.get(email=request.user.email)
     except Player.DoesNotExist:
@@ -112,3 +109,27 @@ def player_dashboard(request):
         'form': form,
     }
     return render(request, 'players/player_dashboard.html', context)
+
+def player_list(request):
+    """Fetches all registered players."""
+    players = Player.objects.all()
+    return render(request, 'players/player_list.html', {'players': players})
+
+@login_required
+def sign_player(request, player_id):
+    """Assigns a free agent player to the logged-in coach's club."""
+    player = get_object_or_404(Player, player_id=player_id)
+    
+    # Access the coach profile (adjust 'coachprofile' if your related_name is different)
+    try:
+        coach = request.user.coachprofile 
+        if coach.club:
+            player.club = coach.club
+            player.save()
+            messages.success(request, f"{player.full_name} has been added to your roster!")
+        else:
+            messages.error(request, "Your coach profile is not linked to any club.")
+    except AttributeError:
+        messages.error(request, "You do not have a coach profile.")
+        
+    return redirect('coach:coach_dashboard')

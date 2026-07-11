@@ -9,7 +9,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from players.models import Player
 from clubs.models import Club
-
+from .forms import CoachProfileEditForm
 
 # ==========================================
 # INLINE PROFILE MAINTENANCE EDIT FORM
@@ -187,28 +187,24 @@ def logout_coach_view(request):
 
 @login_required
 def coach_dashboard(request):
-    # 1. Attempt to get the profile
-    # CoachProfile model uses related_name='coach_profile'
+    # 1. Attempt to get the profile and club
     try:
         coach_profile = request.user.coach_profile 
+        my_club = Club.objects.filter(manager=request.user).first()
     except Exception:
-        # LOOP BREAKER: Instead of redirecting to login (which causes the loop),
-        # we return a simple error message to the screen.
         return render(request, 'coach/error.html', {
-            'message': "Account logged in, but no Coach Profile found. Please create one in the Admin panel."
+            'message': "Account logged in, but no Coach Profile found."
         })
 
     # 2. Handle POST Request
     if request.method == 'POST':
         if 'add_to_roster' in request.POST:
             selected_player_ids = request.POST.getlist('selected_players')
-            if selected_player_ids:
-                my_club = Club.objects.filter(manager=request.user).first()
-                if my_club:
-                    Player.objects.filter(id__in=selected_player_ids).update(club=my_club)
-                    messages.success(request, f"Successfully added {len(selected_player_ids)} player(s)!")
-                else:
-                    messages.error(request, "No Club found. Please ensure you are a Manager for a Club.")
+            if selected_player_ids and my_club:
+                Player.objects.filter(id__in=selected_player_ids).update(club=my_club)
+                messages.success(request, f"Successfully added {len(selected_player_ids)} player(s)!")
+            elif not my_club:
+                messages.error(request, "No Club found. Please ensure you are a Manager for a Club.")
             return redirect('coach:coach_dashboard')
 
         else:
@@ -219,13 +215,13 @@ def coach_dashboard(request):
             return redirect('coach:coach_dashboard')
 
     # 3. Handle GET Request
-    else:
-        form = CoachProfileEditForm(instance=coach_profile)
-
     available_players = Player.objects.filter(club__isnull=True)
+    my_roster = Player.objects.filter(club=my_club) if my_club else []
 
     return render(request, 'coach/coach_dashboard.html', {
         'coach': coach_profile,
-        'form': form,
+        'form': CoachProfileEditForm(instance=coach_profile),
         'available_players': available_players,
+        'my_roster': my_roster, # Data for the new roster table
+        'my_club': my_club,
     })

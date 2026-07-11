@@ -37,8 +37,10 @@ class Player(models.Model):
     # --- Link to Club ---
     club = models.ForeignKey(
         'clubs.Club',
-        on_delete=models.CASCADE,
-        related_name='players'
+        on_delete=models.SET_NULL, 
+        related_name='players',
+        null=True,                
+        blank=True                
     )
  
     # --- Personal Info ---

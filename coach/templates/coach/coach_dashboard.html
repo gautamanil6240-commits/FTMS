@@ -494,6 +494,34 @@
     {% endif %}
   </div>
 
+  <h3 style="color:white; font-size: 1.5rem; font-weight: 700; margin: 40px 0 20px 0; letter-spacing: -0.5px;">My Current Squad</h3>
+<div style="background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); margin-bottom: 40px;">
+    {% if my_roster %}
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 0.85rem; text-transform: uppercase;">
+                    <th style="padding: 12px;">Player Name</th>
+                    <th style="padding: 12px;">Position</th>
+                    <th style="padding: 12px;">Age</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in my_roster %}
+                <tr style="border-bottom: 1px solid #f1f5f9; color: #1e293b;">
+                    <td style="padding: 12px; font-weight: 600;">{{ player.full_name }}</td>
+                    <td style="padding: 12px;">{{ player.get_preferred_position_display }}</td>
+                    <td style="padding: 12px;">{{ player.age|default:"N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 30px; color: #94a3b8;">
+            <p>Your squad is empty. Click <strong>"Add Player"</strong> above to recruit from the available pool.</p>
+        </div>
+    {% endif %}
+</div>
+
   <script>
     // Existing Profile Edit Modal Elements
     const modal = document.getElementById('editProfileModal')
