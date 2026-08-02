@@ -15,62 +15,75 @@
         }
     </style>
 </head>
-
-<!-- Update line 18 in your dashboard.html file -->
 <body class="bg-cover bg-center bg-no-repeat min-h-screen font-sans text-slate-100" 
       style="background-image: linear-gradient(rgba(11, 15, 26, 0.75), rgba(11, 15, 26, 0.90)), url('{% static "manager_2.webp" %}'); background-attachment: fixed;">
 
+    <!-- Navbar with Logout & Consistent Theme -->
     <nav class="w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
             <span class="text-2xl">⚽</span>
             <span class="text-xl font-bold tracking-wider text-emerald-500">FTMS</span>
         </div>
-        <div class="flex gap-6 text-sm font-medium text-slate-300">
+        <div class="flex items-center gap-6 text-sm font-medium text-slate-300">
             <a href="#" class="hover:text-emerald-400 transition">Home</a>
             <a href="#" class="hover:text-emerald-400 transition">Tournaments</a>
+            <a href="/admin/" class="hover:text-emerald-400 transition">Admin Panel</a>
         </div>
         <div>
-            <a href="/admin/" class="bg-slate-900 hover:bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium border border-slate-800 transition">⚙️ Admin Panel</a>
+            <form action="{% url 'logout' %}" method="POST" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-slate-950 font-semibold px-4 py-2 rounded-lg text-sm border border-rose-500/20 transition flex items-center gap-1.5">
+                    🚪 Logout
+                </button>
+            </form>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-10">
         
-        <div class="flex justify-between items-start mb-8">
+        <!-- Header & Tournament Action Flow -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Welcome, <span class="text-emerald-400">Manager</span> 👋</h1>
-                <p class="text-slate-400 mt-1">Club Profile Dashboard — Oversee team stats and manager credentials</p>
-                <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    ⏱️ Pending Verification
-                </span>
+                <h1 class="text-3xl font-extrabold tracking-tight">Welcome, <span class="text-emerald-400">{{ request.user.username|title }}</span> 👋</h1>
+                <p class="text-slate-400 mt-1">Club Profile Dashboard — Register and oversee your club hierarchy</p>
+                {% if club.is_verified %}
+                    <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        ✅ Verified Club
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        ⏱️ Pending Verification
+                    </span>
+                {% endif %}
             </div>
-            <div class="flex gap-3">
-                <a href="{% url 'clubs:add_player' %}" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2.5 rounded-lg text-sm shadow-lg shadow-emerald-500/20 transition flex items-center gap-1">
-                     ➕ Add Player
-               </a>
-                <button class="action-btn bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-700 transition" data-action="Edit Profile">
-                    Edit Profile
-                </button>
+            
+            <!-- Real Tournament Flow: Directs to Coach Management First -->
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'clubs:add_coach' %}" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-5 py-2.5 rounded-lg text-sm shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
+                    🛡️ Add / Assign Coach <span class="text-xs bg-slate-950/20 px-2 py-0.5 rounded text-slate-950 font-extrabold">coanumber</span>
+                </a>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500 transition hover:scale-[1.01] hover:shadow-xl hover:shadow-black/40">
+        <!-- Stat Grid Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500 transition hover:scale-[1.01] hover:shadow-xl">
                 <span class="text-xl block mb-1">🏃‍♂️</span>
                 <div class="text-3xl font-black tracking-tight text-white">{{ total_players|default:"0" }}</div>
-                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Total Players</div>
+                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Total Players (<span class="text-emerald-400">plynumber</span>)</div>
             </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-500 transition hover:scale-[1.01] hover:shadow-xl hover:shadow-black/40">
+            <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-500 transition hover:scale-[1.01] hover:shadow-xl">
                 <span class="text-xl block mb-1">🏟️</span>
                 <div class="text-3xl font-black tracking-tight text-white">{{ matches_played|default:"0" }}</div>
                 <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Matches Played</div>
             </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500 transition hover:scale-[1.01] hover:shadow-xl hover:shadow-black/40">
+            <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500 transition hover:scale-[1.01] hover:shadow-xl">
                 <span class="text-xl block mb-1">🟢</span>
                 <div class="text-3xl font-black tracking-tight text-emerald-400">{{ wins|default:"0" }}</div>
                 <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Wins</div>
             </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500 transition hover:scale-[1.01] hover:shadow-xl hover:shadow-black/40">
+            <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500 transition hover:scale-[1.01] hover:shadow-xl">
                 <span class="text-xl block mb-1">🔴</span>
                 <div class="text-3xl font-black tracking-tight text-rose-400">
                     {{ losses|default:"0" }} <span class="text-slate-600 text-lg">/</span> <span class="text-amber-400 text-2xl">{{ draws|default:"0" }}</span>
@@ -79,90 +92,64 @@
             </div>
         </div>
 
+        <!-- Main Dashboard Split Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
+            <!-- Left Column: Club Meta Details & Achievements -->
             <div class="space-y-8 lg:col-span-1">
-                
                 <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">📋 Club Details</h3>
+                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">📋 Club Credentials</h3>
                     <div class="space-y-3 text-sm">
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Club Name</span> <span class="text-slate-200 font-medium">{{ club.name|default:"Demo FC" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Established Year</span> <span class="text-slate-200 font-medium">{{ club.founded_year|default:"2024" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">PAN Number</span> <span class="text-mono text-slate-200 font-medium">{{ club.pan_number|default:"123456789" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">HQ Address</span> <span class="text-slate-200 font-medium">{{ club.address|default:"Kathmandu, Nepal" }}</span></div>
+                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Club Name</span> <span class="text-slate-200 font-medium">{{ club.name|default:"Not specified" }}</span></div>
+                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">City / Location</span> <span class="text-slate-200 font-medium">{{ club.city|default:"Not specified" }}</span></div>
+                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Phone No</span> <span class="text-slate-200 font-medium">{{ club.phone|default:"Not specified" }}</span></div>
+                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Registered Since</span> <span class="text-slate-200 font-medium">{{ club.created_at|date:"F d, Y" }}</span></div>
                     </div>
                 </div>
 
+                <!-- Club Achievements Card -->
                 <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">🏆 Trophy Room</h3>
-                    <div class="grid grid-cols-2 gap-4 text-center">
-                        <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                            <span class="text-2xl">🥇</span>
-                            <div class="text-xl font-bold text-amber-400 mt-1">{{ manager_trophies|default:"2" }}</div>
-                            <div class="text-[10px] tracking-wider uppercase text-slate-400 font-semibold">League Titles</div>
+                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">🏆 Club Achievements</h3>
+                    {% if achievements %}
+                        <div class="space-y-3 max-h-48 overflow-y-auto pr-1">
+                            {% for achievement in achievements %}
+                                <div class="p-3 bg-slate-900/40 border border-slate-800 rounded-lg">
+                                    <p class="font-bold text-sm text-amber-400">{{ achievement.title }}</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">{{ achievement.description }}</p>
+                                </div>
+                            {% endfor %}
                         </div>
-                        <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                            <span class="text-2xl">🥈</span>
-                            <div class="text-xl font-bold text-slate-300 mt-1">{{ manager_runners|default:"1" }}</div>
-                            <div class="text-[10px] tracking-wider uppercase text-slate-400 font-semibold">Runners Up</div>
+                    {% else %}
+                        <div class="text-center py-6">
+                            <span class="text-2xl block mb-1">🏅</span>
+                            <p class="text-slate-400 text-xs italic">No tournament achievements recorded yet.</p>
                         </div>
-                    </div>
-                    <div class="mt-4 bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3 flex items-center gap-3">
-                        <span class="text-2xl">🪪</span>
-                        <div>
-                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400">License Level</div>
-                            <div class="text-sm font-bold text-emerald-400">{{ manager_license|default:"AFC 'A' Certified" }}</div>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
 
+            <!-- Right Column: Roster overview -->
             <div class="space-y-8 lg:col-span-2">
-                
                 <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">⏳ Career Timeline</h3>
-                    <div class="relative border-l border-slate-800 ml-2 pl-6 space-y-6">
-                        
-                        <div class="relative">
-                            <div class="absolute -left-[31px] top-1 bg-emerald-500 w-2.5 h-2.5 rounded-full ring-4 ring-emerald-950"></div>
-                            <div class="flex justify-between items-baseline">
-                                <h4 class="font-bold text-slate-200 text-sm">Head Coach — {{ club.name|default:"Demo FC" }}</h4>
-                                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Present</span>
-                            </div>
-                            <p class="text-xs text-slate-400 mt-1">Managing tactical schemes, training regimens, and structural rebuilds.</p>
-                        </div>
-
-                        <div class="relative">
-                            <div class="absolute -left-[31px] top-1 bg-slate-700 w-2.5 h-2.5 rounded-full ring-4 ring-slate-950"></div>
-                            <div class="flex justify-between items-baseline">
-                                <h4 class="font-bold text-slate-300 text-sm">Assistant Tactical Lead — Himalayan Youth FC</h4>
-                                <span class="text-xs text-slate-500">2022 - 2024</span>
-                            </div>
-                            <p class="text-xs text-slate-400 mt-1">Coordinated match analysis analytics and set-piece strategies yielding promotion playoffs.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">👥 Recent Squad Additions</h3>
+                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">👥 Squad Overview</h3>
                     {% if recent_players %}
                         <div class="divide-y divide-slate-800/60">
                             {% for player in recent_players %}
                                 <div class="py-3 flex justify-between items-center">
-                                    <div class="font-medium text-slate-200">{{ player.name }}</div>
-                                    <div class="text-xs text-slate-400">{{ player.position }}</div>
+                                    <div class="font-medium text-slate-200">{{ player.user.username }}</div>
+                                    <div class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">{{ player.position }}</div>
                                 </div>
                             {% endfor %}
                         </div>
                     {% else %}
                         <div class="text-center py-10">
-                            <span class="text-3xl block mb-2">📋</span>
-                            <p class="text-slate-400 text-sm">No active player profiles linked to this management key yet.</p>
+                            <span class="text-3xl block mb-2">⚽</span>
+                            <p class="text-slate-400 text-sm">No squad members registered under this club dashboard yet. Assign a coach to start adding players!</p>
                         </div>
                     {% endif %}
                 </div>
-
             </div>
+
         </div>
     </main>
 </body>

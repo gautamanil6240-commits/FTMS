@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.contrib.auth.models import User
-from .models import CoachProfile
+from .models import CoachProfile, PlayerPerformance
 
 class CoachRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -82,3 +82,23 @@ class CoachProfileEditForm(forms.ModelForm):
         if len(clean_phone) != 10:
             raise forms.ValidationError("The phone number must contain exactly 10 digits.")
         return clean_phone
+
+
+# ==========================================
+# PLAYER PERFORMANCE LOGGING FORM
+# (Used by coaches to log per-match stats / reviews)
+# ==========================================
+class PlayerPerformanceForm(forms.ModelForm):
+    class Meta:
+        model = PlayerPerformance
+        fields = ['performance_date', 'match_title', 'goals', 'assists', 'minutes_played', 'rating', 'notes']
+        widgets = {
+            'performance_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'match_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. vs. FC Eagles'}),
+            'goals': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'assists': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'minutes_played': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'rating': forms.Select(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Coach comments, fitness notes, tactical observations...'}),
+        }
+

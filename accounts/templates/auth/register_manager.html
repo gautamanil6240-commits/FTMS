@@ -1,101 +1,438 @@
 {% extends 'common/base.html' %}
-
 {% load static %}
 
 {% block title %}
-Manager Register
+Manager Register — FTMS
 {% endblock %}
 
 {% block extra_css %}
+<!-- Include FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link rel="stylesheet"
-      href="{% static 'css/register.css' %}">
+<style>
+    /* ===== PAGE & LAYOUT ===== */
+    .register-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 20px 50px;
+        background-image: 
+            linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)),
+            url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
 
-<link rel="stylesheet"
-      href="{% static 'css/auth.css' %}">
+    .register-container {
+        display: flex;
+        width: 100%;
+        max-width: 1050px;
+        background: rgba(10, 15, 35, 0.8);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+    }
 
+    /* ===== LEFT SECTION ===== */
+    .register-left {
+        flex: 1;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(10, 15, 35, 0) 100%);
+        color: white;
+    }
+
+    .register-left h1 {
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        line-height: 1.2;
+        color: #22c55e;
+    }
+
+    .register-left p {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .info-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .info-list li i {
+        color: #22c55e;
+    }
+
+    /* ===== RIGHT SECTION (FORM) ===== */
+    .register-right {
+        flex: 1.3;
+        padding: 45px 50px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .register-right::-webkit-scrollbar {
+        width: 6px;
+    }
+    .register-right::-webkit-scrollbar-thumb {
+        background: rgba(34, 197, 94, 0.3);
+        border-radius: 10px;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Club Logo Upload Area */
+    .profile-pic-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+    }
+
+    .profile-pic-preview {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed #22c55e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 32px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .profile-pic-preview:hover {
+        border-style: solid;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .profile-pic-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+
+    .upload-btn {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        transition: all 0.2s;
+    }
+
+    .upload-btn:hover {
+        background: rgba(34, 197, 94, 0.2);
+    }
+
+    /* Standard Inputs */
+    .input-group {
+        position: relative;
+    }
+
+    .input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 14px;
+    }
+
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"] {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: white;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .auth-form input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .auth-form input:focus {
+        outline: none;
+        border-color: #22c55e;
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    /* Custom File Inputs */
+    .file-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .file-input-group label.file-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-left: 5px;
+        font-weight: 500;
+    }
+
+    .custom-file-upload {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .custom-file-upload span.icon {
+        padding: 11px 14px;
+        background: rgba(255, 255, 255, 0.08);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 13px;
+        color: #22c55e;
+    }
+
+    .custom-file-upload span.file-name {
+        padding: 11px 15px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Fix: Prevent overlapping click bounds from forcing file dialog loops */
+    .auth-form input[type="file"] {
+        position: absolute;
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        z-index: -1;
+    }
+
+    /* Submit Button */
+    .auth-form button[type="submit"] {
+        width: 100%;
+        padding: 14px;
+        margin-top: 10px;
+        background: #22c55e;
+        color: #0a0f1e;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .auth-form button[type="submit"]:hover {
+        background: #16a34a;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.35);
+    }
+
+    .helper-text {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.3);
+        margin-left: 10px;
+        margin-top: -3px;
+    }
+
+    @media (max-width: 768px) {
+        .register-container {
+            flex-direction: column;
+            max-width: 450px;
+        }
+        .register-left {
+            padding: 30px;
+            text-align: center;
+        }
+        .register-left h1 {
+            font-size: 28px;
+        }
+        .info-list {
+            display: none;
+        }
+        .register-right {
+            padding: 30px;
+            max-height: none;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-
 <section class="register-page">
+    <div class="register-container">
+        
+        <div class="register-left">
+            <h1><i class="fas fa-shield-alt"></i><br>Club Manager Portal</h1>
+            <p>
+                Register your official football club to enlist players, sign up for competitive tournaments, and track match fixtures.
+            </p>
+            <ul class="info-list">
+                <li><i class="fas fa-check-circle"></i> Official Club Verification Required</li>
+                <li><i class="fas fa-check-circle"></i> PAN / Tax Verification</li>
+                <li><i class="fas fa-check-circle"></i> Valid Sports Council Documents</li>
+            </ul>
+        </div>
 
-<div class="register-container">
+        <div class="register-right">
+            <form method="POST" enctype="multipart/form-data" class="auth-form">
+                {% csrf_token %}
 
-<div class="register-left">
+                <!-- Club Logo Profile Picker -->
+                <div class="profile-pic-upload">
+                    <div class="profile-pic-preview" id="logoPreview" onclick="document.getElementById('id_club_logo').click();">
+                        <i class="fas fa-shield-halved"></i>
+                        <img id="previewImg" src="#" alt="Club Logo Preview" />
+                    </div>
+                    <div class="upload-btn" onclick="document.getElementById('id_club_logo').click();">
+                        <i class="fas fa-plus"></i> Upload Club Logo
+                    </div>
+                    <input type="file" name="club_logo" accept="image/*" id="id_club_logo" onchange="previewLogo(this);" required>
+                </div>
 
-<h1>
-🟠 Club Manager Registration
-</h1>
+                <div class="input-group">
+                    <i class="fas fa-futbol"></i>
+                    <input type="text" name="club_name" placeholder="Official Club Name" required>
+                </div>
 
-<p>
+                <div class="input-group">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" name="club_city" placeholder="Club City / Home Ground Location" required>
+                </div>
 
-Register football club manager account.
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="Manager Username" required>
+                </div>
 
-</p>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Official Email Address" required>
+                </div>
 
-</div>
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" 
+                           name="phone" 
+                           placeholder="Phone Number (10 digits)" 
+                           pattern="[0-9]{10}" 
+                           title="Please enter exactly 10 digits"
+                           maxlength="10"
+                           required>
+                </div>
+                <div class="helper-text">Format: 98XXXXXXXX (Strictly 10 numbers)</div>
 
-<div class="register-right">
+                <!-- PAN Document File -->
+                <div class="file-input-group">
+                    <label class="file-label">PAN / Tax Registration Document</label>
+                    <div class="custom-file-upload" onclick="document.getElementById('id_pan_document').click();">
+                        <span class="icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                        <span class="file-name" id="panFileName">Choose PAN file (PDF/Image)...</span>
+                        <input type="file" name="pan_document" id="id_pan_document" onchange="updateFileName(this, 'panFileName')" required>
+                    </div>
+                </div>
 
-<form method="POST"
-      enctype="multipart/form-data"
-      class="auth-form">
+                <!-- Government Document -->
+                <div class="file-input-group">
+                    <label class="file-label">Govt. / Sports District Registration Certificate</label>
+                    <div class="custom-file-upload" onclick="document.getElementById('id_government_document').click();">
+                        <span class="icon"><i class="fas fa-landmark"></i></span>
+                        <span class="file-name" id="govFileName">Choose registration document...</span>
+                        <input type="file" name="government_document" id="id_government_document" onchange="updateFileName(this, 'govFileName')" required>
+                    </div>
+                </div>
 
-{% csrf_token %}
+                <!-- Citizenship Document -->
+                <div class="file-input-group">
+                    <label class="file-label">Manager Citizenship / Official ID Card</label>
+                    <div class="custom-file-upload" onclick="document.getElementById('id_citizenship_document').click();">
+                        <span class="icon"><i class="fas fa-id-card"></i></span>
+                        <span class="file-name" id="citFileName">Choose citizenship file...</span>
+                        <input type="file" name="citizenship_document" id="id_citizenship_document" onchange="updateFileName(this, 'citFileName')" required>
+                    </div>
+                </div>
 
-<input type="text"
-       name="club_name"
-       placeholder="Club Name">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password1" placeholder="Create Secure Password" required>
+                </div>
 
-<input type="text"
-       name="club_city"
-       placeholder="Club City">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password2" placeholder="Confirm Password" required>
+                </div>
 
-<input type="text"
-       name="username"
-       placeholder="Username">
+                <button type="submit">
+                    <i class="fas fa-user-check"></i> Register Club Manager
+                </button>
+            </form>
+        </div>
 
-<input type="email"
-       name="email"
-       placeholder="Email">
-
-<input type="text"
-       name="phone"
-       placeholder="Phone Number">
-
-<input type="file"
-       name="club_logo">
-
-<input type="file"
-       name="pan_document">
-
-<input type="file"
-       name="government_document">
-
-<input type="file"
-       name="citizenship_document">
-
-<input type="password"
-       name="password1"
-       placeholder="Password">
-
-<input type="password"
-       name="password2"
-       placeholder="Confirm Password">
-
-<button type="submit">
-
-Register Manager
-
-</button>
-
-</form>
-
-</div>
-
-</div>
-
+    </div>
 </section>
 
+<script>
+    function updateFileName(input, elementId) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            const fileDisplayName = document.getElementById(elementId);
+            fileDisplayName.textContent = fileName;
+            fileDisplayName.style.color = "#22c55e";
+        }
+    }
+
+    function previewLogo(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.getElementById('previewImg');
+                var icon = document.querySelector('#logoPreview .fa-shield-halved');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                if(icon) icon.style.display = 'none';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 {% endblock %}

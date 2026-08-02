@@ -1,62 +1,266 @@
 {% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}{{ tournament.name }} — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tournament-detail-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.90)),
+        url("{% static 'images/tournament_detail.png.png' %}");
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+    }
+
+    .detail-wrap {
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .detail-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .detail-header h1 {
+        font-size: 34px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 6px;
+    }
+
+    .detail-header p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .badge-status {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        background-color: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .info-section {
+        background: rgba(6, 10, 20, 0.88);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 18px;
+    }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #22c55e;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .info-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    .info-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .info-field label {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .info-field span, .info-field p {
+        font-size: 14px;
+        color: white;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .tournament-banner-img {
+        width: 100%;
+        max-height: 350px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        margin-top: 10px;
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.35);
+        margin-top: 25px;
+    }
+
+    .back-link a {
+        color: #22c55e;
+        text-decoration: none;
+    }
+
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="tournament-detail-page">
+    <div class="detail-wrap">
 
-<div class="container mt-5">
+        <!-- Header Section -->
+        <div class="detail-header">
+            <div>
+                <span class="badge-status mb-2">{{ tournament.get_status_display }}</span>
+                <h1>🏆 {{ tournament.name }}</h1>
+                <p><i class="fas fa-map-marker-alt"></i> {{ tournament.location }}</p>
+            </div>
+        </div>
 
-    <h1>{{ tournament.name }}</h1>
+        {% if tournament.banner %}
+        <div class="info-section">
+            <div class="section-label">🖼️ Tournament Banner</div>
+            <img src="{{ tournament.banner.url }}" alt="{{ tournament.name }}" class="tournament-banner-img">
+        </div>
+        {% endif %}
 
-    {% if tournament.banner %}
-        <img src="{{ tournament.banner.url }}"
-             width="500">
-    {% endif %}
+        <!-- Basic Information -->
+        <div class="info-section">
+            <div class="section-label">📋 Basic Information</div>
+            <div class="info-grid">
+                <div class="info-field full">
+                    <label>Description</label>
+                    <p>{{ tournament.description|default:"No description provided yet." }}</p>
+                </div>
+                <div class="info-field">
+                    <label>Location / Venue</label>
+                    <span>{{ tournament.location }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Format</label>
+                    <span>{{ tournament.get_format_display }}</span>
+                </div>
+            </div>
+        </div>
 
-    <hr>
+        <!-- Contact & Administration -->
+        <div class="info-section">
+            <div class="section-label">📞 Contact & Administration</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>Contact Person Name</label>
+                    <span>{{ tournament.contact_person|default:"Not specified" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Phone Number</label>
+                    <span>+977 {{ tournament.phone|default:"Not specified" }}</span>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>Location:</strong>
-        {{ tournament.location }}
-    </p>
+        <!-- Category Rules -->
+        <div class="info-section">
+            <div class="section-label">🧬 Category Rules</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>Age Division</label>
+                    <span>{{ tournament.get_age_category_display|default:"Open (All Ages)" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Gender Category</label>
+                    <span>{{ tournament.get_gender_category_display|default:"Men's Tournament" }}</span>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>Format:</strong>
-        {{ tournament.get_format_display }}
-    </p>
+        <!-- Schedule & Deadlines -->
+        <div class="info-section">
+            <div class="section-label">📅 Schedule & Deadlines</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>Start Date</label>
+                    <span>{{ tournament.start_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>End Date</label>
+                    <span>{{ tournament.end_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="info-field full">
+                    <label>Registration Close Deadline</label>
+                    <span>{{ tournament.registration_deadline|date:"M d, Y"|default:"Not specified" }}</span>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>Status:</strong>
-        {{ tournament.get_status_display }}
-    </p>
+        <!-- Tournament Format Matrix -->
+        <div class="info-section">
+            <div class="section-label">⚽ Tournament Format Matrix</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>Maximum Teams Limit</label>
+                    <span>{{ tournament.max_teams }} Teams</span>
+                </div>
+                <div class="info-field">
+                    <label>Players Roster Limit Per Team</label>
+                    <span>{{ tournament.players_per_team }} Players</span>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>Start:</strong>
-        {{ tournament.start_date }}
-    </p>
+        <!-- Rules & Regulations -->
+        <div class="info-section">
+            <div class="section-label">📜 Rules & Regulations</div>
+            <div class="info-grid">
+                <div class="info-field full">
+                    <p style="white-space: pre-line;">{{ tournament.rules|default:"No specific rules provided yet." }}</p>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>End:</strong>
-        {{ tournament.end_date }}
-    </p>
+        <div class="back-link">
+            <a href="{% url 'organizer_dashboard' %}">← Back to Dashboard</a>
+        </div>
 
-    <p><strong>Max Teams:</strong>
-        {{ tournament.max_teams }}
-    </p>
-
-    <p><strong>Players Per Team:</strong>
-        {{ tournament.players_per_team }}
-    </p>
-
-    <hr>
-
-    <h3>Description</h3>
-
-    <p>
-        {{ tournament.description }}
-    </p>
-
-    <hr>
-
-    <h3>Rules</h3>
-
-    <p>
-        {{ tournament.rules }}
-    </p>
-
+    </div>
 </div>
-
 {% endblock %}

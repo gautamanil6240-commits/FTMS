@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
 
+    # Organizer
     path(
         'dashboard/',
         views.organizer_dashboard,
@@ -14,10 +15,25 @@ urlpatterns = [
         views.create_tournament,
         name='create_tournament'
     ),
+
+    # Public
     path(
-    'tournament/<int:pk>/',
-    views.organizer_tournament_detail,
-    name='organizer_tournament_detail'
+        'tournaments/',
+        views.tournament_list,
+        name='tournament_list'
+    ),
+
+    path(
+        'tournament/<int:pk>/',
+        views.tournament_detail,
+        name='tournament_detail'
+    ),
+
+    # Organizer view alias for dashboard table buttons
+    path(
+        'tournament/organizer/<int:pk>/',
+        views.tournament_detail,
+        name='organizer_tournament_detail'
     ),
 
 ]

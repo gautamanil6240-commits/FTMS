@@ -19,7 +19,7 @@ urlpatterns = [
 
     # Added: Register
     path(
-        'register/<str:role>/',
+        'register/',
         views.register,
         name='register'
     ),

@@ -1,5 +1,5 @@
 from django.db import models
-import uuid
+import random
 from django.contrib.auth import get_user_model
 from datetime import date
 from django.core.validators import RegexValidator
@@ -27,11 +27,12 @@ class Player(models.Model):
         ('suspended', 'Suspended'),
     ]
  
-    # --- Unique ID ---
-    player_id = models.UUIDField(
-        default=uuid.uuid4,
+    # --- Unique ID (6-digit) ---
+    player_id = models.CharField(
+        max_length=6,
+        unique=True,
         editable=False,
-        unique=True
+        blank=True
     )
  
     # --- Link to Club ---
@@ -130,6 +131,16 @@ class Player(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
  
+# --- Auto-generate 6-digit unique ID ---
+    def save(self, *args, **kwargs):
+        if not self.player_id:
+            while True:
+                code = str(random.randint(100000, 999999))
+                if not Player.objects.filter(player_id=code).exists():
+                    self.player_id = code
+                    break
+        super().save(*args, **kwargs)
+
     # --- Helper Properties ---
     @property
     def age(self):
@@ -141,6 +152,70 @@ class Player(models.Model):
         return today.year - self.date_of_birth.year - (
             (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
         )
+
+    def performance_chart_data(self):
+        """Builds Chart.js-ready datasets from this player's performance records.
+
+        Returns raw Python lists/dicts — templates embed them safely with the
+        ``json_script`` template tag. Includes labels, goals, assists, minutes,
+        ratings, plus a rating-distribution pie and a goals-vs-assists pie.
+        """
+        records = list(self.performance_records.all())
+
+        labels = [r.performance_date.strftime('%d %b') for r in records]
+        goals = [r.goals for r in records]
+        assists = [r.assists for r in records]
+        minutes = [r.minutes_played or 0 for r in records]
+        ratings = [r.rating or 0 for r in records]
+
+        # Rating distribution (1–10) for the pie chart
+        rating_counts = {str(i): 0 for i in range(1, 11)}
+        for r in records:
+            if r.rating:
+                rating_counts[str(r.rating)] += 1
+
+        # Goals vs. Assists contribution pie
+        total_goals = sum(goals)
+        total_assists = sum(assists)
+
+        return {
+            'has_data': bool(records),
+            'labels': labels,
+            'goals': goals,
+            'assists': assists,
+            'minutes': minutes,
+            'ratings': ratings,
+            'rating_pie': {
+                'labels': list(rating_counts.keys()),
+                'values': list(rating_counts.values()),
+            },
+            'contribution_pie': {
+                'labels': ['Goals', 'Assists'],
+                'values': [total_goals, total_assists],
+            },
+        }
  
     def __str__(self):
         return f"{self.full_name} ({self.preferred_position.capitalize()})"
+
+
+class PlayerAchievement(models.Model):
+    player = models.ForeignKey(
+        Player,
+        on_delete=models.CASCADE,
+        related_name='achievements'
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    photo = models.ImageField(
+        upload_to='player_achievements/',
+        blank=True,
+        null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.player.full_name}"

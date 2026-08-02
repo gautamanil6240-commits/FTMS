@@ -1,11 +1,15 @@
 from django.urls import path
 from . import views
 
-# This namespace ensures Django knows these URLs belong specifically to the clubs app
 app_name = 'clubs'
 
 urlpatterns = [
-    # Maps 'localhost:8000/clubs/dashboard/' to your dashboard view logic
+    # Club Manager URLs
+    path('register/', views.ClubManagerRegisterView.as_view(), name='register_manager'),
     path('dashboard/', views.ClubManagerDashboardView.as_view(), name='manager_dashboard'),
-    path('player/add/', views.AddPlayerView.as_view(), name='add_player'),
+    path('add-coach/', views.AddCoachView.as_view(), name='add_coach'),
+    
+    # Coach & Player URLs
+    path('coach/dashboard/', views.CoachDashboardView.as_view(), name='coach_dashboard'),
+    path('coach/add-player/', views.CoachAddPlayerView.as_view(), name='add_player'),
 ]

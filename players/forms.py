@@ -82,3 +82,16 @@ class PlayerProfileEditForm(forms.ModelForm):
         if len(clean_phone) != 10:
             raise ValidationError("Phone number must be exactly 10 digits long.")
         return clean_phone
+
+
+from .models import PlayerAchievement
+
+class PlayerAchievementForm(forms.ModelForm):
+    class Meta:
+        model = PlayerAchievement
+        fields = ['title', 'description', 'photo']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Man of the Match'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'placeholder': 'Describe your achievement...', 'rows': 3}),
+            'photo': forms.FileInput(attrs={'class': 'form-input'}),
+        }

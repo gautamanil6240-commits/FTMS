@@ -7,5 +7,5 @@ urlpatterns = [
     path('register/<str:role>/', views.register, name='register'),
     path('dashboard/', views.player_dashboard, name='player_dashboard'),
     path('list/', views.player_list, name='player_list'),
-    path('sign/<uuid:player_id>/', views.sign_player, name='sign_player'),
+    path('sign/<str:player_id>/', views.sign_player, name='sign_player'),
 ]

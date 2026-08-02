@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
+from clubs.views import ClubManagerDashboardView
 
 def home_view(request):
     return render(request, 'common/home.html')
@@ -17,7 +18,7 @@ urlpatterns = [
     # Accounts Authentication Flow
     path('accounts/', include('accounts.urls')),
     
-    # ⚡ FIXED: Isolated the players app to prevent URL prefix collisions
+    # Isolated the players app to prevent URL prefix collisions
     path('players/', include('players.urls')),
 
     # Organizer Portal
@@ -25,8 +26,9 @@ urlpatterns = [
 
     # Club Management Portal
     path('clubs/', include('clubs.urls')),
+    path('manager/dashboard/', ClubManagerDashboardView.as_view(), name='manager_dashboard'),
 
-    #coach portal
+    # Coach portal
     path('coach/', include('coach.urls', namespace='coach')),
 ]
 

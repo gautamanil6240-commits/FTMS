@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
 
 class UserProfile(models.Model):
@@ -108,10 +109,26 @@ class UserProfile(models.Model):
         null=True
     )
 
-    # =========================
+# =========================
     # COACH
     # =========================
+    
+    assigned_manager = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='club_coaches',
+        limit_choices_to={'userprofile__role': 'manager'}
+    )
 
+    coach_id_number = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    
     coach_license = models.FileField(
         upload_to='coach_license/',
         blank=True,
@@ -152,6 +169,11 @@ class UserProfile(models.Model):
     )
 
     medical_status = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if self.role == 'coach' and not self.coach_id_number:
+            self.coach_id_number = f"COACH-{uuid.uuid4().hex[:6].upper()}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.user.username

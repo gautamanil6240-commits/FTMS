@@ -1,128 +1,111 @@
-import re
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
 from .models import UserProfile
+from .forms import CustomPasswordResetForm
+from django.contrib.auth.decorators import login_required
+from organizer.models import Tournament
+from players.models import Player as PlayerModel
+from clubs.models import Club
+
+def get_redirect_for_user(user):
+    try:
+        profile = UserProfile.objects.get(user=user)
+        if profile.role == 'organizer': return redirect('organizer_dashboard')
+        if profile.role == 'manager': return redirect('manager_dashboard')
+        if profile.role == 'coach': return redirect('coach:coach_dashboard')
+        if profile.role == 'player': return redirect('players:player_dashboard')
+        if profile.role == 'viewer': return redirect('viewer:viewer_dashboard')
+    except UserProfile.DoesNotExist:
+        if user.is_superuser: return redirect('/admin/')
+    return redirect('home')
 
 # =========================
 # LOGIN SELECTION
 # =========================
-def login_selection(request):
-    return render(request, 'auth/login_selection.html')
 
+def login_selection(request):
+    if request.user.is_authenticated:
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            role = profile.role
+        except UserProfile.DoesNotExist:
+            role = 'admin' if request.user.is_superuser else 'user'
+        
+        return render(request, 'auth/already_logged_in.html', {
+            'role': role,
+            'user': request.user,
+        })
+    
+    return render(request, 'auth/login_selection.html')
 
 # =========================
 # REGISTER
 # =========================
-def register(request, role):
+
+def register(request):
+    role = request.GET.get('role')
+    if not role:
+        return redirect('login_selection')
+    
+    if request.user.is_authenticated:
+        return get_redirect_for_user(request.user)
+
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
         username = request.POST.get('username')
-        email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
         if password1 != password2:
             messages.error(request, "Passwords do not match")
-            return redirect('register', role=role)
+            return redirect(f'/accounts/register/?role={role}')
 
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists")
-            return redirect('register', role=role)
+            return redirect(f'/accounts/register/?role={role}')
+
+        # Fallback values to prevent MySQL null errors on first_name/last_name
+        first_name = request.POST.get('first_name') or username
+        last_name = request.POST.get('last_name') or ''
 
         user = User.objects.create_user(
             username=username,
-            email=email,
+            email=request.POST.get('email'),
             password=password1,
-            first_name=first_name or '',
-            last_name=last_name or ''
+            first_name=first_name,
+            last_name=last_name
         )
 
-        # Build standard authentication profile
         profile = UserProfile.objects.create(
             user=user,
             role=role,
-            phone_number=request.POST.get('phone_number'),
-
-            # ORGANIZER
+            phone_number=request.POST.get('phone_number') or request.POST.get('phone'),
             organization_name=request.POST.get('organization_name'),
             pan_number=request.POST.get('pan_number'),
             tournament_name=request.POST.get('tournament_name'),
             office_address=request.POST.get('office_address'),
-
-            # MANAGER
             club_name=request.POST.get('club_name'),
-            founded_year=request.POST.get('founded_year'),
-            club_address=request.POST.get('club_address'),
-
-            # PLAYER
+            founded_year=request.POST.get('founded_year') or None,
+            club_address=request.POST.get('club_address') or request.POST.get('club_city'),
             date_of_birth=request.POST.get('date_of_birth') or None,
             jersey_number=request.POST.get('jersey_number'),
             preferred_position=request.POST.get('preferred_position'),
             medical_status=request.POST.get('medical_status') == '1',
         )
-
-        # FILES
-        profile.profile_photo = request.FILES.get('profile_photo')
-        profile.organizer_logo = request.FILES.get('organizer_logo')
-        profile.authorization_letter = request.FILES.get('authorization_letter')
-        profile.club_logo = request.FILES.get('club_logo')
-        profile.government_registration = request.FILES.get('government_registration')
-        profile.coach_license = request.FILES.get('coach_license')
-        profile.experience_certificate = request.FILES.get('experience_certificate')
-        profile.citizenship_document = request.FILES.get('citizenship_document')
-        profile.save()        
-
-        # =======================================================
-        # AUTO CREATE CLUB ENGINE — Links Manager to Club Instantly
-        # =======================================================
-        if role == 'manager':            
-            from clubs.models import Club            
-            raw_founded_year = request.POST.get('founded_year')
-            parsed_year = None
-            
-            if raw_founded_year:
-                try:
-                    parsed_year = int(str(raw_founded_year)[:4])
-                except (ValueError, TypeError):
-                    parsed_year = 2026
-
-            Club.objects.get_or_create(                
-                manager=user,                
-                defaults={                    
-                    'name': request.POST.get('club_name') or f"{username}'s Club",                    
-                    'founded_year': parsed_year,
-                    'address': request.POST.get('club_address', ''),                    
-                    'government_registration': request.FILES.get('government_registration'),                    
-                    'logo': request.FILES.get('club_logo'),                
-                }            
-            )
-
-        # =======================================================
-        # 🧠 FIXED: COACH EXTENSION INSTANTIATION ENGINE (SINGULAR)
-        # =======================================================
-        elif role == 'coach':
-            from coach.models import CoachProfile  # ⚙️ Changed from 'coaches.models' to 'coach.models'
-
-            raw_phone = request.POST.get('phone_number', '')
-            clean_phone = re.sub(r'\D', '', str(raw_phone))[:10]
-            if not clean_phone or len(clean_phone) < 10:
-                clean_phone = "0000000000"
-
-            CoachProfile.objects.create(
-                user=user,
-                full_name=f"{first_name} {last_name}".strip() or username,
-                date_of_birth=request.POST.get('date_of_birth') or '2000-01-01',
-                gender=request.POST.get('gender') or 'O',
-                nationality=request.POST.get('nationality') or 'Unknown',
-                profile_photo=request.FILES.get('profile_photo'),
-                phone_number=clean_phone,
-                education=request.POST.get('education', ''),
-                coaching_license=request.POST.get('coaching_license', ''),
-                certificates=request.FILES.get('experience_certificate')
-            )
+        
+        # Files handling including organizer and manager specific file fields
+        fields = ['profile_photo', 'organizer_logo', 'authorization_letter', 'organization_document',
+                  'club_logo', 'government_registration', 'coach_license', 
+                  'experience_certificate', 'citizenship_document',
+                  'pan_document', 'government_document']
+                  
+        for field in fields:
+            if field in request.FILES:
+                setattr(profile, field, request.FILES[field])
+        profile.save()
 
         messages.success(request, "Registration submitted successfully. Wait for admin verification.")
         return redirect('login')
@@ -132,83 +115,100 @@ def register(request, role):
 # =========================
 # LOGIN
 # =========================
+
 def user_login(request):
+    if request.user.is_authenticated:
+        return get_redirect_for_user(request.user)
+
     role = request.GET.get('role', '')
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
 
         if user is not None:
-            login(request, user)
-
             try:
                 profile = UserProfile.objects.get(user=user)
-
-                # Guardrail: Check verification state
                 if not profile.is_verified:
                     messages.error(request, "Your account is awaiting admin approval.")
-                    logout(request)
-                    return redirect('login')
-
-                # Prioritize Coach detection if role is set or matched
-                from coach.models import CoachProfile
-                if profile.role == 'coach' or CoachProfile.objects.filter(user=user).exists():
-                    return redirect('coach:coach_dashboard')
-                elif profile.role == 'organizer':
-                    return redirect('organizer_dashboard')
-                elif profile.role == 'manager':
-                    return redirect('clubs:manager_dashboard')
-                elif profile.role == 'player':
-                    return redirect('players:player_dashboard')
-                elif profile.role == 'viewer':
-                    return redirect('viewer_dashboard')
-                
-                # If a profile exists but matching failed
-                messages.error(request, f"Authenticated as '{user.username}', but your profile role string '{profile.role}' didn't match any dashboard criteria.")
-                logout(request)
-                return render(request, 'auth/login.html', {'role': role})
-                    
+                    return redirect(f'{reverse_lazy("login")}?role={role}')
+                login(request, user)
+                return get_redirect_for_user(user)
             except UserProfile.DoesNotExist:
-                # Structural fallbacks for accounts without a standard UserProfile entry
-                from coach.models import CoachProfile
-                if CoachProfile.objects.filter(user=user).exists():
+                # Check if user has a coach_profile (registered via coach app)
+                if hasattr(user, 'coach_profile'):
+                    # Auto-create UserProfile for coach app users if missing
+                    UserProfile.objects.create(
+                        user=user,
+                        role='coach',
+                        is_verified=True,
+                    )
+                    login(request, user)
                     return redirect('coach:coach_dashboard')
-
-                from players.models import Player
-                if Player.objects.filter(email=user.email).exists():
+                # Check if user has club_coach_profile (assigned by manager)
+                if hasattr(user, 'club_coach_profile'):
+                    # Auto-create UserProfile for manager-assigned coaches if missing
+                    UserProfile.objects.create(
+                        user=user,
+                        role='coach',
+                        is_verified=True,
+                    )
+                    login(request, user)
+                    return redirect('coach:coach_dashboard')
+                # Check if user is a Player (has Player record matching their email)
+                if PlayerModel.objects.filter(email=user.email).exists():
+                    player = PlayerModel.objects.get(email=user.email)
+                    UserProfile.objects.create(
+                        user=user,
+                        role='player',
+                        phone_number=player.phone_number or '',
+                        is_verified=True,
+                        date_of_birth=player.date_of_birth,
+                    )
+                    login(request, user)
                     return redirect('players:player_dashboard')
-
+                # Check if user is a Club Manager (has managed_club relation)
+                if hasattr(user, 'managed_club'):
+                    club = user.managed_club
+                    UserProfile.objects.create(
+                        user=user,
+                        role='manager',
+                        phone_number=club.phone or '',
+                        is_verified=True,
+                        club_name=club.name,
+                        club_address=club.city or '',
+                    )
+                    login(request, user)
+                    return redirect('manager_dashboard')
                 if user.is_superuser:
+                    login(request, user)
                     return redirect('/admin/')
-
-                # If absolutely no profile connection type matches anywhere
-                messages.error(request, f"Authenticated as '{user.username}', but no application profile role records (UserProfile, CoachProfile, or Player) were found.")
-                logout(request)
-                return render(request, 'auth/login.html', {'role': role})
-
+                # If no profile found at all, show error
+                messages.error(request, "Your account has no role assigned. Please contact support.")
+                return redirect(f'{reverse_lazy("login")}?role={role}')
         else:
             messages.error(request, "Invalid username or password")
 
-    return render(request, 'auth/login.html', {'role': role})
-
+    return render(request, 'auth/login.html', {
+        'role': role,
+        'post_url': 'login',
+    })
 
 # =========================
 # TOURNAMENT LIST
 # =========================
+
 def tournament_list(request):
-    from organizer.models import Tournament
-    try:
-        tournaments = Tournament.objects.all().order_by('-created_at')
-    except Exception:
-        tournaments = Tournament.objects.all()
-    return render(request, 'common/tournament_list.html', {'tournaments': tournaments})
-
+    tournaments = Tournament.objects.all().order_by('-created_at')
+    return render(request, 'organizer/tournament_list.html', {'tournaments': tournaments})
 
 # =========================
-# LOGOUT
+# PASSWORD RESET & LOGOUT
 # =========================
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    template_name = 'auth/password_reset.html'
+    success_url = reverse_lazy('password_reset_done')
+
 def user_logout(request):
     logout(request)
     return redirect('login')

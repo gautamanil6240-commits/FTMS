@@ -1,0 +1,231 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}FTMS — Already Logged In{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<style>
+
+.already-page {
+    min-height: 100vh;
+    padding-top: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(rgba(0,0,0,0.78), rgba(0,0,0,0.82)),
+      url("{% static 'images/already_login.png.png' %}") no-repeat center center fixed;
+    background-size: cover;
+}
+
+.already-box {
+    background: rgba(8,12,24,0.90);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 18px;
+    padding: 45px 40px;
+    width: 100%;
+    max-width: 440px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.already-icon {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.already-box h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.already-box p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+.logged-info {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logged-info .info-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.logged-info .info-text {
+    text-align: left;
+}
+
+.logged-info .info-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+}
+
+.logged-info .info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+}
+
+.logged-info .info-role {
+    font-size: 12px;
+    color: #22c55e;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.btn-dashboard {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #22c55e;
+    color: #0a0f1e;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+    margin-bottom: 12px;
+}
+
+.btn-dashboard:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34,197,94,0.35);
+}
+
+.divider-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.divider-text::before,
+.divider-text::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 38%;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+}
+
+.divider-text::before { left: 0; }
+.divider-text::after  { right: 0; }
+
+.btn-logout {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    margin-bottom: 16px;
+}
+
+.btn-logout:hover {
+    border-color: #f87171;
+    color: #f87171;
+    background: rgba(248,113,113,0.06);
+}
+
+.home-link {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.home-link:hover { color: #22c55e; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="already-page">
+    <div class="already-box">
+
+        <span class="already-icon">✅</span>
+
+        <h2>Already Logged In!</h2>
+
+        <p>
+            You are currently logged in to FTMS.
+            Go to your dashboard or logout to
+            switch to a different account.
+        </p>
+
+        <!-- Current user info -->
+        <div class="logged-info">
+            <div class="info-icon">
+                {% if role == 'organizer' %}📋
+                {% elif role == 'manager' %}🏆
+                {% elif role == 'coach' %}🧠
+                {% elif role == 'player' %}⚽
+                {% else %}👀{% endif %}
+            </div>
+            <div class="info-text">
+                <div class="info-label">Logged in as</div>
+                <div class="info-value">
+                    {{ user.get_full_name|default:user.username }}
+                </div>
+                <div class="info-role">
+                    {{ role|capfirst }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Go to dashboard -->
+        {% if role == 'organizer' %}
+        <a href="{% url 'organizer_dashboard' %}"
+           class="btn-dashboard">
+            📋 Go to Organizer Dashboard
+        </a>
+        {% else %}
+        <a href="{% url 'home' %}"
+           class="btn-dashboard">
+            🏠 Go to Home
+        </a>
+        {% endif %}
+
+        <div class="divider-text">or</div>
+
+        <!-- Logout to switch -->
+        <a href="{% url 'logout' %}"
+           class="btn-logout">
+            🔄 Logout & Switch Account
+        </a>
+
+        <a href="{% url 'home' %}" class="home-link">
+            ← Back to Home
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

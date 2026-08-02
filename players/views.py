@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required  # Security check for logged-in users
-from .forms import PlayerRawRegistrationForm, PlayerProfileEditForm
-from .models import Player  
+from .forms import PlayerRawRegistrationForm, PlayerProfileEditForm, PlayerAchievementForm
+from .models import Player, PlayerAchievement
 from clubs.models import Club  
+from accounts.models import UserProfile
 from django.shortcuts import get_object_or_404
 
 def register(request, role):
@@ -13,13 +14,7 @@ def register(request, role):
         if request.method == 'POST':
             post_data = request.POST.copy()
             
-            # Map credentials
-            email_input = request.POST.get('email', '')
-            post_data['username'] = email_input
-            
-            phone_input = request.POST.get('phone', '')
-            post_data['password'] = phone_input
-
+            # Username and password now come directly from the form
             form = PlayerRawRegistrationForm(post_data, request.FILES)
 
             if form.is_valid():
@@ -30,7 +25,16 @@ def register(request, role):
                     password=form.cleaned_data['password']
                 )
 
-                # 2. Create database entry in Player table as a Free Agent
+                # 2. Create UserProfile for login authentication compatibility
+                UserProfile.objects.create(
+                    user=user,
+                    role='player',
+                    phone_number=form.cleaned_data['phone'],
+                    is_verified=True,
+                    date_of_birth=form.cleaned_data['dob'],
+                )
+
+                # 3. Create database entry in Player table as a Free Agent
                 Player.objects.create(
                     club=None,  # Explicitly set to None
                     full_name=form.cleaned_data['full_name'],
@@ -50,7 +54,7 @@ def register(request, role):
 
                 messages.success(
                     request, 
-                    f"Registration successful! Log in using your email ({user.email}) as your username."
+                    f"Registration successful! Log in using your username ({user.username}) and password."
                 )
                 return redirect('login') 
 
@@ -87,26 +91,53 @@ def player_list(request):
 
 @login_required
 def player_dashboard(request):
-    """Displays dashboard and handles profile updates."""
+    """Displays dashboard and handles profile updates & achievements."""
     # Try to find the player profile, but handle the case where it might not exist
     try:
         player = Player.objects.get(email=request.user.email)
     except Player.DoesNotExist:
         player = None
 
-    # Handle the Edit Profile form submission
+    # Determine which form was submitted
+    form = PlayerProfileEditForm(instance=player) if player else None
+    achievement_form = PlayerAchievementForm()
+
     if request.method == 'POST' and player:
-        form = PlayerProfileEditForm(request.POST, request.FILES, instance=player)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your player profile has been updated successfully!")
-            return redirect('players:player_dashboard')
-    else:
-        form = PlayerProfileEditForm(instance=player) if player else None
+        if 'add_achievement' in request.POST:
+            # Handle achievement submission
+            achievement_form = PlayerAchievementForm(request.POST, request.FILES)
+            if achievement_form.is_valid():
+                achievement = achievement_form.save(commit=False)
+                achievement.player = player
+                achievement.save()
+                messages.success(request, "Achievement added successfully!")
+                return redirect('players:player_dashboard')
+            else:
+                messages.error(request, "Please fix the errors in the achievement form.")
+        else:
+            # Handle profile edit submission
+            form = PlayerProfileEditForm(request.POST, request.FILES, instance=player)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Your player profile has been updated successfully!")
+                return redirect('players:player_dashboard')
+
+    # Fetch achievements for this player
+    achievements = player.achievements.all() if player else []
+
+    # Fetch performance records logged by coaches (read-only for players)
+    performance_records = player.performance_records.all() if player else []
+
+    # Build Chart.js-ready datasets for graphical representation
+    performance_chart_data = player.performance_chart_data() if player else None
 
     context = {
         'player': player,
         'form': form,
+        'achievement_form': achievement_form,
+        'achievements': achievements,
+        'performance_records': performance_records,
+        'performance_chart_data': performance_chart_data,
     }
     return render(request, 'players/player_dashboard.html', context)
 

@@ -21,7 +21,35 @@
     align-items: center;
     margin-bottom: 35px;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 20px;
+}
+
+.dash-user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.dash-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid #22c55e;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 28px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+}
+
+.dash-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .dash-welcome h1 {
@@ -150,9 +178,9 @@
 }
 
 .status-badge.registration { background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); }
-.status-badge.active       { background:rgba(34,197,94,0.15);  color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
-.status-badge.upcoming     { background:rgba(255,214,0,0.15);  color:gold;    border:1px solid rgba(255,214,0,0.3); }
-.status-badge.completed    { background:rgba(255,255,255,0.08); color:#888;   border:1px solid rgba(255,255,255,0.1); }
+.status-badge.active      { background:rgba(34,197,94,0.15);  color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
+.status-badge.upcoming    { background:rgba(255,214,0,0.15);  color:gold;    border:1px solid rgba(255,214,0,0.3); }
+.status-badge.completed   { background:rgba(255,255,255,0.08); color:#888;   border:1px solid rgba(255,255,255,0.1); }
 
 .btn-view {
     padding: 6px 16px;
@@ -182,6 +210,8 @@
     .stats-row { grid-template-columns: 1fr 1fr; }
 }
 </style>
+<!-- Include FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -189,9 +219,21 @@
 
     <!-- Header -->
     <div class="dash-header">
-        <div class="dash-welcome">
-            <h1>Welcome, <span>{{ user.first_name|default:user.username }}</span> 👋</h1>
-            <p>Organizer Dashboard — Manage your tournaments here</p>
+        <div class="dash-user-profile">
+            <!-- Profile Picture Display -->
+            <div class="dash-avatar">
+                {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo.url }}" alt="{{ user.username }}">
+                {% elif user.organizerprofile and user.organizerprofile.profile_photo %}
+                    <img src="{{ user.organizerprofile.profile_photo.url }}" alt="{{ user.username }}">
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="dash-welcome">
+                <h1>Welcome, <span>{{ user.first_name|default:user.username }}</span> 👋</h1>
+                <p>Organizer Dashboard — Manage your tournaments here</p>
+            </div>
         </div>
         <a href="{% url 'create_tournament' %}" class="btn-create">
             ➕ Create Tournament
