@@ -49,22 +49,7 @@ class Coach(models.Model):
     coach_id_number = models.CharField(max_length=100, unique=True)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    
+
     def __str__(self):
         return f"Coach: {self.full_name} - {self.club.name}"
 
-# ==========================================
-# 3. PLAYER MODEL
-# ==========================================
-class Player(models.Model):
-    coach = models.ForeignKey(
-        Coach, 
-        on_delete=models.CASCADE, 
-        related_name='players'
-    )
-    full_name = models.CharField(max_length=150)
-    jersey_number = models.PositiveIntegerField()
-    position = models.CharField(max_length=50)
-
-    def __str__(self):
-        return f"{self.full_name} (#{self.jersey_number})"

@@ -1,20 +1,14 @@
-# TODO: Make auth pages theme-aware (fix login box staying dark in light theme)
-
-## Approach
-- Added two new theme-aware CSS variables in `base.css`:
-  - `--auth-overlay-a` / `--auth-overlay-b` (dark defaults) and light-mode overrides.
-- Replaced all hardcoded `rgba(0,0,0,...)` dark gradients in auth templates with these variables.
+# Remove dead clubs.Player model & dead coach views
 
 ## Steps
-- [x] 1. `base.css` — add `--auth-overlay-a/b` variables (dark + light)
-- [x] 2. `login.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 3. `login_selection.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 4. `register_base.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 5. `register.css` — used by `register.html`, replace hardcoded dark gradient with theme-aware overlays
-- [x] 6. `register_organizer.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 7. `register_player.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 8. `register_coach.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 9. `register_manager.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 10. `register_viewer.html` — replace hardcoded dark gradient with theme-aware overlays
-- [x] 11. `already_logged_in.html` — replace hardcoded dark gradient with theme-aware overlays
-- [ ] 12. Verify by toggling theme on login page
+- [x] 1. Verify clubs.Player.objects.count() == 0 (confirmed: 0)
+- [x] 2. Remove CoachDashboardView and CoachAddPlayerView from clubs/views.py
+- [x] 3. Update Player import in clubs/views.py to only import Club and Coach
+- [x] 4. Remove dead URL patterns from clubs/urls.py
+- [x] 5. Delete orphaned templates (coach_dashboard.html, add_player.html) — confirmed they do not exist
+- [x] 6. Remove Player model from clubs/models.py
+- [x] 7. Generate and review migration (makemigrations clubs) — 0004_delete_player.py
+- [x] 8. Apply migration (migrate) — applied OK
+- [x] 9. Wire up recent_players in ClubManagerDashboardView
+- [x] 10. Adjust template field reference (position → preferred_position)
+- [x] 11. Test full path end-to-end

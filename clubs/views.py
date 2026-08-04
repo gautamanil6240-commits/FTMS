@@ -3,9 +3,10 @@ from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model, login
 from django.contrib import messages
-from .models import Club, Coach, Player
+from .models import Club, Coach
 from accounts.models import UserProfile
 from coach.models import CoachProfile
+from players.models import Player
 
 User = get_user_model()
 
@@ -99,65 +100,18 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
             context['club'] = club
             context['coaches'] = club.club_coaches.all()
             context['has_club'] = True
+            # Real squad roster from players.Player, most recent 5 first
+            context['recent_players'] = Player.objects.filter(
+                club=club
+            ).order_by('-created_at')[:5]
         except (Club.DoesNotExist, AttributeError):
             context['has_club'] = False
+            context['recent_players'] = []
         return context
 
 
 # =======================================================
-# 3. COACH DASHBOARD
-# =======================================================
-class CoachDashboardView(LoginRequiredMixin, TemplateView):
-    template_name = 'clubs/coach_dashboard.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            coach = self.request.user.club_coach_profile
-            context['coach'] = coach
-            context['players'] = coach.players.all()
-            context['has_coach_profile'] = True
-        except AttributeError:
-            context['has_coach_profile'] = False
-            context['players'] = []
-        return context
-
-
-# =======================================================
-# 4. COACH ADD PLAYER VIEW
-# =======================================================
-class CoachAddPlayerView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'clubs/add_player.html')
-
-    def post(self, request):
-        try:
-            coach = request.user.club_coach_profile
-        except AttributeError:
-            messages.error(request, "Only assigned coaches can add players to a roster.")
-            return redirect('home')
-
-        name = request.POST.get('name')
-        jersey_no = request.POST.get('jersey_number')
-        position = request.POST.get('position')
-
-        if coach.players.filter(jersey_number=jersey_no).exists():
-            messages.error(request, f"Jersey number #{jersey_no} is already assigned in your squad.")
-            return render(request, 'clubs/add_player.html')
-
-        Player.objects.create(
-            coach=coach,
-            full_name=name,
-            jersey_number=jersey_no,
-            position=position
-        )
-        
-        messages.success(request, f"Successfully registered player {name}!")
-        return redirect('clubs:coach_dashboard')
-
-
-# =======================================================
-# 5. ADD COACH VIEW
+# 3. ADD COACH VIEW
 # =======================================================
 
 class AddCoachView(LoginRequiredMixin, View):

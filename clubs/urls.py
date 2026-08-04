@@ -8,8 +8,4 @@ urlpatterns = [
     path('register/', views.ClubManagerRegisterView.as_view(), name='register_manager'),
     path('dashboard/', views.ClubManagerDashboardView.as_view(), name='manager_dashboard'),
     path('add-coach/', views.AddCoachView.as_view(), name='add_coach'),
-    
-    # Coach & Player URLs
-    path('coach/dashboard/', views.CoachDashboardView.as_view(), name='coach_dashboard'),
-    path('coach/add-player/', views.CoachAddPlayerView.as_view(), name='add_player'),
 ]

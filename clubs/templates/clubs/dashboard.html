@@ -396,8 +396,8 @@ body.light-mode .dashboard-page {
                 <div class="squad-list">
 {% for player in recent_players %}
                     <div class="squad-item">
-                        <span class="player-name">{{ player.full_name|default:player.user.username }}</span>
-                        <span class="player-pos">{{ player.position }}</span>
+<span class="player-name">{{ player.full_name }}</span>
+                        <span class="player-pos">{{ player.preferred_position }}</span>
                     </div>
                     {% endfor %}
                 </div>
