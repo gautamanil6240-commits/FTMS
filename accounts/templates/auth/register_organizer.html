@@ -18,23 +18,23 @@ Organizer Register
         align-items: center;
         justify-content: center;
         padding: 100px 20px 50px;
-        background-image: 
-            linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)),
+background-image: 
+            linear-gradient(var(--auth-overlay-a), var(--auth-overlay-b)),
             url('https://images.unsplash.com/photo-1577223033560-36ba21c551d6?w=1920&q=80');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    .register-container {
+.register-container {
         display: flex;
         width: 100%;
         max-width: 1000px;
-        background: rgba(10, 15, 35, 0.75);
+background: var(--reg-panel);
         backdrop-filter: blur(10px);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-rich);
         overflow: hidden;
     }
 
@@ -45,8 +45,8 @@ Organizer Register
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(10, 15, 35, 0) 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(10, 15, 35, 0) 100%);
+        color: var(--text-primary);
     }
 
     .register-left h1 {
@@ -54,12 +54,12 @@ Organizer Register
         font-weight: 800;
         margin-bottom: 20px;
         line-height: 1.2;
-        color: #22c55e;
+        color: var(--accent);
     }
 
     .register-left p {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-light);
         line-height: 1.6;
     }
 
@@ -89,12 +89,12 @@ Organizer Register
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.05);
-        border: 2px dashed #22c55e;
+        background: var(--bg-glass);
+        border: 2px dashed var(--accent);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255,255,255,0.4);
+        color: var(--text-muted);
         font-size: 40px;
         overflow: hidden;
         position: relative;
@@ -104,7 +104,7 @@ Organizer Register
 
     .profile-pic-preview:hover {
         border-style: solid;
-        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 0 20px var(--accent-glow);
     }
 
     .profile-pic-preview img {
@@ -115,19 +115,19 @@ Organizer Register
     }
 
     .upload-btn {
-        background: rgba(34, 197, 94, 0.1);
-        color: #22c55e;
+        background: var(--accent-soft);
+        color: var(--accent);
         padding: 6px 14px;
         border-radius: 50px;
         font-size: 12px;
         font-weight: 600;
         cursor: pointer;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        border: 1px solid var(--accent-border);
         transition: all 0.2s;
     }
 
     .upload-btn:hover {
-        background: rgba(34, 197, 94, 0.2);
+        background: var(--accent-soft-2);
     }
 
     /* Standard Inputs */
@@ -140,30 +140,30 @@ Organizer Register
         left: 15px;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         font-size: 14px;
     }
 
     .auth-form input {
         width: 100%;
         padding: 12px 15px 12px 45px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-glass);
+        border: 1px solid var(--border-strong);
         border-radius: 10px;
-        color: white;
+        color: var(--text-primary);
         font-size: 14px;
         transition: all 0.3s;
         box-sizing: border-box;
     }
 
     .auth-form input::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
     }
 
     .auth-form input:focus {
         outline: none;
-        border-color: #22c55e;
-        background: rgba(34, 197, 94, 0.05);
+        border-color: var(--accent);
+        background: var(--accent-soft);
     }
 
     /* Custom File Inputs */
@@ -175,7 +175,7 @@ Organizer Register
 
     .file-input-group label.file-label {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
         margin-left: 10px;
     }
 
@@ -184,18 +184,18 @@ Organizer Register
         overflow: hidden;
         display: flex;
         align-items: center;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-glass);
+        border: 1px solid var(--border-strong);
         border-radius: 10px;
         cursor: pointer;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         padding: 0;
     }
 
     .custom-file-upload span.icon {
         padding: 12px 15px;
-        background: rgba(255, 255, 255, 0.1);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-glass-2);
+        border-right: 1px solid var(--border-strong);
         font-size: 14px;
     }
 
@@ -234,8 +234,8 @@ Organizer Register
         width: 100%;
         padding: 14px;
         margin-top: 15px;
-        background: #22c55e;
-        color: #0a0f1e;
+        background: var(--accent);
+        color: var(--text-primary);
         border: none;
         border-radius: 10px;
         font-size: 16px;
@@ -245,14 +245,14 @@ Organizer Register
     }
 
     .auth-form button:hover {
-        background: #16a34a;
+        background: var(--accent-hover);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        box-shadow: 0 5px 15px var(--accent-glow);
     }
 
     .helper-text {
         font-size: 10px;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         margin-left: 15px;
         margin-top: -5px;
     }
@@ -380,9 +380,9 @@ Organizer Register
     function updateFileName(input, elementId) {
         if (input.files && input.files[0]) {
             const fileName = input.files[0].name;
-            const fileDisplayName = document.getElementById(elementId);
+const fileDisplayName = document.getElementById(elementId);
             fileDisplayName.textContent = fileName;
-            fileDisplayName.style.color = "white";
+            fileDisplayName.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || 'white';
         }
     }
 

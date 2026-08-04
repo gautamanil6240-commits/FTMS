@@ -6,16 +6,105 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 <style>
-    .login-page {
+.login-page {
         min-height: 100vh;
         padding-top: 65px;
         display: flex;
         align-items: center;
         justify-content: center;
         background:
-            linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.82)),
-            url('https://images.unsplash.com/photo-1551958219-acbc608c6377?w=1920&q=80') no-repeat center center fixed;
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1551958219-acbc608c6377?w=1920&q=80') no-repeat center center;
         background-size: cover;
+    }
+
+    /* Role-specific background images (dimmer overlay for a soft backdrop) */
+    {% if role|lower == 'organizer' %}
+    .login-page {
+        background:
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80') no-repeat center center;
+        background-size: cover;
+    }
+    {% elif role|lower == 'manager' %}
+    .login-page {
+        background:
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1920&q=80') no-repeat center center;
+        background-size: cover;
+    }
+    {% elif role|lower == 'coach' %}
+    .login-page {
+        background:
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=1920&q=80') no-repeat center center;
+        background-size: cover;
+    }
+{% elif role|lower == 'player' %}
+    .login-page {
+        background:
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=1920&q=80') no-repeat center center;
+        background-size: cover;
+    }
+    {% elif role|lower == 'viewer' %}
+    .login-page {
+        background:
+            linear-gradient(rgba(5, 8, 17, 0.82), rgba(5, 8, 17, 0.88)),
+            url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1920&q=80') no-repeat center center;
+        background-size: cover;
+    }
+    {% endif %}
+
+    /* Light theme: force the login box to render light */
+    html.light-mode .login-box,
+    body.light-mode .login-box {
+        background: #ffffff !important;
+        border-color: #d1d5db !important;
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15) !important;
+    }
+
+    html.light-mode .login-box .login-top h1 {
+        color: #0f172a !important;
+    }
+
+    html.light-mode .login-box .login-top p {
+        color: #475569 !important;
+    }
+
+    html.light-mode .login-box .field-wrap label {
+        color: #475569 !important;
+    }
+
+    html.light-mode .login-box .field-wrap input {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+    }
+
+    html.light-mode .login-box .field-wrap input:focus {
+        border-color: #16a34a !important;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
+    }
+
+    html.light-mode .login-box .field-wrap input::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    html.light-mode .login-box .login-foot {
+        color: #475569 !important;
+    }
+
+    html.light-mode .login-box .login-foot a {
+        color: #15803d !important;
+    }
+
+    html.light-mode .login-box .forgot-link {
+        color: #15803d !important;
+    }
+
+    html.light-mode .login-box .forgot-link:hover {
+        color: #16a34a !important;
     }
 </style>
 {% endblock %}

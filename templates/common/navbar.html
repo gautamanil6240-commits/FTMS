@@ -21,7 +21,15 @@
         </li>
     </ul>
 
-    <div class="nav-buttons">
+<div class="nav-buttons">
+
+        <!-- Theme toggle (site-wide, included on every page) -->
+        <button type="button" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark / light theme">
+            <span class="theme-toggle-label">🌙</span>
+            <span class="theme-toggle-track">
+                <span class="theme-toggle-circle"></span>
+            </span>
+        </button>
 
         {% if user.is_authenticated %}
 

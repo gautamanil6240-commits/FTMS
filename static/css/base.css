@@ -1,108 +1,416 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+/* ============================================================
+   FTMS GLOBAL THEME  (base.css)
+   ------------------------------------------------------------
+   Dark is the DEFAULT theme. All colors are declared as CSS
+   custom properties on :root. A `.light-mode` class on <body>
+   redefines those variables to the light palette.
+
+   Every page that uses base.css automatically inherits the
+   theme via these variables — no per-app duplicate styles.
+   ============================================================ */
+
+:root {
+    /* ---------- Surfaces ---------- */
+    --bg-page:         #0b0f1a;   /* page background            */
+    --bg-page-2:       #0b1220;   /* alternate page bg          */
+    --bg-card:         #131c31;   /* card surface               */
+    --bg-card-2:       rgba(10, 15, 30, 0.9); /* elevated card surface */
+    --bg-surface:      #111827;   /* navbar / footer / inputs   */
+    --bg-surface-soft: #1f2937;   /* raised input surface       */
+    --bg-input:        #0f172a;   /* form input background      */
+    --bg-th:           #1a2540;   /* table header               */
+    --bg-overlay:      rgba(0, 0, 0, 0.6);
+    --bg-glass:        rgba(255, 255, 255, 0.05);
+    --bg-glass-2:      rgba(255, 255, 255, 0.08);
+
+/* ---------- Hover / focus ---------- */
+    --bg-hover:        #2d3748;
+
+    /* ---------- Coach dashboard specific ---------- */
+    --coach-bg-top:    rgba(5, 8, 17, 0.92);
+    --coach-bg-bottom: rgba(3, 5, 10, 0.96);
+    --coach-card-top:  rgba(10, 16, 31, 0.9);
+    --coach-card-bottom: rgba(6, 10, 20, 0.95);
+    --coach-table-bg:  rgba(6, 10, 20, 0.9);
+
+    /* ---------- Text ---------- */
+    --text-primary:    #ffffff;
+    --text-strong:     #e2e8f0;
+    --text-body:       #f1f5f9;
+    --text-muted:      #94a3b8;
+    --text-faint:      #64748b;
+    --text-soft:       #cbd5e1;
+    --text-ghost:      #aaa;
+    --text-light:      #ddd;
+
+    /* ---------- Borders ---------- */
+    --border-color:    rgba(255, 255, 255, 0.08);
+    --border-strong:   rgba(255, 255, 255, 0.15);
+    --border-soft:     rgba(255, 255, 255, 0.06);
+    --border-divider:  #333;
+    --border-hard:     #374151;
+
+    /* ---------- Accent (green) ---------- */
+    --accent:          #22c55e;
+    --accent-hover:    #16a34a;
+    --accent-soft:     rgba(34, 197, 94, 0.1);
+    --accent-soft-2:   rgba(34, 197, 94, 0.15);
+--accent-glow:     rgba(34, 197, 94, 0.3);
+    --accent-border:   rgba(34, 197, 94, 0.25);
+    --accent-light:    #4ade80;
+    --accent-dark:     #0d1f12;
+    --accent-dark-2:   #07120a;
+
+/* ---------- Blue (status) ---------- */
+    --blue-light:      #60a5fa;
+    --blue-soft:       rgba(59, 130, 246, 0.15);
+    --blue-border:     rgba(59, 130, 246, 0.3);
+
+    /* ---------- Gray (status) ---------- */
+    --gray-dark:       #4b5563;
+    --gray-light:      #9ca3af;
+
+    /* ---------- Brand / hero ---------- */
+    --brand-navy:      #061b56;
+    --brand-slate:     #0f172a;
+
+    /* ---------- Status colors ---------- */
+    --success:         #2ecc71;
+    --success-soft:    rgba(46, 204, 113, 0.1);
+    --success-border:  rgba(46, 204, 113, 0.25);
+    --danger:          #ef4444;
+    --danger-soft:     rgba(239, 68, 68, 0.1);
+    --danger-border:   rgba(239, 68, 68, 0.3);
+    --warning:         #eab308;
+    --warning-soft:    rgba(255, 193, 7, 0.08);
+    --warning-border:  rgba(255, 193, 7, 0.25);
+    --info:            #60a5fa;
+    --info-soft:       rgba(59, 130, 246, 0.1);
+    --info-border:     rgba(59, 130, 246, 0.3);
+
+    /* ---------- Accent chart colors ---------- */
+    --blue:            #3498db;
+    --purple:          #9b59b6;
+    --orange:          #e67e22;
+    --gold:            #f1c40f;
+    --teal:            #1abc9c;
+    --green:           #27ae60;
+    --amber:           #f39c12;
+    --red:             #e74c3c;
+    --slate-400:       #64748b;
+    --slate-500:       #94a3b8;
+
+/* ---------- Shadows ---------- */
+    --shadow-card:     0 4px 20px rgba(52, 152, 219, 0.08);
+    --shadow-modal:    0 10px 30px rgba(0, 0, 0, 0.5);
+    --shadow-rich:     0 25px 50px rgba(0, 0, 0, 0.5);
+
+    /* ---------- Hero / image overlay helpers ---------- */
+    --hero-overlay-a:  rgba(0, 0, 0, 0.85);
+    --hero-overlay-b:  rgba(0, 0, 0, 0.90);
+    --hero-text:       #ffffff;
+    --hero-muted:      rgba(255, 255, 255, 0.5);
+    --accent-contrast: #0a0f1e;   /* text on accent buttons */
+    --on-accent:       #0a0f1e;
+--input-transp:    rgba(255, 255, 255, 0.06);
+    --input-transp-2:  rgba(255, 255, 255, 0.12);
+    --reg-panel:       rgba(10, 15, 35, 0.8);
+
+    /* ---------- Auth / login page overlays (theme-aware) ---------- */
+    --auth-overlay-a:  rgba(0, 0, 0, 0.78);
+    --auth-overlay-b:  rgba(0, 0, 0, 0.85);
 }
 
-body{
-    font-family:Arial, Helvetica, sans-serif;
-    background:#0b0f1a;
-    color:white;
+/* ============================================================
+   LIGHT MODE OVERRIDE
+   body.light-mode (applied by theme.js) or html.light-mode
+   (applied pre-render by the anti-FOUC script) flips the
+   palette to a clean light theme.
+   ============================================================ */
+body.light-mode,
+html.light-mode {
+    --bg-page:         #f1f5f9;
+    --bg-page-2:       #e2e8f0;
+    --bg-card:         #ffffff;
+    --bg-surface:      #ffffff;
+    --bg-surface-soft: #e2e8f0;
+    --bg-input:        #ffffff;
+    --bg-th:           #eef2f7;
+    --bg-overlay:      rgba(0, 0, 0, 0.4);
+    --bg-glass:        rgba(0, 0, 0, 0.03);
+    --bg-glass-2:      rgba(0, 0, 0, 0.05);
+
+    --bg-hover:        #e2e8f0;
+
+    --text-primary:    #0f172a;
+    --text-strong:     #1e293b;
+    --text-body:       #0f172a;
+    --text-muted:      #475569;
+    --text-faint:      #64748b;
+    --text-soft:       #334155;
+    --text-ghost:      #475569;
+    --text-light:      #334155;
+
+    --border-color:    rgba(15, 23, 42, 0.12);
+    --border-strong:   rgba(15, 23, 42, 0.2);
+    --border-soft:     rgba(15, 23, 42, 0.08);
+    --border-divider:  #cbd5e1;
+    --border-hard:     #cbd5e1;
+
+--accent:          #16a34a;
+    --accent-hover:    #15803d;
+    --accent-soft:     rgba(22, 163, 74, 0.1);
+    --accent-soft-2:   rgba(22, 163, 74, 0.15);
+    --accent-glow:     rgba(22, 163, 74, 0.3);
+    --accent-border:   rgba(22, 163, 74, 0.3);
+    --accent-light:    #22c55e;
+    --accent-dark:     #f0fdf4;
+    --accent-dark-2:   #dcfce7;
+
+    --blue-light:      #93c5fd;
+    --blue-soft:       rgba(37, 99, 235, 0.1);
+    --blue-border:     rgba(37, 99, 235, 0.25);
+
+    --gray-dark:       #6b7280;
+    --gray-light:      #9ca3af;
+
+    --coach-bg-top:    rgba(255, 255, 255, 0.65);
+    --coach-bg-bottom: rgba(240, 244, 248, 0.9);
+    --coach-card-top:  rgba(255, 255, 255, 0.9);
+    --coach-card-bottom: rgba(245, 248, 252, 0.95);
+    --coach-table-bg:  rgba(255, 255, 255, 0.9);
+
+    --brand-navy:      #0f172a;
+    --brand-slate:     #1e293b;
+
+    --success:         #16a34a;
+    --success-soft:    rgba(22, 163, 74, 0.1);
+    --success-border:  rgba(22, 163, 74, 0.25);
+    --danger:          #dc2626;
+    --danger-soft:     rgba(220, 38, 38, 0.1);
+    --danger-border:   rgba(220, 38, 38, 0.3);
+    --warning:         #ca8a04;
+    --warning-soft:    rgba(202, 138, 4, 0.1);
+    --warning-border:  rgba(202, 138, 4, 0.3);
+    --info:            #2563eb;
+    --info-soft:       rgba(37, 99, 235, 0.1);
+    --info-border:     rgba(37, 99, 235, 0.3);
+
+    --blue:            #2563eb;
+    --purple:          #7c3aed;
+    --orange:          #ea580c;
+    --gold:            #ca8a04;
+    --teal:            #0d9488;
+    --green:           #16a34a;
+    --amber:           #d97706;
+    --red:             #dc2626;
+    --slate-400:       #64748b;
+    --slate-500:       #64748b;
+
+--shadow-card:     0 4px 20px rgba(15, 23, 42, 0.08);
+    --shadow-modal:    0 10px 30px rgba(15, 23, 42, 0.2);
+    --shadow-rich:     0 25px 50px rgba(15, 23, 42, 0.15);
+
+    /* ---------- Hero / image overlay helpers (light) ---------- */
+    --hero-overlay-a:  rgba(248, 250, 252, 0.85);
+    --hero-overlay-b:  rgba(241, 245, 249, 0.92);
+    --hero-text:       #0f172a;
+    --hero-muted:      rgba(15, 23, 42, 0.6);
+    --accent-contrast: #ffffff;
+    --on-accent:       #ffffff;
+--input-transp:    rgba(15, 23, 42, 0.05);
+    --input-transp-2:  rgba(15, 23, 42, 0.1);
+    --reg-panel:       rgba(255, 255, 255, 0.92);
+
+    /* ---------- Auth / login page overlays (light mode) ---------- */
+    --auth-overlay-a:  rgba(15, 23, 42, 0.35);
+    --auth-overlay-b:  rgba(15, 23, 42, 0.45);
 }
 
-/* NAVBAR */
-
-.navbar{
-    width:100%;
-    padding:20px 60px;
-    background:#111827;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    position:fixed;
-    top:0;
-    z-index:1000;
+/* ============================================================
+   BASE
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.logo a{
-    color:#22c55e;
-    font-size:32px;
-    font-weight:bold;
-    text-decoration:none;
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-links{
-    display:flex;
-    list-style:none;
-    gap:30px;
+main {
+    min-height: 60vh;
 }
 
-.nav-links a{
-    color:white;
-    text-decoration:none;
-    transition:0.3s;
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+    width: 100%;
+    padding: 20px 60px;
+    background: var(--bg-surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.nav-links a:hover{
-    color:#22c55e;
+.logo a {
+    color: var(--accent);
+    font-size: 32px;
+    font-weight: bold;
+    text-decoration: none;
 }
 
-.nav-buttons{
-    display:flex;
-    gap:15px;
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
 }
 
-.login-btn{
-    background:#22c55e;
-    color:white;
-    padding:10px 20px;
-    border-radius:8px;
-    text-decoration:none;
+.nav-links a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: 0.3s;
 }
 
-.admin-btn{
-    background:#1f2937;
-    color:white;
-    padding:10px 20px;
-    border-radius:8px;
-    text-decoration:none;
+.nav-links a:hover {
+    color: var(--accent);
 }
 
-/* FOOTER */
-
-.footer{
-    background:#111827;
-    padding-top:60px;
-    margin-top:80px;
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
 }
 
-.footer-container{
-    width:90%;
-    margin:auto;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:40px;
+.login-btn {
+    background: var(--accent);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.admin-btn {
+    background: var(--bg-surface-soft);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+/* ============================================================
+   THEME TOGGLE
+   ============================================================ */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-surface-soft);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    user-select: none;
+}
+
+.theme-toggle-label {
+    font-size: 15px;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+.theme-toggle-track {
+    width: 34px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--bg-hover);
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+.theme-toggle-circle {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+/* Active (light) state: circle slides to the right */
+.theme-toggle.active .theme-toggle-circle {
+    transform: translateX(16px);
+}
+
+.theme-toggle.active .theme-toggle-track {
+    background: var(--accent-soft);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+    background: var(--bg-surface);
+    padding-top: 60px;
+    margin-top: 80px;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-container {
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
 }
 
 .footer-box h2,
-.footer-box h3{
-    color:#22c55e;
-    margin-bottom:20px;
+.footer-box h3 {
+    color: var(--accent);
+    margin-bottom: 20px;
 }
 
 .footer-box p,
 .footer-box li,
-.footer-box a{
-    color:#ddd;
-    line-height:2;
-    text-decoration:none;
-    list-style:none;
+.footer-box a {
+    color: var(--text-light);
+    line-height: 2;
+    text-decoration: none;
+    list-style: none;
 }
 
-.footer-bottom{
-    text-align:center;
-    padding:30px;
-    margin-top:40px;
-    border-top:1px solid #333;
-    color:#aaa;
+.footer-bottom {
+    text-align: center;
+    padding: 30px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border-divider);
+    color: var(--text-ghost);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
 }

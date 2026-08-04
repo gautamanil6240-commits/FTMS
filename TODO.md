@@ -1,12 +1,20 @@
-# Coach Cannot View Player Profile from Squad Roster - Fix TODO
+# TODO: Make auth pages theme-aware (fix login box staying dark in light theme)
 
-## Problem
-The coach dashboard "View Profile" link uses `{% url 'coach:player_detail_pk' player.id %}` (auto-increment PK). But in `coach/urls.py`, the `<str:player_id>` pattern is declared BEFORE `<int:pk>`, so Django's `<str:player_id>` route intercepts `/player/5/` and tries `Player.objects.get(player_id='5')` — which looks up the 6-digit code, not the PK → 404.
+## Approach
+- Added two new theme-aware CSS variables in `base.css`:
+  - `--auth-overlay-a` / `--auth-overlay-b` (dark defaults) and light-mode overrides.
+- Replaced all hardcoded `rgba(0,0,0,...)` dark gradients in auth templates with these variables.
 
 ## Steps
-- [x] 1. Fix `coach/templates/coach/coach_dashboard.html` — "View Profile" link → use `{% url 'coach:player_detail' player.player_id %}` (6-digit code, str route)
-- [x] 2. Update `coach/views.py` — `player_detail_view` → add POST handling for `add_performance` (modal on the str-route profile page)
-- [x] 3. Update `coach/views.py` — `_log_performance` → redirect to `coach:player_detail` with `player.player_id` instead of `player_detail_pk`
-- [x] 4. Verify with `python manage.py check` (passed, no issues)
-- [x] 5. Verified URL routing in shell: `reverse('coach:player_detail', args=[player.player_id])` → `/coach/player/70e4a7/`, resolves to `player_detail_view`
-
+- [x] 1. `base.css` — add `--auth-overlay-a/b` variables (dark + light)
+- [x] 2. `login.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 3. `login_selection.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 4. `register_base.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 5. `register.css` — used by `register.html`, replace hardcoded dark gradient with theme-aware overlays
+- [x] 6. `register_organizer.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 7. `register_player.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 8. `register_coach.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 9. `register_manager.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 10. `register_viewer.html` — replace hardcoded dark gradient with theme-aware overlays
+- [x] 11. `already_logged_in.html` — replace hardcoded dark gradient with theme-aware overlays
+- [ ] 12. Verify by toggling theme on login page

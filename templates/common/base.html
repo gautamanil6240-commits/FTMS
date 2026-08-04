@@ -13,14 +13,27 @@
     <meta name="description"
           content="Football Tournament Management System">
 
-    <title>
+<title>
         {% block title %}FTMS{% endblock %}
     </title>
+
+    {# Anti-FOUC: apply saved theme before the page renders to avoid a flash of the wrong theme #}
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('ftms-theme') === 'light') {
+                    document.documentElement.classList.add('light-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     <link rel="stylesheet"
           href="{% static 'css/base.css' %}">
 
     {% block extra_css %}{% endblock %}
+
+    <script src="{% static 'js/theme.js' %}" defer></script>
 
 </head>
 

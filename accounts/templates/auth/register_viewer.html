@@ -17,23 +17,23 @@ Viewer Register — FTMS
         align-items: center;
         justify-content: center;
         padding: 100px 20px 50px;
-        background-image: 
-            linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)),
+background-image: 
+            linear-gradient(var(--auth-overlay-a), var(--auth-overlay-b)),
             url('https://images.unsplash.com/photo-1577223033560-36ba21c551d6?w=1920&q=80');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    .register-container {
+.register-container {
         display: flex;
         width: 100%;
         max-width: 950px;
-        background: rgba(10, 15, 35, 0.8);
+background: var(--reg-panel);
         backdrop-filter: blur(12px);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-rich);
         overflow: hidden;
     }
 
@@ -44,8 +44,8 @@ Viewer Register — FTMS
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(10, 15, 35, 0) 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(10, 15, 35, 0) 100%);
+        color: var(--text-primary);
     }
 
     .register-left h1 {
@@ -53,12 +53,12 @@ Viewer Register — FTMS
         font-weight: 800;
         margin-bottom: 20px;
         line-height: 1.2;
-        color: #22c55e;
+        color: var(--accent);
     }
 
     .register-left p {
         font-size: 15px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-light);
         line-height: 1.6;
         margin-bottom: 25px;
     }
@@ -76,11 +76,11 @@ Viewer Register — FTMS
         align-items: center;
         gap: 10px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-light);
     }
 
     .info-list li i {
-        color: #22c55e;
+        color: var(--accent);
     }
 
     /* ===== RIGHT SECTION (FORM) ===== */
@@ -95,7 +95,7 @@ Viewer Register — FTMS
         width: 6px;
     }
     .register-right::-webkit-scrollbar-thumb {
-        background: rgba(34, 197, 94, 0.3);
+        background: var(--accent-border);
         border-radius: 10px;
     }
 
@@ -118,12 +118,12 @@ Viewer Register — FTMS
         width: 90px;
         height: 90px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px dashed #22c55e;
+        background: var(--bg-glass);
+        border: 2px dashed var(--accent);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
         font-size: 32px;
         overflow: hidden;
         position: relative;
@@ -133,7 +133,7 @@ Viewer Register — FTMS
 
     .profile-pic-preview:hover {
         border-style: solid;
-        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 0 20px var(--accent-glow);
     }
 
     .profile-pic-preview img {
@@ -144,19 +144,19 @@ Viewer Register — FTMS
     }
 
     .upload-btn {
-        background: rgba(34, 197, 94, 0.1);
-        color: #22c55e;
+        background: var(--accent-soft);
+        color: var(--accent);
         padding: 5px 12px;
         border-radius: 50px;
         font-size: 11px;
         font-weight: 600;
         cursor: pointer;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        border: 1px solid var(--accent-border);
         transition: all 0.2s;
     }
 
     .upload-btn:hover {
-        background: rgba(34, 197, 94, 0.2);
+        background: var(--accent-soft-2);
     }
 
     /* Override for file input inside profile-pic-upload */
@@ -179,7 +179,7 @@ Viewer Register — FTMS
         left: 15px;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         font-size: 14px;
     }
 
@@ -191,29 +191,29 @@ Viewer Register — FTMS
     .auth-form select {
         width: 100%;
         padding: 12px 15px 12px 45px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-glass);
+        border: 1px solid var(--border-strong);
         border-radius: 10px;
-        color: white;
+        color: var(--text-primary);
         font-size: 14px;
         transition: all 0.3s;
         box-sizing: border-box;
     }
 
     .auth-form select option {
-        background: #0a0f1e;
-        color: white;
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
     .auth-form input::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
     }
 
     .auth-form input:focus,
     .auth-form select:focus {
         outline: none;
-        border-color: #22c55e;
-        background: rgba(34, 197, 94, 0.05);
+        border-color: var(--accent);
+        background: var(--accent-soft);
     }
 
     /* Grid layouts */
@@ -232,7 +232,7 @@ Viewer Register — FTMS
     /* Password hint text */
     .helper-text {
         font-size: 10px;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         margin-left: 10px;
         margin-top: -5px;
     }
@@ -242,8 +242,8 @@ Viewer Register — FTMS
         width: 100%;
         padding: 14px;
         margin-top: 10px;
-        background: #22c55e;
-        color: #0a0f1e;
+        background: var(--accent);
+        color: var(--text-primary);
         border: none;
         border-radius: 10px;
         font-size: 16px;
@@ -253,9 +253,9 @@ Viewer Register — FTMS
     }
 
     .auth-form button[type="submit"]:hover {
-        background: #16a34a;
+        background: var(--accent-hover);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.35);
+        box-shadow: 0 5px 15px var(--accent-glow);
     }
 
     /* Login redirect link */
@@ -263,32 +263,32 @@ Viewer Register — FTMS
         text-align: center;
         margin-top: 12px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .login-redirect a {
-        color: #22c55e;
+        color: var(--accent);
         text-decoration: none;
         font-weight: 600;
         transition: color 0.2s;
     }
 
     .login-redirect a:hover {
-        color: #16a34a;
+        color: var(--accent-hover);
         text-decoration: underline;
     }
 
     /* Error messages */
     .error-box {
-        background: rgba(220, 38, 38, 0.15);
-        border: 1px solid rgba(220, 38, 38, 0.3);
+        background: var(--danger-soft);
+        border: 1px solid var(--danger-border);
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 10px;
-        color: #fca5a5;
+        color: var(--danger);
     }
     .error-box strong {
-        color: #f87171;
+        color: var(--danger);
     }
     .error-box ul {
         margin: 5px 0 0 15px;

@@ -9,8 +9,8 @@
     min-height: 100vh;
     padding: 90px 60px 60px;
     background:
-        radial-gradient(circle at top right, rgba(34, 197, 94, 0.1), transparent 40%),
-        linear-gradient(rgba(5, 8, 17, 0.92), rgba(3, 5, 10, 0.96)),
+        radial-gradient(circle at top right, var(--accent-soft), transparent 40%),
+        linear-gradient(var(--coach-bg-top), var(--coach-bg-bottom)),
         url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=80')
         no-repeat center center fixed;
     background-size: cover;
@@ -35,16 +35,16 @@
     width: 75px;
     height: 75px;
     border-radius: 50%;
-    border: 2px solid #22c55e;
+    border: 2px solid var(--accent);
     object-fit: cover;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-glass);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     font-size: 30px;
     overflow: hidden;
-    box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 0 25px var(--accent-glow);
 }
 
 .dash-avatar img {
@@ -56,17 +56,17 @@
 .dash-welcome h1 {
     font-size: 32px;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 6px;
     letter-spacing: -0.5px;
 }
 
 .dash-welcome p {
     font-size: 13px;
-    color: rgba(255,255,255,0.5);
+    color: var(--text-muted);
 }
 
-.dash-welcome span { color: #22c55e; }
+.dash-welcome span { color: var(--accent); }
 
 .header-actions {
     display: flex;
@@ -76,8 +76,8 @@
 
 .btn-action {
     padding: 12px 24px;
-    background: #22c55e;
-    color: #060a14;
+    background: var(--accent);
+    color: var(--text-primary);
     border-radius: 10px;
     font-size: 13px;
     font-weight: 700;
@@ -88,26 +88,26 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 15px rgba(34,197,94,0.2);
+    box-shadow: 0 4px 15px var(--accent-glow);
 }
 
 .btn-action:hover {
-    background: #16a34a;
+    background: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+    box-shadow: 0 6px 20px var(--accent-glow);
 }
 
 .btn-action-alt {
-    background: rgba(255, 255, 255, 0.06);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
     box-shadow: none;
 }
 
 .btn-action-alt:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(34, 197, 94, 0.4);
-    color: #22c55e;
+    background: var(--bg-glass-2);
+    border-color: var(--accent-border);
+    color: var(--accent);
 }
 
 /* Enhanced Stats Row */
@@ -119,8 +119,8 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, rgba(10, 16, 31, 0.9), rgba(6, 10, 20, 0.95));
-    border: 1px solid rgba(34, 197, 94, 0.18);
+    background: linear-gradient(135deg, var(--coach-card-top), var(--coach-card-bottom));
+    border: 1px solid var(--accent-border);
     border-radius: 16px;
     padding: 24px;
     text-align: center;
@@ -136,15 +136,15 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #22c55e, transparent);
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .stat-card:hover {
-    border-color: rgba(34, 197, 94, 0.5);
+    border-color: var(--accent-soft-2);
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px var(--shadow-modal);
 }
 
 .stat-card:hover::after { opacity: 1; }
@@ -154,14 +154,14 @@
 .stat-num {
     font-size: 34px;
     font-weight: 800;
-    color: #22c55e;
+    color: var(--accent);
     line-height: 1;
     margin-bottom: 8px;
 }
 
 .stat-label {
     font-size: 11px;
-    color: rgba(255,255,255,0.45);
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-weight: 600;
@@ -169,8 +169,8 @@
 
 /* Profile Details Card */
 .profile-overview-card {
-    background: linear-gradient(135deg, rgba(10, 16, 31, 0.85), rgba(6, 10, 20, 0.9));
-    border: 1px solid rgba(34, 197, 94, 0.15);
+    background: linear-gradient(135deg, var(--coach-card-top), var(--coach-card-bottom));
+    border: 1px solid var(--accent-border);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 35px;
@@ -192,7 +192,7 @@
 .profile-info-item label {
     display: block;
     font-size: 11px;
-    color: rgba(255,255,255,0.4);
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1.2px;
     margin-bottom: 6px;
@@ -201,7 +201,7 @@
 
 .profile-info-item div {
     font-size: 15px;
-    color: rgba(255,255,255,0.95);
+    color: var(--text-strong);
     font-weight: 600;
 }
 
@@ -209,7 +209,7 @@
 .section-title {
     font-size: 18px;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -218,12 +218,12 @@
 
 /* Table */
 .t-table {
-    background: rgba(6, 10, 20, 0.9);
-    border: 1px solid rgba(34, 197, 94, 0.15);
+    background: var(--coach-table-bg);
+    border: 1px solid var(--accent-border);
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px var(--shadow-modal);
 }
 
 .t-table table {
@@ -232,32 +232,32 @@
 }
 
 .t-table th {
-    background: rgba(34, 197, 94, 0.08);
+    background: var(--accent-soft);
     padding: 16px 22px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
-    color: #22c55e;
+    color: var(--accent);
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    border-bottom: 1px solid rgba(34, 197, 94, 0.15);
+    border-bottom: 1px solid var(--accent-border);
 }
 
 .t-table td {
     padding: 16px 22px;
     font-size: 14px;
-    color: rgba(255,255,255,0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-strong);
+    border-bottom: 1px solid var(--border-soft);
 }
 
 .t-table tr:last-child td { border-bottom: none; }
-.t-table tr:hover td { background: rgba(34, 197, 94, 0.04); }
+.t-table tr:hover td { background: var(--accent-soft); }
 
 .btn-view {
     padding: 6px 16px;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #22c55e;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
@@ -265,13 +265,13 @@
     transition: 0.3s;
 }
 
-.btn-view:hover { background: rgba(34, 197, 94, 0.25); }
+.btn-view:hover { background: var(--accent-soft-2); }
 
 .btn-remove {
     padding: 6px 16px;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-border);
+    color: var(--danger);
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
@@ -280,13 +280,13 @@
     margin-left: 6px;
 }
 
-.btn-remove:hover { background: rgba(239, 68, 68, 0.25); }
+.btn-remove:hover { background: var(--danger-soft); }
 
 .btn-perf {
     padding: 6px 16px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
+    background: var(--info-soft);
+    border: 1px solid var(--info-border);
+    color: var(--info);
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
@@ -296,12 +296,12 @@
     margin-left: 6px;
 }
 
-.btn-perf:hover { background: rgba(59, 130, 246, 0.25); }
+.btn-perf:hover { background: var(--info-soft); }
 
 .empty-box {
     text-align: center;
     padding: 60px 20px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
 }
 
 .empty-box .empty-icon { font-size: 50px; margin-bottom: 15px; }
@@ -314,7 +314,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--bg-overlay);
     backdrop-filter: blur(8px);
     display: none;
     justify-content: center;
@@ -330,11 +330,11 @@
 }
 
 .edit-profile-panel {
-    background: rgba(10, 15, 30, 0.98);
-    border: 1px solid rgba(34, 197, 94, 0.35);
+    background: var(--bg-card);
+    border: 1px solid var(--accent-border);
     padding: 35px;
     border-radius: 20px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 25px 50px var(--shadow-rich);
     width: 100%;
     max-width: 550px;
     max-height: 85vh;
@@ -345,14 +345,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(34, 197, 94, 0.15);
+    border-bottom: 1px solid var(--accent-border);
     padding-bottom: 15px;
     margin-bottom: 25px;
 }
 
 .modal-header h3 {
     margin: 0;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 1.35rem;
     font-weight: 700;
 }
@@ -361,19 +361,19 @@
     background: none;
     border: none;
     font-size: 1.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     cursor: pointer;
     line-height: 1;
 }
 
-.close-modal-btn:hover { color: #ef4444; }
+.close-modal-btn:hover { color: var(--danger); }
 
 .form-group { margin-bottom: 20px; }
 
 .form-group label {
     display: block;
     font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
     font-weight: 600;
     margin-bottom: 6px;
 }
@@ -383,32 +383,32 @@
 .form-group textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--border-strong);
     border-radius: 9px;
     box-sizing: border-box;
     font-size: 0.95rem;
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    background-color: var(--bg-glass);
     transition: all 0.2s ease;
 }
 
 .form-group input:focus, 
 .form-group select:focus {
     outline: none;
-    border-color: #22c55e;
-    background-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+    border-color: var(--accent);
+    background-color: var(--bg-glass-2);
+    box-shadow: 0 0 0 3px var(--accent-soft-2);
 }
 
 .alert-msg {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    background: var(--accent-soft-2);
+    color: var(--accent);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 25px;
-    border-left: 5px solid #22c55e;
+    border-left: 5px solid var(--accent);
     font-weight: 500;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    border: 1px solid var(--accent-border);
 }
 
 @media (max-width: 768px) {
@@ -509,7 +509,7 @@
                     <i class="fas fa-file-pdf"></i> View Certificates
                 </a>
             {% else %}
-                <span style="font-size: 13px; color: rgba(255,255,255,0.4);">No Certificate File</span>
+<span style="font-size: 13px; color: var(--text-muted);">No Certificate File</span>
             {% endif %}
         </div>
     </div>
@@ -517,24 +517,24 @@
 
     <!-- Join Club Section (shown when coach has no club) -->
     {% if not my_club %}
-    <div class="profile-overview-card" style="border-color: rgba(234, 179, 8, 0.3); background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(10, 16, 31, 0.85));">
+<div class="profile-overview-card" style="border-color: var(--warning-border); background: linear-gradient(135deg, var(--warning-soft), var(--coach-card-top));">
         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
             <span style="font-size: 40px;">🏟️</span>
             <div>
-                <h3 style="color: #eab308; font-weight: 700; margin: 0 0 4px;">Join a Club</h3>
-                <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin: 0;">Select a club to start recruiting players to your squad.</p>
+                <h3 style="color: var(--warning); font-weight: 700; margin: 0 0 4px;">Join a Club</h3>
+                <p style="color: var(--text-muted); font-size: 13px; margin: 0;">Select a club to start recruiting players to your squad.</p>
             </div>
         </div>
         <form method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 15px;">
             {% csrf_token %}
             <input type="hidden" name="join_club" value="1">
-            <select name="join_club_id" required style="padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 14px; min-width: 200px;">
+            <select name="join_club_id" required style="padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text-primary); font-size: 14px; min-width: 200px;">
                 <option value="">-- Select Club --</option>
                 {% for club in all_clubs %}
                 <option value="{{ club.id }}">{{ club.name }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn-action" style="background: #eab308; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);">
+            <button type="submit" class="btn-action" style="background: var(--warning); box-shadow: 0 4px 15px var(--warning-border);">
                 <i class="fas fa-sign-in-alt"></i> Join Club
             </button>
         </form>
@@ -560,7 +560,7 @@
                 {% for player in my_roster %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td><strong style="color:white;">{{ player.full_name }}</strong></td>
+                    <td><strong style="color:var(--text-primary);">{{ player.full_name }}</strong></td>
 <td>{{ player.get_preferred_position_display|default:"Player" }}</td>
                     <td>{{ player.age|default:"N/A" }}</td>
 <td>
@@ -607,7 +607,7 @@
                 <label>Upload Certificates / Credentials</label>
                 {{ form.certificates }}
                 {% if coach.certificates %}
-                  <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 6px;">Current: {{ coach.certificates.name }}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">Current: {{ coach.certificates.name }}</div>
                 {% endif %}
             </div>
             <button type="submit" class="btn-action" style="width: 100%; justify-content: center; margin-top: 15px;">Save Changes</button>
@@ -630,7 +630,7 @@
             {% if my_roster %}
             <div class="form-group">
                 <label>Player *</label>
-                <select name="performance_player_id" id="performancePlayerId" required style="width: 100%; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 9px; box-sizing: border-box; font-size: 0.95rem; color: #ffffff; background-color: rgba(255,255,255,0.04);">
+                <select name="performance_player_id" id="performancePlayerId" required style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 9px; box-sizing: border-box; font-size: 0.95rem; color: var(--text-primary); background-color: var(--bg-glass);">
                     <option value="">-- Select Player --</option>
                     {% for p in my_roster %}
                     <option value="{{ p.id }}">{{ p.full_name }} ({{ p.get_preferred_position_display|default:"Player" }})</option>
@@ -672,7 +672,7 @@
                 💾 Save Performance Record
             </button>
             {% else %}
-            <div style="padding: 40px; text-align: center; color: rgba(255,255,255,0.4);">
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">
                 <p style="font-size: 40px; margin-bottom: 10px;">📋</p>
                 <p>Add players to your squad first before logging performance.</p>
             </div>
@@ -692,15 +692,15 @@
         <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="add_to_roster" value="1">
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 20px;">
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
                 Check the free agent player entries below to recruit them into your active team squad.
             </p>
 
-            <div style="max-height: 350px; overflow-y: auto; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="max-height: 350px; overflow-y: auto; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px;">
                 {% if available_players %}
                     <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
                         <thead>
-                            <tr style="background: rgba(34,197,94,0.1); border-bottom: 1px solid rgba(34,197,94,0.2); color: #22c55e;">
+                            <tr style="background: var(--accent-soft); border-bottom: 1px solid var(--accent-border); color: var(--accent);">
                                 <th style="padding: 12px; width: 40px; text-align: center;">Select</th>
                                 <th style="padding: 12px;">Player Name</th>
                                 <th style="padding: 12px;">Position</th>
@@ -708,18 +708,18 @@
                         </thead>
                         <tbody>
                             {% for p in available_players %}
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.8);">
+                                <tr style="border-bottom: 1px solid var(--border-soft); color: var(--text-strong);">
                                     <td style="padding: 12px; text-align: center;">
-                                        <input type="checkbox" name="selected_players" value="{{ p.id }}" style="width: 18px; height: 18px; cursor: pointer; accent-color: #22c55e;">
+                                        <input type="checkbox" name="selected_players" value="{{ p.id }}" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);">
                                     </td>
-                                    <td style="padding: 12px; font-weight: 600; color: white;">{{ p.full_name }}</td>
+                                    <td style="padding: 12px; font-weight: 600; color: var(--text-primary);">{{ p.full_name }}</td>
                                     <td style="padding: 12px;">{{ p.get_preferred_position_display|default:"Player" }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <div style="padding: 40px; text-align: center; color: rgba(255,255,255,0.4);">
+                    <div style="padding: 40px; text-align: center; color: var(--text-muted);">
                         No unassigned players are currently available in the system.
                     </div>
                 {% endif %}

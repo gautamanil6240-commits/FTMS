@@ -1,10 +1,10 @@
-/* home.css */
+/* home.css — theme-aware via shared CSS variables from base.css */
 
 .home-page {
     width: 100%;
     height: 100vh;
     background:
-        linear-gradient(rgba(0,0,0,0.60), rgba(0,0,0,0.65)),
+        linear-gradient(var(--hero-overlay-a), rgba(0,0,0,0.65)),
         url('/static/images/homebg.png');
     background-size: cover;
     background-position: center;
@@ -28,19 +28,19 @@
 .home-content h1 {
     font-size: 70px;
     font-weight: 900;
-    color: white;
+    color: var(--hero-text);
     margin-bottom: 20px;
     text-shadow: 2px 2px 15px rgba(0,0,0,0.8);
     line-height: 1.1;
 }
 
 .home-content h1 span {
-    color: #22c55e;
+    color: var(--accent);
 }
 
 .home-content p {
     font-size: 20px;
-    color: rgba(255,255,255,0.75);
+    color: var(--hero-muted);
     margin-bottom: 45px;
     line-height: 1.7;
 }
@@ -66,28 +66,29 @@
 
 /* Button 1 - Login - filled green */
 .btn-login-home {
-    background: #22c55e;
-    color: #0a0f1e;
-    border: 2px solid #22c55e;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: 2px solid var(--accent);
 }
 
 .btn-login-home:hover {
-    background: #16a34a;
-    border-color: #16a34a;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(34,197,94,0.4);
+    box-shadow: 0 10px 30px var(--accent-glow);
 }
 
 /* Button 2 - Tournament - outline green */
 .btn-tournament-home {
     background: transparent;
-    color: #22c55e;
-    border: 2px solid #22c55e;
+    color: var(--accent);
+    border: 2px solid var(--accent);
 }
 
 .btn-tournament-home:hover {
-    background: #22c55e;
-    color: #0a0f1e;
+    background: var(--accent);
+    color: var(--on-accent);
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(34,197,94,0.4);
+    box-shadow: 0 10px 30px var(--accent-glow);
 }
+

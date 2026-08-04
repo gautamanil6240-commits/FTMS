@@ -1,3 +1,5 @@
+/* login_selection.css — theme-aware via shared CSS variables from base.css */
+
 .sel-container {
     width: 90%;
     max-width: 1000px;
@@ -12,13 +14,13 @@
 .sel-header h1 {
     font-size: 42px;
     font-weight: 700;
-    color: white;
+    color: var(--hero-text);
     margin-bottom: 10px;
 }
 
 .sel-header p {
     font-size: 16px;
-    color: rgba(255,255,255,0.5);
+    color: var(--hero-muted);
 }
 
 /* 3 cards row 1, 2 cards row 2 centered */
@@ -30,8 +32,8 @@
 }
 
 .role-card {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: var(--input-transp);
+    border: 1px solid var(--input-transp-2);
     border-radius: 16px;
     padding: 30px 20px;
     width: 175px;
@@ -40,10 +42,10 @@
 }
 
 .role-card:hover {
-    border-color: #22c55e;
-    background: rgba(34,197,94,0.1);
+    border-color: var(--accent);
+    background: var(--accent-soft);
     transform: translateY(-6px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: 0 15px 35px var(--shadow-rich);
 }
 
 .role-icon {
@@ -52,14 +54,14 @@
 }
 
 .role-name {
-    color: white;
+    color: var(--hero-text);
     font-size: 15px;
     font-weight: 700;
     margin-bottom: 6px;
 }
 
 .role-desc {
-    color: rgba(255,255,255,0.4);
+    color: var(--hero-muted);
     font-size: 12px;
     margin-bottom: 18px;
 }
@@ -79,17 +81,17 @@
 }
 
 .rbtn-login {
-    background: #22c55e;
-    color: #0a0f1e;
+    background: var(--accent);
+    color: var(--on-accent);
 }
 
-.rbtn-login:hover { background: #16a34a; }
+.rbtn-login:hover { background: var(--accent-hover); }
 
 .rbtn-reg {
-    border: 1.5px solid #22c55e;
-    color: #22c55e;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
 }
 
 .rbtn-reg:hover {
-    background: rgba(34,197,94,0.15);
+    background: var(--accent-soft);
 }

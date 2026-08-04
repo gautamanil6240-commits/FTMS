@@ -1,156 +1,417 @@
+{% extends 'common/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTMS - Club Manager Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        .glass-card {
-            background: rgba(18, 24, 38, 0.55);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-    </style>
-</head>
-<body class="bg-cover bg-center bg-no-repeat min-h-screen font-sans text-slate-100" 
-      style="background-image: linear-gradient(rgba(11, 15, 26, 0.75), rgba(11, 15, 26, 0.90)), url('{% static "manager_2.webp" %}'); background-attachment: fixed;">
 
-    <!-- Navbar with Logout & Consistent Theme -->
-    <nav class="w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">⚽</span>
-            <span class="text-xl font-bold tracking-wider text-emerald-500">FTMS</span>
-        </div>
-        <div class="flex items-center gap-6 text-sm font-medium text-slate-300">
-            <a href="#" class="hover:text-emerald-400 transition">Home</a>
-            <a href="#" class="hover:text-emerald-400 transition">Tournaments</a>
-            <a href="/admin/" class="hover:text-emerald-400 transition">Admin Panel</a>
-        </div>
-        <div>
-            <form action="{% url 'logout' %}" method="POST" class="inline">
-                {% csrf_token %}
-                <button type="submit" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-slate-950 font-semibold px-4 py-2 rounded-lg text-sm border border-rose-500/20 transition flex items-center gap-1.5">
-                    🚪 Logout
-                </button>
-            </form>
-        </div>
-    </nav>
+{% block title %}FTMS — Club Manager Dashboard{% endblock %}
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 py-10">
-        
-        <!-- Header & Tournament Action Flow -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Welcome, <span class="text-emerald-400">{{ request.user.username|title }}</span> 👋</h1>
-                <p class="text-slate-400 mt-1">Club Profile Dashboard — Register and oversee your club hierarchy</p>
-                {% if club.is_verified %}
-                    <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        ✅ Verified Club
-                    </span>
+{% block extra_css %}
+<style>
+.dashboard-page {
+    min-height: 100vh;
+    padding: 80px 50px 60px;
+    background:
+        linear-gradient(var(--auth-overlay-a), var(--auth-overlay-b)),
+url("{% static 'clubs/image/manager.webp' %}")
+        no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Light mode: force a solid light surface so the dashboard is fully light */
+html.light-mode .dashboard-page,
+body.light-mode .dashboard-page {
+    background: var(--bg-page) !important;
+}
+
+/* Header */
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.dash-user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.dash-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    object-fit: cover;
+    background: var(--bg-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 28px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.dash-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dash-welcome h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.dash-welcome p {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.dash-welcome span { color: var(--accent); }
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.verified-badge.verified {
+    background: var(--accent-soft-2);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+}
+
+.verified-badge.pending {
+    background: var(--warning-soft);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+}
+
+/* Buttons */
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--accent);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-create:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+/* Stats */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background: var(--coach-card-bottom);
+    border: 1px solid var(--accent-border);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+}
+
+.stat-icon { font-size: 32px; margin-bottom: 10px; }
+
+.stat-num {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Sidebar Layout */
+.dash-split {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+}
+
+/* Cards */
+.glass-card {
+    background: var(--coach-card-bottom);
+    border: 1px solid var(--accent-border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.glass-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--accent-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Info rows */
+.info-row {
+    margin-bottom: 14px;
+}
+
+.info-row .info-label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.info-row .info-value {
+    font-size: 14px;
+    color: var(--text-strong);
+    font-weight: 500;
+}
+
+/* Achievements */
+.achievement-item {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.achievement-item:last-child { margin-bottom: 0; }
+
+.achievement-item .ach-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--warning);
+    margin-bottom: 3px;
+}
+
+.achievement-item .ach-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Squad List */
+.squad-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.squad-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.squad-item:last-child { border-bottom: none; }
+
+.squad-item .player-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+.squad-item .player-pos {
+    background: var(--accent-soft-2);
+    color: var(--accent);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; margin-bottom: 16px; }
+
+/* Scrollable achievements */
+.achievements-scroll {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+@media (max-width: 992px) {
+    .dash-split {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-page { padding: 80px 20px 40px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-user-profile">
+            <div class="dash-avatar">
+                {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo.url }}" alt="{{ user.username }}">
                 {% else %}
-                    <span class="inline-flex items-center gap-1.5 mt-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        ⏱️ Pending Verification
-                    </span>
+                    🏆
                 {% endif %}
             </div>
-            
-            <!-- Real Tournament Flow: Directs to Coach Management First -->
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'clubs:add_coach' %}" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-5 py-2.5 rounded-lg text-sm shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
-                    🛡️ Add / Assign Coach <span class="text-xs bg-slate-950/20 px-2 py-0.5 rounded text-slate-950 font-extrabold">coanumber</span>
-                </a>
+            <div class="dash-welcome">
+                <h1>Welcome, <span>{{ request.user.username|title }}</span> 👋</h1>
+                <p>Club Manager Dashboard — Register and oversee your club hierarchy</p>
+                {% if club.is_verified %}
+                    <span class="verified-badge verified">✅ Verified Club</span>
+                {% else %}
+                    <span class="verified-badge pending">⏱️ Pending Verification</span>
+                {% endif %}
             </div>
         </div>
+        <div>
+            <a href="{% url 'clubs:add_coach' %}" class="btn-create">
+                🛡️ Assign Coach
+            </a>
+        </div>
+    </div>
 
-        <!-- Stat Grid Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500 transition hover:scale-[1.01] hover:shadow-xl">
-                <span class="text-xl block mb-1">🏃‍♂️</span>
-                <div class="text-3xl font-black tracking-tight text-white">{{ total_players|default:"0" }}</div>
-                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Total Players (<span class="text-emerald-400">plynumber</span>)</div>
-            </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-500 transition hover:scale-[1.01] hover:shadow-xl">
-                <span class="text-xl block mb-1">🏟️</span>
-                <div class="text-3xl font-black tracking-tight text-white">{{ matches_played|default:"0" }}</div>
-                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Matches Played</div>
-            </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500 transition hover:scale-[1.01] hover:shadow-xl">
-                <span class="text-xl block mb-1">🟢</span>
-                <div class="text-3xl font-black tracking-tight text-emerald-400">{{ wins|default:"0" }}</div>
-                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Wins</div>
-            </div>
-            <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500 transition hover:scale-[1.01] hover:shadow-xl">
-                <span class="text-xl block mb-1">🔴</span>
-                <div class="text-3xl font-black tracking-tight text-rose-400">
-                    {{ losses|default:"0" }} <span class="text-slate-600 text-lg">/</span> <span class="text-amber-400 text-2xl">{{ draws|default:"0" }}</span>
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">🏃‍♂️</div>
+            <div class="stat-num">{{ total_players|default:"0" }}</div>
+            <div class="stat-label">Total Players</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏟️</div>
+            <div class="stat-num">{{ matches_played|default:"0" }}</div>
+            <div class="stat-label">Matches Played</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-num">{{ wins|default:"0" }}</div>
+            <div class="stat-label">Wins</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔴</div>
+            <div class="stat-num">{{ losses|default:"0" }}<span style="color:var(--text-muted);font-size:14px;">/</span>{{ draws|default:"0" }}</div>
+            <div class="stat-label">Losses / Draws</div>
+        </div>
+    </div>
+
+    <!-- Split Layout -->
+    <div class="dash-split">
+
+        <!-- Left: Club Details & Achievements -->
+        <div>
+            <!-- Club Credentials -->
+            <div class="glass-card">
+                <h3>📋 Club Credentials</h3>
+                <div class="info-row">
+                    <span class="info-label">Club Name</span>
+                    <span class="info-value">{{ club.name|default:"Not specified" }}</span>
                 </div>
-                <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mt-1">Losses / Draws</div>
+                <div class="info-row">
+                    <span class="info-label">City / Location</span>
+                    <span class="info-value">{{ club.city|default:"Not specified" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone No</span>
+                    <span class="info-value">{{ club.phone|default:"Not specified" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Registered Since</span>
+                    <span class="info-value">{{ club.created_at|date:"F d, Y" }}</span>
+                </div>
             </div>
-        </div>
 
-        <!-- Main Dashboard Split Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- Left Column: Club Meta Details & Achievements -->
-            <div class="space-y-8 lg:col-span-1">
-                <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">📋 Club Credentials</h3>
-                    <div class="space-y-3 text-sm">
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Club Name</span> <span class="text-slate-200 font-medium">{{ club.name|default:"Not specified" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">City / Location</span> <span class="text-slate-200 font-medium">{{ club.city|default:"Not specified" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Phone No</span> <span class="text-slate-200 font-medium">{{ club.phone|default:"Not specified" }}</span></div>
-                        <div><span class="text-slate-400 block text-xs uppercase font-bold tracking-wider">Registered Since</span> <span class="text-slate-200 font-medium">{{ club.created_at|date:"F d, Y" }}</span></div>
+            <!-- Club Achievements -->
+            <div class="glass-card">
+                <h3>🏆 Club Achievements</h3>
+                {% if achievements %}
+                <div class="achievements-scroll">
+                    {% for achievement in achievements %}
+                    <div class="achievement-item">
+                        <div class="ach-title">{{ achievement.title }}</div>
+                        <div class="ach-desc">{{ achievement.description }}</div>
                     </div>
+                    {% endfor %}
                 </div>
-
-                <!-- Club Achievements Card -->
-                <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">🏆 Club Achievements</h3>
-                    {% if achievements %}
-                        <div class="space-y-3 max-h-48 overflow-y-auto pr-1">
-                            {% for achievement in achievements %}
-                                <div class="p-3 bg-slate-900/40 border border-slate-800 rounded-lg">
-                                    <p class="font-bold text-sm text-amber-400">{{ achievement.title }}</p>
-                                    <p class="text-xs text-slate-400 mt-0.5">{{ achievement.description }}</p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-6">
-                            <span class="text-2xl block mb-1">🏅</span>
-                            <p class="text-slate-400 text-xs italic">No tournament achievements recorded yet.</p>
-                        </div>
-                    {% endif %}
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🏅</div>
+                    <p>No tournament achievements recorded yet.</p>
                 </div>
+                {% endif %}
             </div>
-
-            <!-- Right Column: Roster overview -->
-            <div class="space-y-8 lg:col-span-2">
-                <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">👥 Squad Overview</h3>
-                    {% if recent_players %}
-                        <div class="divide-y divide-slate-800/60">
-                            {% for player in recent_players %}
-                                <div class="py-3 flex justify-between items-center">
-                                    <div class="font-medium text-slate-200">{{ player.user.username }}</div>
-                                    <div class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">{{ player.position }}</div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-10">
-                            <span class="text-3xl block mb-2">⚽</span>
-                            <p class="text-slate-400 text-sm">No squad members registered under this club dashboard yet. Assign a coach to start adding players!</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
         </div>
-    </main>
-</body>
-</html>
+
+        <!-- Right: Squad Overview -->
+        <div>
+            <div class="glass-card">
+                <h3>👥 Squad Overview</h3>
+                {% if recent_players %}
+                <div class="squad-list">
+{% for player in recent_players %}
+                    <div class="squad-item">
+                        <span class="player-name">{{ player.full_name|default:player.user.username }}</span>
+                        <span class="player-pos">{{ player.position }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">⚽</div>
+                    <p>No squad members registered under this club dashboard yet. Assign a coach to start adding players!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+

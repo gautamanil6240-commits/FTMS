@@ -1,134 +1,323 @@
+{% extends 'common/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTMS - Assign Coach</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        .glass-card {
-            background: rgba(18, 24, 38, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-    </style>
-</head>
-<body class="bg-cover bg-center bg-no-repeat min-h-screen font-sans text-slate-100" 
-      style="background-image: linear-gradient(rgba(11, 15, 26, 0.85), rgba(11, 15, 26, 0.95)), url('{% static "manager_2.webp" %}'); background-attachment: fixed;">
 
-    <!-- Navbar -->
-    <nav class="w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">⚽</span>
-            <span class="text-xl font-bold tracking-wider text-emerald-500">FTMS</span>
-        </div>
-        <div class="flex items-center gap-6 text-sm font-medium text-slate-300">
-            <a href="{% url 'clubs:manager_dashboard' %}" class="hover:text-emerald-400 transition">Dashboard</a>
-            <a href="#" class="hover:text-emerald-400 transition">Tournaments</a>
-        </div>
-        <div>
-            <form action="{% url 'logout' %}" method="POST" class="inline">
+{% block title %}FTMS — Assign Coach{% endblock %}
+
+{% block extra_css %}
+<style>
+.assign-page {
+    min-height: 100vh;
+    padding: 80px 50px 60px;
+    background:
+        linear-gradient(var(--auth-overlay-a), var(--auth-overlay-b)),
+url("{% static 'clubs/image/manager.webp' %}")
+        no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Light mode: force a solid light surface */
+html.light-mode .assign-page,
+body.light-mode .assign-page {
+    background: var(--bg-page) !important;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    transition: 0.3s;
+}
+
+.back-link:hover {
+    color: var(--accent-hover);
+    gap: 12px;
+}
+
+.assign-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.assign-card {
+    background: var(--coach-card-bottom);
+    border: 1px solid var(--accent-border);
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: var(--shadow-rich);
+}
+
+.assign-card h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assign-card h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assign-card .subtext {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.assign-card .subtext code {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* Form */
+.form-group { margin-bottom: 18px; }
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 9px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background-color: var(--bg-surface-soft);
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: var(--bg-glass-2);
+    box-shadow: 0 0 0 3px var(--accent-soft-2);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px var(--accent-glow);
+    margin-top: 8px;
+}
+
+.btn-submit:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Messages */
+.msg {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.msg.error {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-border);
+    color: var(--danger);
+}
+
+.msg.success {
+    background: var(--success-soft);
+    border: 1px solid var(--success-border);
+    color: var(--success);
+}
+
+/* Staff list */
+.staff-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.staff-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.staff-item:last-child { margin-bottom: 0; }
+
+.staff-item .staff-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.staff-item .staff-name code {
+    color: var(--accent);
+    font-size: 12px;
+}
+
+.staff-item .staff-license {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+.staff-item .staff-tag {
+    background: var(--bg-hover);
+    color: var(--text-soft);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; font-style: italic; }
+
+@media (max-width: 992px) {
+    .assign-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .assign-page { padding: 80px 20px 40px; }
+    .form-row { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assign-page">
+    <a href="{% url 'clubs:manager_dashboard' %}" class="back-link">⬅️ Back to Dashboard</a>
+
+    <div class="assign-grid">
+
+        <!-- Assign Coach Form -->
+        <div class="assign-card">
+            <h1>🛡️ Assign New Coach</h1>
+            <p class="subtext">Register a coach to your staff using format: <code>coa65674</code></p>
+
+            {% if messages %}
+            <div style="margin-bottom: 16px;">
+                {% for message in messages %}
+                <div class="msg {{ message.tags }}">{{ message|safe }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'clubs:add_coach' %}">
                 {% csrf_token %}
-                <button type="submit" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-slate-950 font-semibold px-4 py-2 rounded-lg text-sm border border-rose-500/20 transition flex items-center gap-1.5">
-                    🚪 Logout
-                </button>
+                <div class="form-group">
+                    <label>Coach Full Name</label>
+                    <input type="text" name="full_name" placeholder="e.g. Roshan Adhikari" required>
+                </div>
+
+                <div class="form-group">
+                    <label>License Level</label>
+                    <select name="license_level" required>
+                        <option value="" disabled selected>Select License Level</option>
+                        <option value="UEFA Pro License">UEFA Pro License</option>
+                        <option value="UEFA A License">UEFA A License</option>
+                        <option value="UEFA B License">UEFA B License</option>
+                        <option value="AFC Pro License">AFC Pro License</option>
+                        <option value="AFC A Certified">AFC A Certified</option>
+                        <option value="AFC B Certified">AFC B Certified</option>
+                        <option value="AFC C Certificate">AFC C Certificate</option>
+                        <option value="FIFA Grassroots">FIFA Grassroots</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Coach Unique Code (<code>coanumber</code>)</label>
+                    <input type="text" name="coach_id_number" placeholder="e.g. coa65674" pattern="^coa[0-9]+$" title="Must start with 'coa' followed by numbers, e.g., coa65674" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email (Optional)</label>
+                        <input type="email" name="email" placeholder="coach@club.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone (Optional)</label>
+                        <input type="text" name="phone" placeholder="+123456789">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Assign Coach</button>
             </form>
         </div>
-    </nav>
 
-    <!-- Main Section -->
-    <main class="max-w-4xl mx-auto px-6 py-12">
-        <div class="mb-6">
-            <a href="{% url 'clubs:manager_dashboard' %}" class="text-sm text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1 font-medium">
-                ⬅️ Back to Dashboard
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Assign Coach Form Card -->
-            <div class="glass-card rounded-2xl p-8 shadow-2xl">
-                <h1 class="text-2xl font-black text-white mb-2 flex items-center gap-2"><span>🛡️</span> Assign New Coach</h1>
-                <p class="text-xs text-slate-400 mb-6">Register a coach to your staff using format: <span class="text-emerald-400 font-bold">coa65674</span></p>
-                
-                <!-- Django Messages Alert Section -->
-                {% if messages %}
-                    <div class="mb-6 space-y-2">
-                        {% for message in messages %}
-                            <div class="p-3 rounded-lg text-sm border {% if message.tags == 'error' %}bg-rose-500/10 border-rose-500/20 text-rose-400{% else %}bg-emerald-500/10 border-emerald-500/20 text-emerald-400{% endif %}">
-                                {{ message|safe }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <!-- Form Action -->
-                <form method="POST" action="{% url 'clubs:add_coach' %}" class="space-y-4">
-                    {% csrf_token %}
+        <!-- Current Coaching Staff -->
+        <div class="assign-card">
+            <h2>📋 Club Coaching Staff</h2>
+            <div class="staff-list">
+                {% for coach in coaches %}
+                <div class="staff-item">
                     <div>
-                        <label class="block text-xs uppercase font-bold text-slate-400 mb-1">Coach Full Name</label>
-                        <input type="text" name="full_name" placeholder="e.g. Roshan Adhikari" required class="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 transition" />
+                        <div class="staff-name">{{ coach.full_name }} <code>({{ coach.coach_id_number }})</code></div>
+                        <div class="staff-license">{{ coach.license_level }}</div>
                     </div>
-
-                    <div>
-                        <label class="block text-xs uppercase font-bold text-slate-400 mb-1">License Level</label>
-                        <select name="license_level" required class="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 transition">
-                            <option value="" disabled selected>Select License Level</option>
-                            <option value="UEFA Pro License">UEFA Pro License</option>
-                            <option value="UEFA A License">UEFA A License</option>
-                            <option value="UEFA B License">UEFA B License</option>
-                            <option value="AFC Pro License">AFC Pro License</option>
-                            <option value="AFC A Certified">AFC A Certified</option>
-                            <option value="AFC B Certified">AFC B Certified</option>
-                            <option value="AFC C Certificate">AFC C Certificate</option>
-                            <option value="FIFA Grassroots">FIFA Grassroots</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs uppercase font-bold text-slate-400 mb-1">Coach Unique Code (<span class="text-emerald-400 font-extrabold">coanumber</span>)</label>
-                        <input type="text" name="coach_id_number" placeholder="e.g. coa65674" pattern="^coa[0-9]+$" title="Must start with 'coa' followed by numbers, e.g., coa65674" required class="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 transition" />
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs uppercase font-bold text-slate-400 mb-1">Email (Optional)</label>
-                            <input type="email" name="email" placeholder="coach@club.com" class="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 transition" />
-                        </div>
-                        <div>
-                            <label class="block text-xs uppercase font-bold text-slate-400 mb-1">Phone (Optional)</label>
-                            <input type="text" name="phone" placeholder="+123456789" class="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 transition" />
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition mt-2">
-                        Assign Coach
-                    </button>
-                </form>
-            </div>
-
-            <!-- Current Coaching Staff List Card -->
-            <div class="glass-card rounded-2xl p-8 shadow-2xl">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2"><span>📋</span> Club Coaching Staff</h2>
-                <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                    {% for coach in coaches %}
-                        <div class="p-4 bg-slate-900/50 border border-slate-800/80 rounded-xl flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-white text-sm">{{ coach.full_name }} <span class="text-xs text-emerald-400">({{ coach.coach_id_number }})</span></p>
-                                <p class="text-xs text-slate-400 font-medium mt-0.5">{{ coach.license_level }}</p>
-                            </div>
-                            <span class="text-xs bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-semibold">Staff</span>
-                        </div>
-                    {% empty %}
-                        <div class="text-center py-12">
-                            <span class="text-3xl block mb-2">🛡️</span>
-                            <p class="text-slate-500 italic text-sm">No coaches assigned to this club yet.</p>
-                        </div>
-                    {% endfor %}
+                    <span class="staff-tag">Staff</span>
                 </div>
+                {% empty %}
+                <div class="empty-state">
+                    <div class="empty-icon">🛡️</div>
+                    <p>No coaches assigned to this club yet.</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
-    </main>
-</body>
-</html>
+
+    </div>
+</div>
+{% endblock %}

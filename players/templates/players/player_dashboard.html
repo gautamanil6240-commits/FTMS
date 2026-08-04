@@ -13,7 +13,7 @@
        into the page instead of sitting on top like a sticker.
        ============================================================ */
     body {
-      background: #0b1220;
+      background: var(--bg-page-2);
     }
 
     .dashboard-container {
@@ -25,7 +25,7 @@
 
     /* Generic section heading + action-row header used by each block */
     .section-title {
-      color: #f1f5f9; /* near-white — navy would vanish on dark */
+      color: var(--text-body);
       margin: 0;
     }
     .section-header {
@@ -39,16 +39,16 @@
 
     /* ============================================================
        2. ALERT MESSAGES  (.alert-msg)
-       Dark-aware success/danger messages
+       Theme-aware success/danger messages
        ============================================================ */
     .alert-msg {
-      background: rgba(46, 204, 113, 0.1);
-      color: #2ecc71;
+      background: var(--success-soft);
+      color: var(--success);
       padding: 15px;
       border-radius: 8px;
       margin-bottom: 20px;
-      border: 1px solid rgba(46, 204, 113, 0.25);
-      border-left: 5px solid #2ecc71;
+      border: 1px solid var(--success-border);
+      border-left: 5px solid var(--success);
     }
 
     /* ============================================================
@@ -56,10 +56,10 @@
        Top hero banner with photo, identity, medical badge, edit btn
        ============================================================ */
     .profile-card {
-      background: linear-gradient(135deg, #061b56 0%, #0f172a 100%); /* Deep Navy to Slate Black */
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-slate) 100%);
+      color: var(--text-primary);
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 10px 25px var(--shadow-card);
       display: flex;
       flex-wrap: wrap;
       padding: 30px;
@@ -74,8 +74,8 @@
       height: 130px;
       border-radius: 50%;
       overflow: hidden;
-      border: 4px solid #1abc9c;
-      background: #ecf0f1;
+      border: 4px solid var(--teal);
+      background: var(--bg-glass);
       flex-shrink: 0;
     }
     .profile-pic-container img {
@@ -92,12 +92,12 @@
       flex: 1;
     }
     .profile-details h2 {
-      color: #ffffff !important;
+      color: var(--text-primary) !important;
       margin: 0 0 8px 0;
     }
     .profile-meta-text {
       margin: 6px 0;
-      color: #93c5fd; /* Light blue accent color for secondary text */
+      color: var(--text-soft);
       font-size: 0.95rem;
       display: flex;
       align-items: center;
@@ -107,8 +107,8 @@
       margin-bottom: 12px;
     }
     .player-id-badge {
-      background: rgba(34, 197, 94, 0.15);
-      color: #22c55e;
+      background: var(--accent-soft-2);
+      color: var(--accent);
       padding: 2px 10px;
       border-radius: 4px;
       font-family: monospace;
@@ -116,8 +116,8 @@
       letter-spacing: 1px;
     }
     .medical-badge {
-      background: #2ecc71;
-      color: white;
+      background: var(--success);
+      color: var(--text-primary);
       padding: 5px 12px;
       border-radius: 20px;
       font-size: 0.8rem;
@@ -135,9 +135,9 @@
        4. BUTTONS  (.edit-trigger-btn + colour modifiers)
        ============================================================ */
     .edit-trigger-btn {
-      background: rgba(255, 255, 255, 0.12);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: var(--bg-glass-2);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
       padding: 10px 20px;
       font-size: 0.95rem;
       font-weight: bold;
@@ -149,28 +149,28 @@
       gap: 6px;
     }
     .edit-trigger-btn:hover {
-      background: #ffffff;
-      color: #061b56;
+      background: var(--text-primary);
+      color: var(--brand-navy);
     }
     .btn-achievement {
-      background: #f39c12;
-      color: white;
-      border: 1px solid #e67e22;
+      background: var(--amber);
+      color: var(--text-primary);
+      border: 1px solid var(--orange);
       font-size: 0.85rem;
       padding: 8px 18px;
     }
     .btn-graph {
-      background: #3498db;
-      color: white;
-      border: 1px solid #2980b9;
+      background: var(--blue);
+      color: var(--text-primary);
+      border: 1px solid var(--blue);
       font-size: 0.85rem;
       padding: 8px 18px;
     }
 
     /* ============================================================
        5. STATS GRID  (.stats-grid / .stat-card)
-       Profile Information cards — darker-than-page surface with a
-       hairline border + faint accent-tinted glow per card type.
+       Profile Information cards — themed surface with a hairline
+       border + faint accent-tinted glow per card type.
        ============================================================ */
     .stats-grid {
       display: grid;
@@ -178,35 +178,35 @@
       gap: 20px;
     }
     .stat-card {
-      background: #131c31;
+      background: var(--bg-card);
       padding: 20px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-left: 5px solid #3498db;
+      border: 1px solid var(--border-soft);
+      border-left: 5px solid var(--blue);
       box-shadow: 0 4px 20px rgba(52, 152, 219, 0.08);
     }
     .stat-card.meta {
-      border-left-color: #9b59b6;
+      border-left-color: var(--purple);
       box-shadow: 0 4px 20px rgba(155, 89, 182, 0.08);
     }
     .stat-card.club {
-      border-left-color: #64748b;
+      border-left-color: var(--slate-400);
       box-shadow: 0 4px 20px rgba(100, 116, 139, 0.08);
     }
     .stat-card.doc {
-      border-left-color: #e67e22;
+      border-left-color: var(--orange);
       box-shadow: 0 4px 20px rgba(230, 126, 34, 0.08);
     }
     .stat-label {
       font-size: 0.85rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       text-transform: uppercase;
       margin-bottom: 5px;
       font-weight: bold;
     }
     .stat-value {
       font-size: 1.3rem;
-      color: #e2e8f0;
+      color: var(--text-strong);
       font-weight: bold;
     }
     .stat-value.small {
@@ -214,12 +214,12 @@
       margin-top: 5px;
     }
     .doc-link {
-      color: #e67e22;
+      color: var(--orange);
       text-decoration: none;
       font-weight: bold;
     }
     .muted-text {
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     /* ============================================================
@@ -232,10 +232,10 @@
       margin-bottom: 30px;
     }
     .achievement-card {
-      background: #131c31;
+      background: var(--bg-card);
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-left: 5px solid #f1c40f;
+      border: 1px solid var(--border-soft);
+      border-left: 5px solid var(--gold);
       box-shadow: 0 4px 20px rgba(241, 196, 15, 0.06);
       overflow: hidden;
     }
@@ -250,28 +250,28 @@
     }
     .achievement-title {
       margin: 0 0 6px 0;
-      color: #e2e8f0;
+      color: var(--text-strong);
       font-size: 1.05rem;
     }
     .achievement-desc {
       margin: 0;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.88rem;
       line-height: 1.5;
     }
     .achievement-date {
       margin: 8px 0 0 0;
       font-size: 0.75rem;
-      color: #64748b;
+      color: var(--text-faint);
     }
     .empty-state {
       grid-column: 1 / -1;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px dashed rgba(255, 255, 255, 0.1);
+      background: var(--bg-glass);
+      border: 1px dashed var(--border-color);
       border-radius: 12px;
       padding: 40px;
       text-align: center;
-      color: #94a3b8;
+      color: var(--text-muted);
     }
     .empty-state-icon {
       font-size: 40px;
@@ -287,9 +287,9 @@
        Read-only match stats table logged by the coach
        ============================================================ */
     .perf-table-wrap {
-      background: #131c31;
+      background: var(--bg-card);
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-soft);
       overflow: hidden;
       margin-bottom: 30px;
     }
@@ -299,10 +299,10 @@
       font-size: 0.9rem;
     }
     .perf-table th {
-      background: #1a2540; /* a touch lighter than the card surface */
-      color: #cbd5e1;
+      background: var(--bg-th);
+      color: var(--text-soft);
       text-align: left;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 2px solid var(--border-color);
       padding: 14px 18px;
       text-transform: uppercase;
       font-size: 0.75rem;
@@ -314,15 +314,15 @@
     }
     .perf-table td {
       padding: 14px 18px;
-      color: #94a3b8;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
     }
     .perf-table td.strong {
-      color: #e2e8f0;
+      color: var(--text-strong);
       font-weight: 600;
     }
     .perf-table td.bold {
-      color: #e2e8f0;
+      color: var(--text-strong);
       font-weight: 700;
     }
     .perf-table tr:last-child td {
@@ -330,13 +330,13 @@
     }
     .perf-notes-row td {
       padding: 0 18px 14px 18px;
-      color: #64748b;
+      color: var(--text-faint);
       font-size: 0.82rem;
       font-style: italic;
     }
     .rating-badge {
-      background: #22c55e;
-      color: white;
+      background: var(--accent);
+      color: var(--text-primary);
       padding: 3px 12px;
       border-radius: 20px;
       font-weight: 700;
@@ -352,33 +352,35 @@
        8. PERFORMANCE GRAPH MODAL  (.graph-*)
        Large analytics charts shown when "View Graph" is clicked
        ============================================================ */
-    .graph-panel {
-      max-width: 1000px;
+.edit-profile-panel.graph-panel {
+      width: 96vw;
+      max-width: 1600px;
+      max-height: 92vh;
     }
     .graph-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 18px;
     }
     .graph-card {
-      background: #131c31;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-top: 4px solid #3498db;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-top: 4px solid var(--blue);
       border-radius: 12px;
-      padding: 24px;
+      padding: 18px;
     }
-    .graph-card.minutes-card { border-top-color: #9b59b6; }
-    .graph-card.rating-card { border-top-color: #e67e22; }
-    .graph-card.contribution-card { border-top-color: #27ae60; }
-    .graph-card.distribution-card { border-top-color: #f1c40f; }
+    .graph-card.minutes-card { border-top-color: var(--purple); }
+    .graph-card.rating-card { border-top-color: var(--orange); }
+    .graph-card.contribution-card { border-top-color: var(--green); }
+    .graph-card.distribution-card { border-top-color: var(--gold); }
     .graph-card h4 {
-      margin: 0 0 15px 0;
-      color: #e2e8f0;
-      font-size: 1rem;
+      margin: 0 0 12px 0;
+      color: var(--text-strong);
+      font-size: 0.95rem;
     }
     .graph-chart {
       position: relative;
-      height: 260px;
+      height: 300px;
     }
 
     /* ============================================================
@@ -390,7 +392,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: var(--bg-overlay);
       backdrop-filter: blur(4px);
       display: none;
       justify-content: center;
@@ -404,11 +406,11 @@
       opacity: 1;
     }
     .edit-profile-panel {
-      background: #131c31;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px var(--shadow-modal);
       width: 100%;
       max-width: 500px;
       max-height: 85vh;
@@ -424,23 +426,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 2px solid var(--border-color);
       padding-bottom: 10px;
       margin-bottom: 20px;
     }
     .modal-header h3 {
       margin: 0;
-      color: #f1f5f9;
+      color: var(--text-body);
     }
     .close-modal-btn {
       background: none;
       border: none;
       font-size: 1.5rem;
-      color: #95a5a6;
+      color: var(--text-muted);
       cursor: pointer;
     }
     .close-modal-btn:hover {
-      color: #e74c3c;
+      color: var(--red);
     }
 
     /* ============================================================
@@ -452,7 +454,7 @@
     .form-group label {
       display: block;
       font-size: 0.85rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-weight: bold;
       margin-bottom: 5px;
     }
@@ -462,30 +464,30 @@
     .form-group textarea {
       width: 100%;
       padding: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       box-sizing: border-box;
       font-size: 0.9rem;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--bg-input);
+      color: var(--text-strong);
     }
     .form-input:focus,
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: #22c55e;
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft-2);
     }
     .file-help {
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       margin-top: 4px;
     }
     .save-btn {
       width: 100%;
-      background: #1abc9c;
-      color: white;
+      background: var(--teal);
+      color: var(--text-primary);
       border: none;
       padding: 12px;
       font-size: 1rem;
@@ -496,16 +498,16 @@
       margin-top: 10px;
     }
     .save-btn:hover {
-      background: #16a085;
+      background: var(--green);
     }
 
     /* ============================================================
        11. WARNING / ACCOUNT MISMATCH  (.account-warning)
        ============================================================ */
     .account-warning {
-      background: rgba(255, 193, 7, 0.08);
-      color: #eab308;
-      border: 1px solid rgba(255, 193, 7, 0.25);
+      background: var(--warning-soft);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
       padding: 20px;
       border-radius: 8px;
       text-align: center;
@@ -513,8 +515,49 @@
     .account-warning h3 {
       margin: 0 0 8px 0;
     }
-    .account-warning p {
+.account-warning p {
       margin: 0;
+    }
+
+    /* ============================================================
+       LIGHT THEME OVERRIDES
+       The profile card uses --brand-navy / --brand-slate which stay
+       dark navy in light mode, so force it to a light surface here.
+       ============================================================ */
+    html.light-mode .profile-card,
+    body.light-mode .profile-card {
+      background: linear-gradient(135deg, #ffffff 0%, #eef2f7 100%) !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1) !important;
+    }
+
+    html.light-mode .profile-card .profile-details h2 {
+      color: #0f172a !important;
+    }
+
+    html.light-mode .profile-card .profile-meta-text {
+      color: #475569 !important;
+    }
+
+    html.light-mode .profile-card .player-id-badge {
+      background: rgba(22, 163, 74, 0.12) !important;
+      color: #15803d !important;
+    }
+
+    html.light-mode .profile-card .medical-badge {
+      background: #16a34a !important;
+      color: #ffffff !important;
+    }
+
+    html.light-mode .profile-card .edit-trigger-btn {
+      background: rgba(15, 23, 42, 0.05) !important;
+      color: #0f172a !important;
+      border-color: rgba(15, 23, 42, 0.15) !important;
+    }
+
+    html.light-mode .profile-card .edit-trigger-btn:hover {
+      background: #0f172a !important;
+      color: #ffffff !important;
     }
   </style>
 {% endblock %}
@@ -786,7 +829,7 @@
               {{ achievement_form.description }}
             </div>
 
-            <button type="submit" class="save-btn" style="background:#e67e22;">Add Achievement</button>
+<button type="submit" class="save-btn" style="background:var(--orange);">Add Achievement</button>
           </form>
         </div>
       </div>
@@ -909,7 +952,9 @@
 
       const pd = JSON.parse(perfChartEl.textContent)
 
-      Chart.defaults.color = '#cbd5e1'
+      // Theme-aware chart text color: read the --text-soft variable (flips in light mode)
+      const chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-soft').trim() || '#cbd5e1'
+      Chart.defaults.color = chartTextColor
       Chart.defaults.font.family = "'Segoe UI', Tahoma, sans-serif"
 
       // 1) Goals & Assists bar chart

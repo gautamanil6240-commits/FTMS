@@ -1,12 +1,14 @@
+/* login.css — theme-aware via shared CSS variables from base.css */
+
 .login-box {
-    background: rgba(8, 12, 24, 0.90);
-    border: 1px solid rgba(34,197,94,0.25);
+    background: var(--reg-panel);
+    border: 1px solid var(--accent-border);
     border-radius: 18px;
     padding: 45px 40px;
     width: 100%;
     max-width: 420px;
     backdrop-filter: blur(16px);
-    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-rich);
 }
 
 .login-top {
@@ -23,13 +25,13 @@
 .login-top h1 {
     font-size: 30px;
     font-weight: 700;
-    color: white;
+    color: var(--hero-text);
     margin-bottom: 6px;
 }
 
 .login-top p {
     font-size: 14px;
-    color: rgba(255,255,255,0.4);
+    color: var(--hero-muted);
 }
 
 /* Messages */
@@ -43,9 +45,9 @@
     margin-bottom: 8px;
 }
 
-.login-msg.success { background:#0d2b1a; border:1px solid #22c55e; color:#22c55e; }
-.login-msg.error   { background:#2b0d0d; border:1px solid #f87171; color:#f87171; }
-.login-msg.warning { background:#2b1a0d; border:1px solid gold;    color:gold; }
+.login-msg.success { background: var(--success-soft); border: 1px solid var(--accent); color: var(--accent); }
+.login-msg.error   { background: var(--danger-soft); border: 1px solid var(--danger); color: var(--danger); }
+.login-msg.warning { background: var(--warning-soft); border: 1px solid var(--warning); color: var(--warning); }
 
 /* Fields */
 .field-wrap {
@@ -58,35 +60,35 @@
 .field-wrap label {
     font-size: 11px;
     font-weight: 600;
-    color: rgba(255,255,255,0.45);
+    color: var(--hero-muted);
     letter-spacing: 1px;
     text-transform: uppercase;
 }
 
 .field-wrap input {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: var(--input-transp);
+    border: 1px solid var(--input-transp-2);
     border-radius: 9px;
     padding: 13px 16px;
     font-size: 14px;
-    color: white;
+    color: var(--hero-text);
     font-family: 'Poppins', sans-serif;
     outline: none;
     transition: border-color 0.3s;
 }
 
 .field-wrap input:focus {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field-wrap input::placeholder {
-    color: rgba(255,255,255,0.2);
+    color: var(--hero-muted);
 }
 /* Forgot password link */
 
 .forgot-link{
-    color:#22c55e;
+    color:var(--accent);
     text-decoration:none;
     font-size:14px;
     font-weight:600;
@@ -94,7 +96,7 @@
 }
 
 .forgot-link:hover{
-    color:#16a34a;
+    color:var(--accent-hover);
     text-decoration:underline;
 }
 
@@ -105,20 +107,20 @@
 }
 
 .forgot-password a{
-    color:#22c55e;
+    color:var(--accent);
     text-decoration:none;
     font-weight:600;
 }
 
 .forgot-password a:hover{
-    color:white;
+    color:var(--hero-text);
 }
 /* Submit button */
 .login-submit {
     width: 100%;
     padding: 14px;
-    background: #22c55e;
-    color: #0a0f1e;
+    background: var(--accent);
+    color: var(--on-accent);
     border: none;
     border-radius: 9px;
     font-size: 15px;
@@ -131,21 +133,77 @@
 }
 
 .login-submit:hover {
-    background: #16a34a;
+    background: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(34,197,94,0.35);
+    box-shadow: 0 8px 25px var(--accent-glow);
 }
 
 /* Footer links */
 .login-foot {
     text-align: center;
     font-size: 13px;
-    color: rgba(255,255,255,0.4);
+    color: var(--hero-muted);
 }
 
 .login-foot a {
-    color: #22c55e;
+    color: var(--accent);
     transition: opacity 0.3s;
 }
 
 .login-foot a:hover { opacity: 0.7; }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   Forces the login box (and its contents) to render light when
+   the light theme is active, so it never stays dark even on the
+   dark background image. The background image itself is untouched.
+   ============================================================ */
+html.light-mode .login-box,
+body.light-mode .login-box {
+    background: #ffffff !important;
+    border-color: #d1d5db !important;
+    box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15) !important;
+}
+
+html.light-mode .login-box .login-top h1 {
+    color: #0f172a !important;
+}
+
+html.light-mode .login-box .login-top p {
+    color: #475569 !important;
+}
+
+html.light-mode .login-box .field-wrap label {
+    color: #475569 !important;
+}
+
+html.light-mode .login-box .field-wrap input {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+html.light-mode .login-box .field-wrap input:focus {
+    border-color: #16a34a !important;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
+}
+
+html.light-mode .login-box .field-wrap input::placeholder {
+    color: #94a3b8 !important;
+}
+
+html.light-mode .login-box .login-foot {
+    color: #475569 !important;
+}
+
+html.light-mode .login-box .login-foot a {
+    color: #15803d !important;
+}
+
+html.light-mode .login-box .forgot-link {
+    color: #15803d !important;
+}
+
+html.light-mode .login-box .forgot-link:hover {
+    color: #16a34a !important;
+}
