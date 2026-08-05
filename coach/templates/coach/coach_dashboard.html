@@ -415,6 +415,343 @@
     .dashboard-page { padding: 80px 20px 40px; }
     .stats-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* ==========================================
+   TACTICAL LINEUP / PITCH
+   ========================================== */
+.pitch-section {
+    background: linear-gradient(135deg, var(--coach-card-top), var(--coach-card-bottom));
+    border: 1px solid var(--accent-border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px var(--shadow-modal);
+}
+
+.pitch-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.pitch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--accent-border);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.pitch-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    aspect-ratio: 3 / 2;
+}
+
+.pitch-field {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(0,0,0,0.25)),
+        linear-gradient(160deg, #3f9b3f, #2e7d32 45%, #27682b);
+    border: 3px solid rgba(255,255,255,0.28);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+}
+
+/* Pitch markings */
+.pitch-field::before,
+.pitch-field::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid rgba(255,255,255,0.45);
+}
+
+.pitch-field::before {
+    width: 72%;
+    height: 14%;
+    top: 0;
+    border-top: none;
+    border-radius: 0 0 46% 46%;
+}
+
+.pitch-field::after {
+    width: 72%;
+    height: 14%;
+    bottom: 0;
+    border-bottom: none;
+    border-radius: 46% 46% 0 0;
+}
+
+.pitch-midline {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 2px solid rgba(255,255,255,0.45);
+}
+
+.pitch-center-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 13%;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 50%;
+}
+
+/* Individual player slots */
+.pitch-slot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-align: center;
+    padding: 4px;
+}
+
+.pitch-slot.filled {
+    background: linear-gradient(145deg, var(--bg-glass-2), var(--bg-glass));
+    border: 2px solid var(--accent);
+    color: var(--text-primary);
+    box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.pitch-slot.empty {
+    background: rgba(0,0,0,0.28);
+    border: 2px dashed rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.55);
+}
+
+.pitch-slot:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.pitch-slot .slot-key {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.65;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.pitch-slot .slot-name {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    max-height: 22px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.pitch-slot .slot-pos {
+    font-size: 8px;
+    opacity: 0.6;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pitch-slot .slot-empty-label {
+    font-size: 9px;
+    line-height: 1.1;
+}
+
+/* Empty-state pitch */
+.pitch-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    padding: 20px;
+}
+
+.pitch-empty .pitch-empty-icon { font-size: 48px; }
+.pitch-empty p { font-size: 14px; max-width: 320px; }
+
+@media (max-width: 600px) {
+    .pitch-section { padding: 18px; }
+    .pitch-slot { width: 52px; height: 46px; }
+    .pitch-slot .slot-name { font-size: 8px; }
+}
+
+/* Slot assignment modal — reuses .modal-overlay / .edit-profile-panel */
+.slot-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.slot-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.slot-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.slot-legend .dot.filled-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+.slot-legend .dot.empty-dot { border: 2px dashed rgba(255,255,255,0.6); background: rgba(0,0,0,0.3); }
+
+/* Player photo thumbnails in slots */
+.slot-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    background: var(--bg-glass);
+    margin-bottom: 2px;
+}
+.slot-avatar-fallback {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 800;
+    border: 2px solid var(--accent);
+    margin-bottom: 2px;
+}
+
+/* Auto-assigned badge */
+.auto-badge {
+    display: inline-block;
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--info);
+    background: var(--info-soft);
+    border: 1px solid var(--info-border);
+    border-radius: 20px;
+    padding: 1px 6px;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+/* Bench / Unassigned list */
+.bench-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+.bench-panel {
+    background: var(--bg-glass);
+    border: 1px solid var(--accent-border);
+    border-radius: 14px;
+    padding: 18px;
+}
+.bench-panel h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.bench-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 420px;
+    overflow-y: auto;
+}
+.bench-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+    color: var(--text-strong);
+}
+.bench-list li:last-child { border-bottom: none; }
+.bench-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg-glass);
+    border: 1px solid var(--accent-border);
+}
+.bench-pos {
+    margin-left: auto;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.bench-empty {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 10px 0;
+}
+
+@media (max-width: 900px) {
+    .bench-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .pitch-section { padding: 18px; }
+    .pitch-slot { width: 52px; height: 46px; }
+    .pitch-slot .slot-name { font-size: 8px; }
+    .slot-avatar,
+    .slot-avatar-fallback { width: 26px; height: 26px; font-size: 11px; }
+    .auto-badge { font-size: 6px; }
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
@@ -541,7 +878,7 @@
     </div>
     {% endif %}
 
-    <!-- Squad Roster Section -->
+<!-- Squad Roster Section -->
     <div class="section-title">⚽ My Current Squad Roster</div>
 
     <div class="t-table">
@@ -579,6 +916,120 @@
             <button class="btn-action" id="emptyAddPlayerBtn" style="margin: 0 auto;">
                 ➕ Recruit Players to Squad
             </button>
+        </div>
+        {% endif %}
+    </div>
+
+<!-- Tactical Lineup Section -->
+    <div class="section-title">⚽ Tactical Lineup</div>
+
+    <div class="pitch-section">
+<div class="pitch-head">
+                    <span class="pitch-badge" style="font-size: 16px;"><i class="fas fa-clipboard-list"></i> {% if formation %}{{ formation.name|default:"4-3-3" }}{% else %}No Formation Yet{% endif %}</span>
+                    {% if formation %}
+                        <span style="font-size: 12px; color: var(--text-muted);">Click a slot to assign / change a player</span>
+                    {% endif %}
+                </div>
+
+                {% if formation %}
+                <form method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; padding: 12px 14px; background: var(--bg-glass); border: 1px solid var(--accent-border); border-radius: 10px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="switch_formation" value="1">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Switch Formation</label>
+                    <select name="formation_type" style="padding: 8px 12px; background: var(--bg-glass); border: 1px solid var(--border-strong); border-radius: 7px; color: var(--text-primary); font-size: 13px;">
+                        {% for ft in formation_types %}
+                        <option value="{{ ft }}" {% if formation.formation_type == ft %}selected{% endif %}>{{ ft }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-action btn-action-alt" style="padding: 8px 16px; font-size: 12px;">Build / Switch</button>
+                    <span style="font-size: 11px; color: var(--text-muted);">Switching creates a new empty lineup (previous lineups kept as history).</span>
+                </form>
+                {% endif %}
+
+        {% if formation %}
+        <div class="pitch-wrap">
+            <div class="pitch-field">
+                <div class="pitch-midline"></div>
+                <div class="pitch-center-circle"></div>
+                {% for slot in lineup_slots %}
+                <div class="pitch-slot {% if slot.player %}filled{% else %}empty{% endif %}"
+                     style="top: {{ slot.top }}%; left: {{ slot.left }}%;"
+                     data-slot-id="{{ slot.id }}"
+                     data-slot-name="{{ slot.label }}"
+                     data-slot-key="{{ slot.slot_key }}"
+                     title="{{ slot.label }}">
+{% if slot.player %}
+                        <span class="slot-key">{{ slot.slot_key }}</span>
+                        {% if slot.player.profile_photo %}
+                            <img class="slot-avatar" src="{{ slot.player.profile_photo.url }}" alt="{{ slot.player.full_name }}">
+                        {% else %}
+                            <span class="slot-avatar-fallback">{{ slot.player.full_name|first|upper }}</span>
+                        {% endif %}
+                        <span class="slot-name">{{ slot.player.full_name }}</span>
+                        <span class="slot-pos">{{ slot.player.get_preferred_position_display|default:"Player" }}</span>
+                        {% if slot.auto_assigned %}
+                            <span class="auto-badge">Auto</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="slot-key">{{ slot.slot_key }}</span>
+                        <span class="slot-empty-label">+ Add</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+<div class="slot-legend">
+            <span><span class="dot filled-dot"></span> Player assigned</span>
+            <span><span class="dot empty-dot"></span> Empty slot</span>
+            <span><span class="dot" style="background: var(--info); box-shadow: 0 0 6px var(--info-border);"></span> Auto-assigned</span>
+        </div>
+
+        {% if bench_players %}
+        <div class="bench-layout" style="margin-top: 24px;">
+            <div class="bench-panel">
+                <h4><i class="fas fa-chair"></i> Bench / Unassigned</h4>
+                {% if bench_players %}
+                <ul class="bench-list">
+                    {% for p in bench_players %}
+                    <li>
+                        {% if p.profile_photo %}
+                            <img class="bench-avatar" src="{{ p.profile_photo.url }}" alt="{{ p.full_name }}">
+                        {% else %}
+                            <span class="bench-avatar" style="display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-muted);">{{ p.full_name|first|upper }}</span>
+                        {% endif %}
+                        <span>{{ p.full_name }}</span>
+                        <span class="bench-pos">{{ p.get_preferred_position_display|default:"Player" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="bench-empty">All roster players are on the pitch.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="pitch-wrap">
+            <div class="pitch-field">
+                <div class="pitch-midline"></div>
+                <div class="pitch-center-circle"></div>
+<div class="pitch-empty">
+                    <div class="pitch-empty-icon">⚽</div>
+                    <p>No lineup built yet. Pick a formation to start, then click slots to assign your roster players.</p>
+                    <form method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                        {% csrf_token %}
+                        <input type="hidden" name="switch_formation" value="1">
+                        <select name="formation_type" style="padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text-primary); font-size: 14px;">
+                            {% for ft in formation_types %}
+                            <option value="{{ ft }}">{{ ft }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-action">
+                            <i class="fas fa-plus"></i> Build Lineup
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -725,8 +1176,57 @@
                 {% endif %}
             </div>
 
-            {% if available_players %}
+{% if available_players %}
                 <button type="submit" class="btn-action" style="width: 100%; justify-content: center;">Add Selected Players</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- ASSIGN PLAYER TO SLOT MODAL -->
+<div class="modal-overlay" id="slotModal">
+    <div class="edit-profile-panel" style="max-width: 480px;">
+        <div class="modal-header">
+            <h3>⚽ <span id="slotModalTitle">Assign Player</span></h3>
+            <button class="close-modal-btn" id="closeSlotModalBtn">&times;</button>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="assign_slot" value="1">
+            <input type="hidden" name="slot_id" id="slotIdField" value="">
+
+            <div class="form-group">
+                <label>Position / Slot</label>
+                <input type="text" id="slotLabelField" value="" disabled style="font-weight: 600;">
+            </div>
+
+            <div class="form-group">
+                <label>Assign Player</label>
+{% if my_roster %}
+                <select name="player_id" id="slotPlayerSelect">
+                    <option value="">-- Select Player (or leave empty to clear) --</option>
+                    {% for p in my_roster %}
+                    <option value="{{ p.id }}">{{ p.full_name }} ({{ p.get_preferred_position_display|default:"Player" }})</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <p style="color: var(--text-muted); font-size: 13px;">No players in your roster yet. Add players to the squad first.</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Clear assignment?</label>
+                <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-muted); cursor: pointer;">
+                    <input type="checkbox" name="clear_slot" value="1" style="width: auto;">
+                    Remove the player from this slot
+                </label>
+            </div>
+
+            {% if my_roster %}
+            <button type="submit" class="btn-action" style="width: 100%; justify-content: center; margin-top: 15px;">
+                <i class="fas fa-check"></i> Save Slot
+            </button>
             {% endif %}
         </form>
     </div>
@@ -780,12 +1280,35 @@
     });
   }
 
-  if (closePerfBtn) closePerfBtn.addEventListener('click', () => perfModal.classList.remove('active'));
+if (closePerfBtn) closePerfBtn.addEventListener('click', () => perfModal.classList.remove('active'));
+
+  // Slot Assignment Modal
+  const slotModal = document.getElementById('slotModal');
+  const closeSlotBtn = document.getElementById('closeSlotModalBtn');
+  const slotIdField = document.getElementById('slotIdField');
+  const slotLabelField = document.getElementById('slotLabelField');
+  const slotPlayerSelect = document.getElementById('slotPlayerSelect');
+
+  document.querySelectorAll('.pitch-slot').forEach((slotEl) => {
+    slotEl.addEventListener('click', () => {
+      const slotId = slotEl.getAttribute('data-slot-id');
+      const slotName = slotEl.getAttribute('data-slot-name');
+      const slotKey = slotEl.getAttribute('data-slot-key');
+      slotIdField.value = slotId;
+      slotLabelField.value = `${slotKey} — ${slotName}`;
+      document.getElementById('slotModalTitle').textContent = `Assign ${slotName}`;
+      if (slotPlayerSelect) slotPlayerSelect.value = '';
+      slotModal.classList.add('active');
+    });
+  });
+
+  if (closeSlotBtn) closeSlotBtn.addEventListener('click', () => slotModal.classList.remove('active'));
 
   window.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
     if (e.target === rosterModal) rosterModal.classList.remove('active');
     if (e.target === perfModal) perfModal.classList.remove('active');
+    if (e.target === slotModal) slotModal.classList.remove('active');
   });
 </script>
 {% endblock %}

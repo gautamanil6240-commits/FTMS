@@ -108,3 +108,113 @@ class PlayerPerformance(models.Model):
 
     def __str__(self):
         return f"{self.player.full_name} — {self.performance_date}"
+
+
+# ==========================================
+# FORMATION MODEL
+# (A club's tactical lineup / formation, e.g. 4-3-3)
+# ==========================================
+class Formation(models.Model):
+    FORMATION_TYPES = [
+        ('4-3-3', '4-3-3'),
+        ('4-4-2', '4-4-2'),
+        ('3-5-2', '3-5-2'),
+    ]
+
+    club = models.ForeignKey(
+        'clubs.Club',
+        on_delete=models.CASCADE,
+        related_name='formations'
+    )
+    formation_type = models.CharField(
+        max_length=20,
+        choices=FORMATION_TYPES,
+        default='4-3-3',
+        help_text="Formation shape, e.g. 4-3-3, 4-4-2, 3-5-2"
+    )
+    name = models.CharField(
+        max_length=50,
+        default='4-3-3',
+        help_text="Formation name, e.g. 4-3-3"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.name} — {self.club.name}"
+
+
+# ==========================================
+# LINEUP SLOT MODEL
+# (A single positioned slot on the pitch within a formation)
+# ==========================================
+class LineupSlot(models.Model):
+    POSITION_HINTS = [
+        ('goalkeeper', 'Goalkeeper'),
+        ('defender', 'Defender'),
+        ('midfielder', 'Midfielder'),
+        ('forward', 'Forward'),
+    ]
+
+    formation = models.ForeignKey(
+        Formation,
+        on_delete=models.CASCADE,
+        related_name='slots'
+    )
+    slot_key = models.CharField(
+        max_length=20,
+        help_text="Short key, e.g. GK, LB, CB1, ST"
+    )
+    label = models.CharField(
+        max_length=50,
+        help_text="Display name, e.g. Goalkeeper, Left-Back"
+    )
+    top = models.FloatField(help_text="Vertical position (0–100) %")
+    left = models.FloatField(help_text="Horizontal position (0–100) %")
+    position_hint = models.CharField(
+        max_length=20,
+        choices=POSITION_HINTS,
+        default='midfielder'
+    )
+    player = models.ForeignKey(
+        'players.Player',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lineup_slots'
+    )
+    auto_assigned = models.BooleanField(
+        default=False,
+        help_text="True when this slot was filled automatically by the smart-defaults logic on build"
+    )
+
+    class Meta:
+        ordering = ['slot_key']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['formation', 'slot_key'],
+                name='unique_slot_per_formation'
+            ),
+            # Database-level guarantee that one player can never occupy two
+            # slots in the same formation, even under race conditions or via
+            # code paths that bypass the assign_slot view.
+            #
+            # NOTE: This is intentionally a plain (unconditional) unique
+            # constraint. In standard SQL (and MariaDB/MySQL, PostgreSQL,
+            # SQLite) NULL values are never considered equal to one another,
+            # so this permits unlimited empty slots (player=NULL) per
+            # formation while still rejecting two filled slots that point to
+            # the same player. MariaDB does NOT support conditional unique
+            # constraints (Django model W036), so we must NOT use
+            # condition=Q(player__isnull=False) here.
+            models.UniqueConstraint(
+                fields=['formation', 'player'],
+                name='unique_player_per_formation'
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.formation.name} — {self.label} ({self.slot_key})"

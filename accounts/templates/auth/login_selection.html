@@ -17,6 +17,73 @@ background:
     align-items: center;
     justify-content: center;
 }
+
+/* Light theme: force the role selection page to render light so the
+   cards/text never blend into the dark background image. */
+html.light-mode .sel-page,
+body.light-mode .sel-page {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.82)),
+        url("{% static 'images/role.png' %}") no-repeat center center fixed;
+    background-size: cover;
+}
+
+html.light-mode .sel-header h1,
+body.light-mode .sel-header h1 {
+    color: #0f172a !important;
+}
+
+html.light-mode .sel-header p,
+body.light-mode .sel-header p {
+    color: #475569 !important;
+}
+
+html.light-mode .role-card,
+body.light-mode .role-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+html.light-mode .role-card:hover,
+body.light-mode .role-card:hover {
+    border-color: #16a34a !important;
+    background: #f0fdf4 !important;
+}
+
+html.light-mode .role-name,
+body.light-mode .role-name {
+    color: #0f172a !important;
+}
+
+html.light-mode .role-desc,
+body.light-mode .role-desc {
+    color: #475569 !important;
+}
+
+html.light-mode .rbtn-login,
+body.light-mode .rbtn-login {
+    background: #16a34a !important;
+    color: #ffffff !important;
+}
+
+html.light-mode .rbtn-login:hover,
+body.light-mode .rbtn-login:hover {
+    background: #15803d !important;
+}
+
+html.light-mode .rbtn-reg,
+body.light-mode .rbtn-reg {
+    color: #15803d !important;
+    border-color: #16a34a !important;
+    background: #f0fdf4 !important;
+}
+
+html.light-mode .rbtn-reg:hover,
+body.light-mode .rbtn-reg:hover {
+    background: #dcfce7 !important;
+    border-color: #15803d !important;
+}
 </style>
 {% endblock %}
 

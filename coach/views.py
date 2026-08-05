@@ -4,13 +4,85 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import CoachProfile, PlayerPerformance
+from django.db import transaction, IntegrityError
+from .models import CoachProfile, PlayerPerformance, Formation, LineupSlot
 from datetime import datetime
 from django.contrib.auth.models import User
 from players.models import Player
 from clubs.models import Club
 from accounts.models import UserProfile
 from .forms import CoachProfileEditForm, PlayerPerformanceForm
+
+# ==========================================
+# FORMATION SLOT COORDINATES
+# (top/left as percentages on a vertical pitch,
+#  attacking upward: top 0 = opponent goal)
+#
+# Each entry is a list of:
+#   (slot_key, label, top, left, position_hint)
+# ==========================================
+FORMATION_TEMPLATES = {
+    '4-3-3': [
+        ('GK',  'Goalkeeper',     88, 50, 'goalkeeper'),
+        ('LB',  'Left Back',      70, 15, 'defender'),
+        ('CB1', 'Centre Back 1',  70, 40, 'defender'),
+        ('CB2', 'Centre Back 2',  70, 60, 'defender'),
+        ('RB',  'Right Back',     70, 85, 'defender'),
+        ('CM1', 'Centre Mid 1',   50, 25, 'midfielder'),
+        ('CM2', 'Centre Mid 2',   50, 50, 'midfielder'),
+        ('CM3', 'Centre Mid 3',   50, 75, 'midfielder'),
+        ('LW',  'Left Wing',      30, 18, 'forward'),
+        ('ST',  'Striker',        30, 50, 'forward'),
+        ('RW',  'Right Wing',     30, 82, 'forward'),
+    ],
+    '4-4-2': [
+        ('GK',  'Goalkeeper',     88, 50, 'goalkeeper'),
+        ('LB',  'Left Back',      70, 15, 'defender'),
+        ('CB1', 'Centre Back 1',  70, 38, 'defender'),
+        ('CB2', 'Centre Back 2',  70, 62, 'defender'),
+        ('RB',  'Right Back',     70, 85, 'defender'),
+        ('LM',  'Left Mid',       48, 15, 'midfielder'),
+        ('CM1', 'Centre Mid 1',   48, 38, 'midfielder'),
+        ('CM2', 'Centre Mid 2',   48, 62, 'midfielder'),
+        ('RM',  'Right Mid',      48, 85, 'midfielder'),
+        ('ST1', 'Striker 1',      25, 38, 'forward'),
+        ('ST2', 'Striker 2',      25, 62, 'forward'),
+    ],
+    '3-5-2': [
+        ('GK',  'Goalkeeper',      88, 50, 'goalkeeper'),
+        ('CB1', 'Centre Back 1',   72, 25, 'defender'),
+        ('CB2', 'Centre Back 2',   72, 50, 'defender'),
+        ('CB3', 'Centre Back 3',   72, 75, 'defender'),
+        ('LWB', 'Left Wing Back',  50,  8, 'midfielder'),
+        ('CM1', 'Centre Mid 1',    50, 30, 'midfielder'),
+        ('CM2', 'Centre Mid 2',    50, 50, 'midfielder'),
+        ('CM3', 'Centre Mid 3',    50, 70, 'midfielder'),
+        ('RWB', 'Right Wing Back', 50, 92, 'midfielder'),
+        ('ST1', 'Striker 1',       25, 38, 'forward'),
+        ('ST2', 'Striker 2',       25, 62, 'forward'),
+    ],
+}
+
+
+def _create_formation(club, formation_type='4-3-3'):
+    """Creates a Formation (with its positioned LineupSlots) for a club.
+
+    Every build/switch starts with an EMPTY pitch — no auto-assignment.
+    Historical Formation rows are never touched; a new row is created each
+    time so past lineups remain as snapshots.
+    """
+    formation_type = formation_type if formation_type in FORMATION_TEMPLATES else '4-3-3'
+    formation = Formation.objects.create(club=club, name=formation_type, formation_type=formation_type)
+    for slot_key, label, top, left, hint in FORMATION_TEMPLATES[formation_type]:
+        LineupSlot.objects.create(
+            formation=formation,
+            slot_key=slot_key,
+            label=label,
+            top=top,
+            left=left,
+            position_hint=hint,
+        )
+    return formation
 
 # ==========================================
 # REGISTER VIEW
@@ -274,21 +346,35 @@ def _log_performance(request, player):
 
 @login_required
 def remove_player_from_roster(request, pk):
-    """Removes a player from the coach's club roster (sets club to null)."""
+    """Removes a player from the coach's club roster (sets club to null).
+
+    Only clears the player from the club's ACTIVE formation's slots; historical
+    (inactive) formation snapshots are preserved so past lineups remain intact.
+    """
     player = get_object_or_404(Player, pk=pk)
-    
+
     # Verify the player belongs to this coach's club
     coach_profile = getattr(request.user, 'coach_profile', None)
     club_coach = getattr(request.user, 'club_coach_profile', None)
     my_club = coach_profile.club if coach_profile else (club_coach.club if club_coach else None)
-    
+
     if my_club and player.club == my_club:
-        player.club = None
-        player.save()
+        with transaction.atomic():
+            # Clear the player from the active formation's slots so they don't
+            # remain on the pitch after leaving the squad. We do this explicitly
+            # because SET_NULL only fires on player deletion, not on roster
+            # removal (club set to null). Historical formations are preserved.
+            active = getattr(my_club, 'active_formation', None)
+            if active:
+                LineupSlot.objects.filter(formation=active, player=player).update(
+                    player=None, auto_assigned=False
+                )
+            player.club = None
+            player.save()
         messages.success(request, f"{player.full_name} has been removed from the squad.")
     else:
         messages.error(request, "You can only remove players from your own squad.")
-    
+
     return redirect('coach:coach_dashboard')
 
 
@@ -309,7 +395,7 @@ def coach_dashboard(request):
     # Support both self-registered (coach_profile) and manager-assigned (club_coach_profile) coaches
     coach_profile = getattr(request.user, 'coach_profile', None)
     club_coach = getattr(request.user, 'club_coach_profile', None)
-    
+
     if coach_profile:
         my_club = coach_profile.club
     elif club_coach:
@@ -373,6 +459,81 @@ def coach_dashboard(request):
                 messages.error(request, "You can only log performance for players in your own squad.")
             return redirect('coach:coach_dashboard')
 
+        # --- Tactical Lineup: create / switch formation ---
+        # Every switch creates a NEW empty Formation row (no auto-assignment),
+        # leaving historical snapshots untouched, and points the club's
+        # active_formation at the new row.
+        if 'switch_formation' in request.POST:
+            if not my_club:
+                messages.error(request, "Your account is not assigned to any club yet.")
+                return redirect('coach:coach_dashboard')
+            formation_type = request.POST.get('formation_type', '4-3-3').strip()
+            formation = _create_formation(my_club, formation_type)
+            my_club.active_formation = formation
+            my_club.save(update_fields=['active_formation'])
+            messages.success(
+                request,
+                f"{formation_type} lineup built! Assign players to slots by clicking on the pitch."
+            )
+            return redirect('coach:coach_dashboard')
+
+        # --- Tactical Lineup: assign a player to a slot ---
+        if 'assign_slot' in request.POST:
+            slot_id = request.POST.get('slot_id', '').strip()
+            player_id = request.POST.get('player_id', '').strip()
+            clear_slot = request.POST.get('clear_slot') == '1'
+            if not my_club:
+                messages.error(request, "Your account is not assigned to any club yet.")
+                return redirect('coach:coach_dashboard')
+            try:
+                slot = LineupSlot.objects.get(id=slot_id, formation__club=my_club)
+            except (LineupSlot.DoesNotExist, ValueError):
+                messages.error(request, "Invalid slot selected.")
+                return redirect('coach:coach_dashboard')
+
+            # A cleared slot (checkbox checked, or no player selected) empties the slot
+            if clear_slot or not player_id:
+                slot.player = None
+                slot.auto_assigned = False
+                slot.save()
+                messages.success(request, f"{slot.label} cleared.")
+                return redirect('coach:coach_dashboard')
+
+            # player_id provided → assign the player
+            if player_id:
+                try:
+                    player = Player.objects.get(id=player_id, club=my_club)
+                except (Player.DoesNotExist, ValueError):
+                    messages.error(request, "Invalid player selected.")
+                    return redirect('coach:coach_dashboard')
+                try:
+                    # Defense in depth: wrap the "move" in a transaction. The
+                    # DB-level unique constraint (unique_player_per_formation)
+                    # is the primary guard; this cleanly handles the race where
+                    # two requests assign the same player at once, converting a
+                    # raw IntegrityError into a friendly message.
+                    with transaction.atomic():
+                        # Clear the player from any other slot first (one player = one slot)
+                        LineupSlot.objects.filter(formation__club=my_club, player=player).update(
+                            player=None, auto_assigned=False
+                        )
+                        slot.player = player
+                        slot.auto_assigned = False
+                        slot.save()
+                except IntegrityError:
+                    messages.error(
+                        request,
+                        f"{player.full_name} was just assigned elsewhere — please try again."
+                    )
+                    return redirect('coach:coach_dashboard')
+                messages.success(request, f"{player.full_name} assigned to {slot.label}.")
+            else:
+                slot.player = None
+                slot.auto_assigned = False
+                slot.save()
+                messages.success(request, f"{slot.label} cleared.")
+            return redirect('coach:coach_dashboard')
+
         else:
             form = CoachProfileEditForm(request.POST, request.FILES, instance=coach_profile)
             if form.is_valid():
@@ -385,6 +546,24 @@ def coach_dashboard(request):
     my_roster = Player.objects.filter(club=my_club) if my_club else []
     all_clubs = Club.objects.all().order_by('name')
 
+    # Tactical lineup data: the club's ACTIVE formation + its positioned slots
+    if my_club and getattr(my_club, 'active_formation', None):
+        formation = my_club.active_formation
+        slots = formation.slots.all()
+    else:
+        formation = None
+        slots = []
+
+    # All formation types available to build/switch to
+    formation_types = list(FORMATION_TEMPLATES.keys())
+
+    # Bench / Unassigned: roster players who are not currently in any lineup slot
+    if formation:
+        assigned_ids = {s.player_id for s in slots if s.player_id}
+        bench_players = [p for p in my_roster if p.id not in assigned_ids]
+    else:
+        bench_players = list(my_roster)
+
     # Use whichever profile is available for the template context
     display_coach = coach_profile or club_coach
 
@@ -396,4 +575,8 @@ def coach_dashboard(request):
         'my_club': my_club,
         'all_clubs': all_clubs,
         'performance_form': PlayerPerformanceForm(),
+        'formation': formation,
+        'lineup_slots': slots,
+        'bench_players': bench_players,
+        'formation_types': formation_types,
     })
