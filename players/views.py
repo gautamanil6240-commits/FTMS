@@ -7,6 +7,7 @@ from .models import Player, PlayerAchievement
 from clubs.models import Club  
 from accounts.models import UserProfile
 from django.shortcuts import get_object_or_404
+from coach.models import get_club_active_lineup
 
 def register(request, role):
     """Processes registration based on the role passed from the URL string."""
@@ -69,26 +70,6 @@ def register(request, role):
         return redirect('login_selection')
 
 
-@login_required  # Stops unauthenticated users from viewing this dashboard
-def player_dashboard(request):
-    """Displays the custom dashboard panel once a player logs in successfully."""
-    try:
-        # Fetches the registered profile details matching the current logged-in user's email address
-        player = Player.objects.get(email=request.user.email)
-    except Player.DoesNotExist:
-        player = None
-
-    context = {
-        'player': player,
-    }
-    return render(request, 'players/player_dashboard.html', context)
-
-
-def player_list(request):
-    """Fetches all registered players from the database and lists them."""
-    players = Player.objects.all()
-    return render(request, 'players/player_list.html', {'players': players})
-
 @login_required
 def player_dashboard(request):
     """Displays dashboard and handles profile updates & achievements."""
@@ -128,8 +109,19 @@ def player_dashboard(request):
     # Fetch performance records logged by coaches (read-only for players)
     performance_records = player.performance_records.all() if player else []
 
-    # Build Chart.js-ready datasets for graphical representation
+# Build Chart.js-ready datasets for graphical representation
     performance_chart_data = player.performance_chart_data() if player else None
+
+    # Tactical lineup: the club's active formation + slots (read-only for players)
+    formation, lineup_slots = (get_club_active_lineup(player.club) if player else (None, []))
+
+    # Which slot (if any) this player occupies in the active lineup
+    my_slot = None
+    if player and lineup_slots:
+        for s in lineup_slots:
+            if s.player_id == player.id:
+                my_slot = s
+                break
 
     context = {
         'player': player,
@@ -138,6 +130,9 @@ def player_dashboard(request):
         'achievements': achievements,
         'performance_records': performance_records,
         'performance_chart_data': performance_chart_data,
+        'formation': formation,
+        'lineup_slots': lineup_slots,
+        'my_slot': my_slot,
     }
     return render(request, 'players/player_dashboard.html', context)
 

@@ -3,6 +3,27 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 import random
 
+
+def get_club_active_lineup(club):
+    """Shared helper: return (formation, slots) for a club's active lineup.
+
+    Generic and intentionally player-agnostic so it can be reused by both the
+    club-manager dashboard and the player dashboard. If the club has no active
+    formation (nullable FK), returns (None, []).
+
+    Personalization (e.g. "is this my slot?") is layered on top of the returned
+    data by the caller, not baked in here.
+    """
+    if club is None:
+        return None, []
+
+    formation = getattr(club, 'active_formation', None)
+    if formation is None:
+        return None, []
+
+    return formation, list(formation.slots.all())
+
+
 class CoachProfile(models.Model):
     GENDER_CHOICES = [
         ('M', 'Male'),

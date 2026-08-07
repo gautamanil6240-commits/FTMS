@@ -274,6 +274,207 @@ body.light-mode .dashboard-page {
     overflow-y: auto;
 }
 
+/* ==========================================
+   READ-ONLY TACTICAL PITCH
+   (Non-interactive: no click handlers, no modal JS,
+    no "+ Add" prompts — pure display of the coach's lineup.)
+   ========================================== */
+.tactics-section {
+    background: var(--coach-card-bottom);
+    border: 1px solid var(--accent-border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 10px 30px var(--shadow-modal);
+}
+
+.tactics-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.tactics-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--accent-border);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.pitch-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    margin: 0 auto;
+    aspect-ratio: 3 / 2.2;
+}
+
+.pitch-field {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(0,0,0,0.25)),
+        linear-gradient(160deg, #3f9b3f, #2e7d32 45%, #27682b);
+    border: 3px solid rgba(255,255,255,0.28);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+}
+
+.pitch-field::before,
+.pitch-field::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid rgba(255,255,255,0.45);
+}
+
+.pitch-field::before {
+    width: 72%;
+    height: 14%;
+    top: 0;
+    border-top: none;
+    border-radius: 0 0 46% 46%;
+}
+
+.pitch-field::after {
+    width: 72%;
+    height: 14%;
+    bottom: 0;
+    border-bottom: none;
+    border-radius: 46% 46% 0 0;
+}
+
+.pitch-midline {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 2px solid rgba(255,255,255,0.45);
+}
+
+.pitch-center-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 13%;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 50%;
+}
+
+.pitch-slot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 96px;
+    height: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    text-align: center;
+    padding: 6px;
+}
+
+.pitch-slot.filled {
+    background: linear-gradient(145deg, var(--bg-glass-2), var(--bg-glass));
+    border: 2px solid var(--accent);
+    color: var(--text-primary);
+    box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.pitch-slot.empty {
+    background: rgba(0,0,0,0.28);
+    border: 2px dashed rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.55);
+}
+
+.pitch-slot .slot-key {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.65;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.slot-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    background: var(--bg-glass);
+    margin-bottom: 2px;
+}
+
+.slot-avatar-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 800;
+    border: 2px solid var(--accent);
+    margin-bottom: 2px;
+}
+
+.pitch-slot .slot-name {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.15;
+    max-height: 26px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    width: 100%;
+}
+
+.pitch-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    padding: 20px;
+}
+
+.pitch-empty .pitch-empty-icon { font-size: 48px; }
+.pitch-empty p { font-size: 14px; max-width: 340px; }
+
+@media (max-width: 600px) {
+    .tactics-section { padding: 16px; }
+    .pitch-slot { width: 62px; height: 74px; }
+    .slot-avatar,
+    .slot-avatar-fallback { width: 34px; height: 34px; font-size: 13px; }
+    .pitch-slot .slot-name { font-size: 9px; }
+}
+
 @media (max-width: 992px) {
     .dash-split {
         grid-template-columns: 1fr;
@@ -388,7 +589,7 @@ body.light-mode .dashboard-page {
             </div>
         </div>
 
-        <!-- Right: Squad Overview -->
+<!-- Right: Squad Overview -->
         <div>
             <div class="glass-card">
                 <h3>👥 Squad Overview</h3>
@@ -410,6 +611,53 @@ body.light-mode .dashboard-page {
             </div>
         </div>
 
+    </div>
+
+    <!-- ===== READ-ONLY TACTICS: Upcoming Game ===== -->
+    <div class="tactics-section">
+        <div class="tactics-head">
+            <h3 style="margin:0; font-size:16px; color:var(--text-primary);">🎯 Tactics — Upcoming Game</h3>
+            {% if formation %}
+                <span class="tactics-badge"><i class="fas fa-clipboard-list"></i> {{ formation.name|default:"Formation" }}</span>
+            {% endif %}
+        </div>
+
+        {% if formation %}
+        <div class="pitch-wrap">
+            <div class="pitch-field">
+                <div class="pitch-midline"></div>
+                <div class="pitch-center-circle"></div>
+                {% for slot in lineup_slots %}
+                <div class="pitch-slot {% if slot.player %}filled{% else %}empty{% endif %}"
+                     style="top: {{ slot.top }}%; left: {{ slot.left }}%;"
+                     title="{{ slot.label }}">
+                    {% if slot.player %}
+                        <span class="slot-key">{{ slot.slot_key }}</span>
+                        {% if slot.player.profile_photo %}
+                            <img class="slot-avatar" src="{{ slot.player.profile_photo.url }}" alt="{{ slot.player.full_name }}">
+                        {% else %}
+                            <span class="slot-avatar-fallback">{{ slot.player.full_name|first|upper }}</span>
+                        {% endif %}
+                        <span class="slot-name">{{ slot.player.full_name }}</span>
+                    {% else %}
+                        <span class="slot-key">{{ slot.slot_key }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="pitch-wrap">
+            <div class="pitch-field">
+                <div class="pitch-midline"></div>
+                <div class="pitch-center-circle"></div>
+                <div class="pitch-empty">
+                    <div class="pitch-empty-icon">📋</div>
+                    <p>No tactics set yet — your coach hasn't built a lineup.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
 </div>

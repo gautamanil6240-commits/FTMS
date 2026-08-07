@@ -9,13 +9,17 @@ from .forms import CustomPasswordResetForm
 from django.contrib.auth.decorators import login_required
 from organizer.models import Tournament
 from players.models import Player as PlayerModel
-from clubs.models import Club
+from clubs.models import Club, get_or_create_manager_club
 
 def get_redirect_for_user(user):
     try:
         profile = UserProfile.objects.get(user=user)
         if profile.role == 'organizer': return redirect('organizer_dashboard')
-        if profile.role == 'manager': return redirect('manager_dashboard')
+        if profile.role == 'manager':
+            # Ensure a Club record exists for this manager (auto-create if
+            # missing, e.g. accounts created before Club linkage was added).
+            get_or_create_manager_club(user)
+            return redirect('manager_dashboard')
         if profile.role == 'coach': return redirect('coach:coach_dashboard')
         if profile.role == 'player': return redirect('players:player_dashboard')
         if profile.role == 'viewer': return redirect('viewer:viewer_dashboard')
@@ -106,6 +110,24 @@ def register(request):
             if field in request.FILES:
                 setattr(profile, field, request.FILES[field])
         profile.save()
+
+        # If the user registered as a manager, also create the Club record
+        # so that request.user.managed_club works immediately.
+        if role == 'manager':
+            club_name = request.POST.get('club_name')
+            club_city = request.POST.get('club_city') or request.POST.get('club_address')
+            phone = request.POST.get('phone_number') or request.POST.get('phone')
+            Club.objects.create(
+                manager=user,
+                name=club_name or profile.club_name,
+                city=club_city or '',
+                phone=phone or '',
+                logo=request.FILES.get('club_logo'),
+                pan_document=request.FILES.get('pan_document'),
+                government_document=request.FILES.get('government_document'),
+                citizenship_document=request.FILES.get('citizenship_document'),
+                is_verified=False,
+            )
 
         messages.success(request, "Registration submitted successfully. Wait for admin verification.")
         return redirect('login')

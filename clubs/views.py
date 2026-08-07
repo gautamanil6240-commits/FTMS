@@ -3,9 +3,9 @@ from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model, login
 from django.contrib import messages
-from .models import Club, Coach
+from .models import Club, Coach, get_or_create_manager_club
 from accounts.models import UserProfile
-from coach.models import CoachProfile
+from coach.models import CoachProfile, get_club_active_lineup
 from players.models import Player
 
 User = get_user_model()
@@ -96,17 +96,30 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            club = self.request.user.managed_club
+            # Auto-create the Club record if it is missing (covers legacy
+            # accounts registered before Club linkage was added).
+            club = get_or_create_manager_club(self.request.user)
+            if club is None:
+                raise Club.DoesNotExist
             context['club'] = club
             context['coaches'] = club.club_coaches.all()
             context['has_club'] = True
-            # Real squad roster from players.Player, most recent 5 first
+# Real squad roster from players.Player, most recent 5 first
             context['recent_players'] = Player.objects.filter(
                 club=club
             ).order_by('-created_at')[:5]
+
+            # Read-only tactics: the club's active formation + slots.
+            # Shared helper returns (formation, slots); club derived from
+            # request.user.managed_club (never from a URL param).
+            formation, lineup_slots = get_club_active_lineup(club)
+            context['formation'] = formation
+            context['lineup_slots'] = lineup_slots
         except (Club.DoesNotExist, AttributeError):
             context['has_club'] = False
             context['recent_players'] = []
+            context['formation'] = None
+            context['lineup_slots'] = []
         return context
 
 
@@ -115,24 +128,28 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
 # =======================================================
 
 class AddCoachView(LoginRequiredMixin, View):
+    def _get_club_or_redirect(self, request):
+        """Return (club, response). If club is missing, response is a redirect."""
+        club = get_or_create_manager_club(request.user)
+        if club is None:
+            messages.error(request, "No club is associated with your manager account. Please contact support.")
+            return None, redirect('clubs:manager_dashboard')
+        return club, None
+
     def get(self, request):
-        try:
-            club = request.user.managed_club
-        except Exception as e:
-            from django.http import HttpResponse
-            return HttpResponse(f"DEBUG GET ERROR: {e} | User: {request.user} (ID: {request.user.id})")
-        
+        club, response = self._get_club_or_redirect(request)
+        if response is not None:
+            return response
+
         return render(request, 'clubs/add_coach.html', {
             'club': club,
             'coaches': club.club_coaches.all(),
         })
 
     def post(self, request):
-        try:
-            club = request.user.managed_club
-        except Exception as e:
-            from django.http import HttpResponse
-            return HttpResponse(f"DEBUG POST ERROR: {e} | User: {request.user} (ID: {request.user.id})")
+        club, response = self._get_club_or_redirect(request)
+        if response is not None:
+            return response
 
         full_name = request.POST.get('full_name')
         license_level = request.POST.get('license_level')

@@ -1,7 +1,39 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 
 User = get_user_model()
+
+
+def get_or_create_manager_club(user):
+    """
+    Return the Club managed by *user*.
+    If the Club record is missing (e.g. because the user registered via
+    the generic accounts.register() view which only creates a UserProfile),
+    create it automatically from the UserProfile data.
+    """
+    try:
+        return user.managed_club
+    except (ObjectDoesNotExist, AttributeError):
+        try:
+            profile = user.userprofile
+        except (ObjectDoesNotExist, AttributeError):
+            return None
+        if profile.role != 'manager' or not profile.club_name:
+            return None
+        # Auto-create the missing Club record from UserProfile data
+        club = Club.objects.create(
+            manager=user,
+            name=profile.club_name,
+            city=profile.club_address or '',
+            phone=profile.phone_number or '',
+            logo=profile.club_logo if profile.club_logo else None,
+            pan_document=None,   # documents are stored on UserProfile only
+            government_document=None,
+            citizenship_document=None,
+            is_verified=profile.is_verified,
+        )
+        return club
 
 # ==========================================
 # 1. CLUB MODEL
