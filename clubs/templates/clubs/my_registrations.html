@@ -1,0 +1,108 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}My Club's Registrations — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.reg-list-page {
+    min-height: 100vh;
+    padding: 90px 40px 60px;
+    background: linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.92)),
+        url('https://images.unsplash.com/photo-1522778526097-ce0a22ceb228?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+}
+.reg-header { margin-bottom: 26px; }
+.reg-header h1 { font-size: 28px; color: var(--text-primary); }
+.reg-header p { color: var(--text-muted); font-size: 14px; }
+.reg-table {
+    background: var(--coach-card-bottom); border: 1px solid var(--accent-border);
+    border-radius: 14px; overflow: hidden;
+}
+.reg-table table { width: 100%; border-collapse: collapse; }
+.reg-table th {
+    background: var(--accent-soft); padding: 14px 20px; text-align: left;
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    border-bottom: 1px solid var(--accent-border);
+}
+.reg-table td {
+    padding: 14px 20px; font-size: 14px; color: var(--text-strong);
+    border-bottom: 1px solid var(--border-soft);
+}
+.reg-table tr:last-child td { border-bottom: none; }
+.status-badge { padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+.status-badge.pending { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--warning-border); }
+.status-badge.approved { background: var(--accent-soft-2); color: var(--accent); border: 1px solid var(--accent-border); }
+.status-badge.rejected { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger-border); }
+.empty-box { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-box .empty-icon { font-size: 50px; margin-bottom: 15px; }
+.empty-box p { margin-bottom: 18px; }
+.btn-browse {
+    display: inline-block; padding: 11px 24px; background: var(--accent);
+    color: var(--text-primary); border-radius: 8px; font-size: 14px; font-weight: 700;
+    text-decoration: none; transition: 0.3s;
+}
+.btn-browse:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.no-club { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.back-link { display: block; text-align: center; margin-top: 22px; font-size: 13px; }
+.back-link a { color: var(--accent); text-decoration: none; }
+@media (max-width: 768px) { .reg-list-page { padding: 85px 16px 40px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reg-list-page">
+    <div class="reg-header">
+        <h1>📋 My Club's Registrations</h1>
+        {% if has_club %}<p>{{ club.name }} — tournament registration status</p>{% endif %}
+    </div>
+
+    {% if not has_club %}
+        <div class="no-club">
+            <div class="empty-icon" style="font-size:50px">🏳️</div>
+            <p>No club is associated with your manager account. Please contact support.</p>
+        </div>
+    {% elif registrations %}
+        <div class="reg-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tournament</th>
+                        <th>Location</th>
+                        <th>Start Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registrations %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong style="color: var(--text-primary);">{{ r.tournament.name }}</strong></td>
+                        <td>{{ r.tournament.location }}</td>
+                        <td>{{ r.tournament.start_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="status-badge {{ r.status }}">
+                                {{ r.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-box">
+            <div class="empty-icon">🏆</div>
+            <p>Your club hasn't registered for any tournaments yet.</p>
+            <a href="{% url 'tournament_list' %}" class="btn-browse">Browse Tournaments</a>
+        </div>
+    {% endif %}
+
+    <div class="back-link">
+        <a href="{% url 'clubs:manager_dashboard' %}">← Back to Manager Dashboard</a>
+    </div>
+</div>
+{% endblock %}

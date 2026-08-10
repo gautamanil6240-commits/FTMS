@@ -322,24 +322,33 @@
 
             <div class="form-section">
                 <div class="section-label">📞 Contact & Administration</div>
-                <div class="form-grid">
+<div class="form-grid">
                     <div class="form-field">
                         <label>👤 Contact Person Name</label>
-                        <input type="text" name="contact_person" placeholder="e.g. Ram Bahadur" required>
+                        <input type="text" name="contact_person" placeholder="e.g. Ram Bahadur">
                     </div>
                     <div class="form-field">
                         <label>Phone Number</label>
                         <div class="phone-input-group">
                             <span class="phone-prefix">+977</span>
-                            <input type="tel" name="phone" placeholder="98XXXXXXXX" pattern="[9][0-9]{9}" maxlength="10"
-                                required>
+                            <input type="tel" name="phone" placeholder="98XXXXXXXX" pattern="[9][0-9]{9}"
+                            maxlength="10">
                         </div>
                     </div>
-                    <div class="form-field full">
+                    <div class="form-field">
+                        <label>📝 Registration Type</label>
+                        <select name="registration_type" required>
+                            <option value="pre">Pre-Registration Only</option>
+                            <option value="open" selected>Open Registration</option>
+                            <option value="invite">Invitation Only</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
                         <label>⚡ Tournament Status</label>
                         <select name="status" required>
-                            <option value="upcoming" selected>Upcoming (Open for Registrations)</option>
-                            <option value="ongoing">Ongoing (Matches Active)</option>
+                            <option value="registration" selected>Registration Open</option>
+                            <option value="active">Active</option>
+                            <option value="upcoming">Upcoming</option>
                             <option value="completed">Completed</option>
                         </select>
                     </div>
@@ -463,7 +472,7 @@
                                 Trophy
                             </label>
                             <div class="conditional-input-wrapper" id="msg_trophy">
-                                <input type="text" name="award_trophy_details"
+                                <input type="text" name="award_trophy"
                                     placeholder="e.g. Golden Trophy with club logo">
                             </div>
                         </div>
@@ -474,7 +483,7 @@
                                 Medals
                             </label>
                             <div class="conditional-input-wrapper" id="msg_medals">
-                                <input type="text" name="award_medals_details"
+                                <input type="text" name="award_medals"
                                     placeholder="e.g. 25 Gold, Silver, Bronze medals">
                             </div>
                         </div>
@@ -485,7 +494,7 @@
                                     onchange="toggleAwardInput(this, 'msg_certificate')"> 📜 Certificates
                             </label>
                             <div class="conditional-input-wrapper" id="msg_certificate">
-                                <input type="text" name="award_certificate_details"
+                                <input type="text" name="award_certificate"
                                     placeholder="e.g. Participation certificates for all">
                             </div>
                         </div>
@@ -496,7 +505,8 @@
                                     onchange="toggleAwardInput(this, 'msg_best_player')"> ⚽ Best Player Award
                             </label>
                             <div class="conditional-input-wrapper" id="msg_best_player">
-                                <input type="text" name="award_mvp" placeholder="e.g. MVP Trophy + Special Gift">
+                                <input type="text" name="award_best_player"
+                                    placeholder="e.g. MVP Trophy + Special Gift">
                             </div>
                         </div>
 
@@ -516,7 +526,8 @@
                                     onchange="toggleAwardInput(this, 'msg_goalkeeper')"> 🧤 Best Goalkeeper Award
                             </label>
                             <div class="conditional-input-wrapper" id="msg_goalkeeper">
-                                <input type="text" name="award_goalkeeper" placeholder="e.g. Golden Gloves Award">
+                                <input type="text" name="award_best_goalkeeper"
+                                    placeholder="e.g. Golden Gloves Award">
                             </div>
                         </div>
 

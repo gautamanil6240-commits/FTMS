@@ -262,6 +262,11 @@
             <div class="stat-num">{{ completed }}</div>
             <div class="stat-label">Completed</div>
         </div>
+        <a href="{% url 'approve_registrations' %}" class="stat-card" style="text-decoration:none;">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-num">{{ pending_registrations }}</div>
+            <div class="stat-label">Pending Approvals</div>
+        </a>
     </div>
 
     <!-- Tournament List -->

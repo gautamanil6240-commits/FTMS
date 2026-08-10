@@ -22,6 +22,24 @@ class TournamentForm(forms.ModelForm):
             'prize_second',
             'prize_third',
             'rules',
+            # Contact & administration
+            'contact_person',
+            'phone',
+            'registration_type',
+            'status',
+            # Category rules
+            'age_category',
+            'gender_category',
+            # Schedule & deadlines
+            'registration_deadline',
+            # Extra awards & medals
+            'award_trophy',
+            'award_medals',
+            'award_certificate',
+            'award_best_player',
+            'award_top_scorer',
+            'award_best_goalkeeper',
+            'award_fair_play',
         ]
 
         widgets = {
@@ -34,6 +52,10 @@ class TournamentForm(forms.ModelForm):
                 attrs={'type': 'date'}
             ),
 
+            'registration_deadline': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+
             'description': forms.Textarea(
                 attrs={'rows': 4}
             ),
@@ -42,3 +64,28 @@ class TournamentForm(forms.ModelForm):
                 attrs={'rows': 6}
             ),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        registration_deadline = cleaned_data.get('registration_deadline')
+
+        if start_date and end_date and end_date < start_date:
+            self.add_error(
+                'end_date',
+                'End date must be on or after the start date.'
+            )
+
+        if (
+            registration_deadline
+            and start_date
+            and registration_deadline > start_date
+        ):
+            self.add_error(
+                'registration_deadline',
+                'Registration deadline must be on or before the start date.'
+            )
+
+        return cleaned_data

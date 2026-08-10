@@ -136,9 +136,13 @@
         background: linear-gradient(90deg, var(--blue), var(--blue-light));
     }
 
-    .t-strip.ongoing {
+.t-strip.active {
         background: linear-gradient(90deg, var(--accent-hover), var(--accent-light));
         box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .t-strip.registration {
+        background: linear-gradient(90deg, var(--blue), var(--blue-light));
     }
 
     .t-strip.completed {
@@ -202,10 +206,16 @@
         border: 1px solid var(--blue-border);
     }
 
-    .t-badge.ongoing {
+.t-badge.active {
         background: var(--accent-soft-2);
         color: var(--accent);
         border: 1px solid var(--accent-border);
+    }
+
+    .t-badge.registration {
+        background: var(--blue-soft);
+        color: var(--blue);
+        border: 1px solid var(--blue-border);
     }
 
     .t-badge.completed {
@@ -441,11 +451,14 @@
         <a href="?status=all" class="filter-btn {% if status_filter == 'all' %}active{% endif %}">
             All
         </a>
-        <a href="?status=upcoming" class="filter-btn {% if status_filter == 'upcoming' %}active{% endif %}">
+<a href="?status=upcoming" class="filter-btn {% if status_filter == 'upcoming' %}active{% endif %}">
             🔵 Upcoming
         </a>
-        <a href="?status=ongoing" class="filter-btn {% if status_filter == 'ongoing' %}active{% endif %}">
-            🟢 Ongoing
+        <a href="?status=active" class="filter-btn {% if status_filter == 'active' %}active{% endif %}">
+            🟢 Active
+        </a>
+        <a href="?status=registration" class="filter-btn {% if status_filter == 'registration' %}active{% endif %}">
+            📝 Registration
         </a>
         <a href="?status=completed" class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">
             ✅ Completed
@@ -473,11 +486,13 @@
 
             <div class="t-card-body">
 
-                <div class="t-badge {{ t.status }}">
-                    {% if t.status == 'ongoing' %}
-                    <span class="t-badge-dot"></span> Ongoing
+<div class="t-badge {{ t.status }}">
+                    {% if t.status == 'active' %}
+                    <span class="t-badge-dot"></span> Active
                     {% elif t.status == 'upcoming' %}
                     🔵 Upcoming
+                    {% elif t.status == 'registration' %}
+                    📝 Registration Open
                     {% else %}
                     ✅ Completed
                     {% endif %}
@@ -529,14 +544,18 @@
                         📋 About
                     </a>
 
-                    <!-- Register — needs login -->
+<!-- Register — club managers only -->
                     {% if t.status == 'completed' %}
                     <span class="btn-register disabled">
                         ✅ Completed
                     </span>
+                    {% elif user.is_authenticated and user.userprofile.role == 'manager' %}
+                    <a href="{% url 'organizer_register_tournament' t.pk %}" class="btn-register">
+                        📝 Register
+                    </a>
                     {% else %}
                     <a href="{% url 'login_selection' %}" class="btn-register">
-                        📝 Register
+                        🔐 Login to Register
                     </a>
                     {% endif %}
 

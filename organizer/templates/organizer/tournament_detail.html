@@ -183,7 +183,7 @@
             </div>
         </div>
 
-        <!-- Contact & Administration -->
+<!-- Contact & Administration -->
         <div class="info-section">
             <div class="section-label">📞 Contact & Administration</div>
             <div class="info-grid">
@@ -194,6 +194,10 @@
                 <div class="info-field">
                     <label>Phone Number</label>
                     <span>+977 {{ tournament.phone|default:"Not specified" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Registration Type</label>
+                    <span>{{ tournament.get_registration_type_display }}</span>
                 </div>
             </div>
         </div>
@@ -232,7 +236,7 @@
             </div>
         </div>
 
-        <!-- Tournament Format Matrix -->
+<!-- Tournament Format Matrix -->
         <div class="info-section">
             <div class="section-label">⚽ Tournament Format Matrix</div>
             <div class="info-grid">
@@ -243,6 +247,53 @@
                 <div class="info-field">
                     <label>Players Roster Limit Per Team</label>
                     <span>{{ tournament.players_per_team }} Players</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prize & Awards -->
+        <div class="info-section">
+            <div class="section-label">🏅 Prize & Awards</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>🥇 1st Place Prize</label>
+                    <span>NPR {{ tournament.prize_first|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🥈 2nd Place Prize</label>
+                    <span>NPR {{ tournament.prize_second|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🥉 3rd Place Prize</label>
+                    <span>NPR {{ tournament.prize_third|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🏆 Trophy</label>
+                    <span>{{ tournament.award_trophy|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🥇 Medals</label>
+                    <span>{{ tournament.award_medals|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>📜 Certificates</label>
+                    <span>{{ tournament.award_certificate|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>⚽ Best Player Award</label>
+                    <span>{{ tournament.award_best_player|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🎯 Top Scorer Award</label>
+                    <span>{{ tournament.award_top_scorer|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🧤 Best Goalkeeper Award</label>
+                    <span>{{ tournament.award_best_goalkeeper|default:"—" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>🤝 Fair Play Team</label>
+                    <span>{{ tournament.award_fair_play|default:"—" }}</span>
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ from .models import Club, Coach, get_or_create_manager_club
 from accounts.models import UserProfile
 from coach.models import CoachProfile, get_club_active_lineup
 from players.models import Player
+from organizer.models import TournamentRegistration
 
 User = get_user_model()
 
@@ -228,3 +229,26 @@ class AddCoachView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f"Error registering coach: {e}")
             return render(request, 'clubs/add_coach.html', context)
+
+
+# =======================================================
+# 4. MY CLUB'S TOURNAMENT REGISTRATIONS
+# =======================================================
+
+class ClubRegistrationsView(LoginRequiredMixin, TemplateView):
+    template_name = 'clubs/my_registrations.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        club = get_or_create_manager_club(self.request.user)
+        if club is None:
+            context['has_club'] = False
+            context['registrations'] = []
+            return context
+
+        context['has_club'] = True
+        context['club'] = club
+        context['registrations'] = TournamentRegistration.objects.filter(
+            club=club
+        ).select_related('tournament').order_by('-registered_at')
+        return context

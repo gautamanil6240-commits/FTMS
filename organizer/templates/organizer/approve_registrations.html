@@ -1,0 +1,103 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Pending Registrations — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.approve-page {
+    min-height: 100vh;
+    padding: 90px 50px 60px;
+    background: linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.92)),
+        url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+}
+.approve-header { margin-bottom: 28px; }
+.approve-header h1 { font-size: 30px; color: var(--text-primary); }
+.approve-header p { color: var(--text-muted); font-size: 14px; }
+.approve-table {
+    background: var(--coach-card-bottom); border: 1px solid var(--accent-border);
+    border-radius: 14px; overflow: hidden;
+}
+.approve-table table { width: 100%; border-collapse: collapse; }
+.approve-table th {
+    background: var(--accent-soft); padding: 14px 20px; text-align: left;
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    border-bottom: 1px solid var(--accent-border);
+}
+.approve-table td {
+    padding: 14px 20px; font-size: 14px; color: var(--text-strong);
+    border-bottom: 1px solid var(--border-soft);
+}
+.approve-table tr:last-child td { border-bottom: none; }
+.status-badge { padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+.status-badge.pending { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--warning-border); }
+.btn-approve, .btn-reject {
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 700;
+    text-decoration: none; transition: 0.3s; border: none; cursor: pointer; margin-right: 6px;
+}
+.btn-approve { background: var(--accent-soft-2); color: var(--accent); border: 1px solid var(--accent-border); }
+.btn-approve:hover { background: var(--accent); color: var(--text-primary); }
+.btn-reject { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger-border); }
+.btn-reject:hover { background: var(--danger); color: var(--text-primary); }
+.empty-box { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-box .empty-icon { font-size: 50px; margin-bottom: 15px; }
+.back-link { display: block; text-align: center; margin-top: 22px; font-size: 13px; }
+.back-link a { color: var(--accent); text-decoration: none; }
+@media (max-width: 768px) { .approve-page { padding: 85px 16px 40px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="approve-page">
+    <div class="approve-header">
+        <h1>🛡️ Pending Registrations</h1>
+        <p>Review club registration requests for your tournaments</p>
+    </div>
+
+    <div class="approve-table">
+        {% if registrations %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Club</th>
+                    <th>Tournament</th>
+                    <th>Registered By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registrations %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong style="color: var(--text-primary);">{{ r.club.name }}</strong></td>
+                    <td>{{ r.tournament.name }}</td>
+                    <td>{{ r.registered_by.get_full_name|default:r.registered_by.username }}</td>
+                    <td>{{ r.registered_at|date:"M d, Y" }}</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td>
+                        <a href="{% url 'review_registration' r.pk 'approve' %}" class="btn-approve">✓ Approve</a>
+                        <a href="{% url 'review_registration' r.pk 'reject' %}" class="btn-reject">✕ Reject</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-box">
+            <div class="empty-icon">✅</div>
+            <p>No pending registrations right now.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'organizer_dashboard' %}">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

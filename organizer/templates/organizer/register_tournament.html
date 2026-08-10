@@ -1,0 +1,99 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Register for {{ tournament.name }} — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.reg-page {
+    min-height: 100vh;
+    padding: 90px 20px 60px;
+    background: linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.92)),
+        url('https://images.unsplash.com/photo-1522778526097-ce0a22ceb228?w=1920&q=80')
+        no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+}
+.reg-wrap { width: 100%; max-width: 640px; }
+.reg-card {
+    background: var(--coach-card-bottom);
+    border: 1px solid var(--accent-border);
+    border-radius: 16px;
+    padding: 30px;
+}
+.reg-card h1 { font-size: 26px; color: var(--text-primary); margin-bottom: 6px; }
+.reg-card .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+.reg-info { margin-bottom: 24px; }
+.reg-info .row {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft); font-size: 14px;
+}
+.reg-info .row span:first-child { color: var(--text-muted); }
+.reg-info .row span:last-child { color: var(--text-strong); font-weight: 600; }
+.btn-confirm {
+    display: block; width: 100%; padding: 14px; text-align: center;
+    background: var(--accent); color: var(--text-primary); border: none;
+    border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: 0.3s; text-decoration: none;
+}
+.btn-confirm:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.btn-disabled {
+    background: var(--bg-glass); color: var(--text-muted); cursor: not-allowed;
+    border: 1px solid var(--border-soft);
+}
+.back-link { display: block; text-align: center; margin-top: 18px; font-size: 13px; }
+.back-link a { color: var(--accent); text-decoration: none; }
+.notice {
+    padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 18px;
+}
+.notice.info { background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-border); }
+.notice.success { background: var(--success-soft); color: var(--accent); border: 1px solid var(--accent); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reg-page">
+    <div class="reg-wrap">
+        <div class="reg-card">
+            <h1>🏆 {{ tournament.name }}</h1>
+            <p class="sub">Confirm your club's registration for this tournament</p>
+
+            <div class="reg-info">
+                <div class="row"><span>Club</span><span>{{ club.name }}</span></div>
+                <div class="row"><span>Location</span><span>{{ tournament.location }}</span></div>
+                <div class="row"><span>Start Date</span><span>{{ tournament.start_date|date:"M d, Y" }}</span></div>
+                <div class="row"><span>Format</span><span>{{ tournament.get_format_display }}</span></div>
+                <div class="row"><span>Teams</span><span>{{ tournament.teams_count }}/{{ tournament.max_teams }}</span></div>
+                <div class="row"><span>Players / Team</span><span>{{ tournament.players_per_team }}</span></div>
+            </div>
+
+            {% if already %}
+                {% if already_status == 'pending' %}
+                <div class="notice info">⏳ Your club has already submitted a registration for this tournament and it is <strong>pending</strong> approval.</div>
+                {% elif already_status == 'approved' %}
+                <div class="notice success">✅ Your club is already <strong>approved</strong> for this tournament.</div>
+                {% else %}
+                <div class="notice info">ℹ️ Your club's previous registration was <strong>rejected</strong>. You can submit again.</div>
+                {% endif %}
+            {% endif %}
+
+            {% if tournament.teams_count >= tournament.max_teams %}
+                <div class="notice info">🚫 This tournament is currently <strong>full</strong> ({{ tournament.teams_count }}/{{ tournament.max_teams }}).</div>
+                <a href="{% url 'tournament_list' %}" class="btn-confirm btn-disabled">Tournament Full</a>
+            {% elif already %}
+                <a href="{% url 'clubs:my_registrations' %}" class="btn-confirm btn-disabled">View My Registrations</a>
+            {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirm">📝 Confirm Registration</button>
+                </form>
+            {% endif %}
+
+            <div class="back-link">
+                <a href="{% url 'tournament_list' %}">← Back to Tournaments</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
