@@ -22,7 +22,7 @@ def get_redirect_for_user(user):
             return redirect('manager_dashboard')
         if profile.role == 'coach': return redirect('coach:coach_dashboard')
         if profile.role == 'player': return redirect('players:player_dashboard')
-        if profile.role == 'viewer': return redirect('viewer:viewer_dashboard')
+        if profile.role == 'viewer': return redirect('tournament_list')
     except UserProfile.DoesNotExist:
         if user.is_superuser: return redirect('/admin/')
     return redirect('home')
@@ -152,11 +152,29 @@ def user_login(request):
                 if not profile.is_verified:
                     messages.error(request, "Your account is awaiting admin approval.")
                     return redirect(f'{reverse_lazy("login")}?role={role}')
+
+                # Role-match check: if a role was specified via the URL,
+                # ensure it matches the account's actual role.
+                if role and profile.role != role:
+                    messages.error(
+                        request,
+                        f"This account is registered as {profile.get_role_display()}. "
+                        f"Please select the correct role to log in."
+                    )
+                    return redirect(f'{reverse_lazy("login")}?role={role}')
+
                 login(request, user)
                 return get_redirect_for_user(user)
             except UserProfile.DoesNotExist:
                 # Check if user has a coach_profile (registered via coach app)
                 if hasattr(user, 'coach_profile'):
+                    if role and role != 'coach':
+                        messages.error(
+                            request,
+                            f"This account is registered as Coach. "
+                            f"Please select the correct role to log in."
+                        )
+                        return redirect(f'{reverse_lazy("login")}?role={role}')
                     # Auto-create UserProfile for coach app users if missing
                     UserProfile.objects.create(
                         user=user,
@@ -167,6 +185,13 @@ def user_login(request):
                     return redirect('coach:coach_dashboard')
                 # Check if user has club_coach_profile (assigned by manager)
                 if hasattr(user, 'club_coach_profile'):
+                    if role and role != 'coach':
+                        messages.error(
+                            request,
+                            f"This account is registered as Coach. "
+                            f"Please select the correct role to log in."
+                        )
+                        return redirect(f'{reverse_lazy("login")}?role={role}')
                     # Auto-create UserProfile for manager-assigned coaches if missing
                     UserProfile.objects.create(
                         user=user,
@@ -177,6 +202,13 @@ def user_login(request):
                     return redirect('coach:coach_dashboard')
                 # Check if user is a Player (has Player record matching their email)
                 if PlayerModel.objects.filter(email=user.email).exists():
+                    if role and role != 'player':
+                        messages.error(
+                            request,
+                            f"This account is registered as Player. "
+                            f"Please select the correct role to log in."
+                        )
+                        return redirect(f'{reverse_lazy("login")}?role={role}')
                     player = PlayerModel.objects.get(email=user.email)
                     UserProfile.objects.create(
                         user=user,
@@ -189,6 +221,13 @@ def user_login(request):
                     return redirect('players:player_dashboard')
                 # Check if user is a Club Manager (has managed_club relation)
                 if hasattr(user, 'managed_club'):
+                    if role and role != 'manager':
+                        messages.error(
+                            request,
+                            f"This account is registered as Manager. "
+                            f"Please select the correct role to log in."
+                        )
+                        return redirect(f'{reverse_lazy("login")}?role={role}')
                     club = user.managed_club
                     UserProfile.objects.create(
                         user=user,
