@@ -1,0 +1,207 @@
+{% extends 'common/base.html' %}
+
+{% block title %}Notifications - FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notif-page {
+        max-width: 800px;
+        margin: 100px auto 40px;
+        padding: 0 20px;
+    }
+
+    .notif-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .notif-page-header h1 {
+        font-size: 24px;
+        color: var(--text-primary);
+    }
+
+    .notif-page-header .notif-count-badge {
+        background: var(--danger);
+        color: #fff;
+        font-size: 13px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        margin-left: 10px;
+    }
+
+    .notif-mark-all-btn {
+        background: var(--bg-surface-soft);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 8px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+    }
+
+    .notif-mark-all-btn:hover {
+        background: var(--bg-hover);
+    }
+
+    .notif-page-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .notif-page-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px 18px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .notif-page-item:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-strong);
+    }
+
+    .notif-page-item.unread {
+        border-left: 3px solid var(--accent);
+    }
+
+    .notif-page-item-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--border-strong);
+        flex-shrink: 0;
+        margin-top: 6px;
+    }
+
+    .notif-page-item.unread .notif-page-item-dot {
+        background: var(--accent);
+    }
+
+    .notif-page-item-body {
+        flex: 1;
+    }
+
+    .notif-page-item-msg {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .notif-page-item-time {
+        font-size: 12px;
+        color: var(--text-faint);
+        margin-top: 4px;
+    }
+
+    .notif-page-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+        font-size: 16px;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+    }
+
+    .notif-page-empty .notif-empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+    }
+
+    /* Pagination */
+    .notif-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 28px;
+    }
+
+    .notif-pagination a,
+    .notif-pagination span {
+        padding: 8px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        transition: background 0.15s;
+    }
+
+    .notif-pagination a:hover {
+        background: var(--bg-hover);
+    }
+
+    .notif-pagination .current {
+        background: var(--accent);
+        color: var(--accent-contrast);
+        border-color: var(--accent);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notif-page">
+    <div class="notif-page-header">
+        <h1>
+            Notifications
+            {% if unread_notification_count %}
+                <span class="notif-count-badge">{{ unread_notification_count }} unread</span>
+            {% endif %}
+        </h1>
+        {% if unread_notification_count %}
+            <form method="post" action="{% url 'mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="notif-mark-all-btn">✓ Mark all as read</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="notif-page-list">
+        {% for n in page_obj %}
+            <a href="{{ n.link|default:'#' }}" class="notif-page-item {% if not n.is_read %}unread{% endif %}">
+                <span class="notif-page-item-dot"></span>
+                <div class="notif-page-item-body">
+                    <div class="notif-page-item-msg">{{ n.message }}</div>
+                    <div class="notif-page-item-time">{{ n.created_at|timesince }} ago</div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="notif-page-empty">
+                <div class="notif-empty-icon">🔔</div>
+                You have no notifications yet.<br>
+                Notifications will appear here when registrations are reviewed or match results are recorded.
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="notif-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">← Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next →</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

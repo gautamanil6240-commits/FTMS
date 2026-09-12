@@ -1,13 +1,18 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model, login
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Case, IntegerField, Q, Value, When
 from .models import Club, Coach, get_or_create_manager_club
 from accounts.models import UserProfile
 from coach.models import CoachProfile, get_club_active_lineup
 from players.models import Player
 from organizer.models import TournamentRegistration
+from matches.models import Match
+from standings.services import get_club_standing
 
 User = get_user_model()
 
@@ -110,6 +115,28 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
                 club=club
             ).order_by('-created_at')[:5]
 
+            # Upcoming fixtures where the club is home or away, excluding
+            # completed/cancelled matches, soonest first (dated fixtures before
+            # TBD ones), capped at 5 like recent_players.
+            context['upcoming_matches'] = Match.objects.filter(
+                Q(home_team=club) | Q(away_team=club)
+            ).exclude(status__in=['completed', 'cancelled']).order_by(
+                Case(When(match_date__isnull=True, then=Value(1)), default=Value(0), output_field=IntegerField()),
+                'match_date'
+            )[:5]
+
+            # Club standings: this club's own position in every tournament it
+            # is approved for — scoped to "your club only".
+            approved_regs = TournamentRegistration.objects.filter(
+                club=club,
+                status='approved'
+            ).select_related('tournament')
+            context['club_standings'] = [
+                s for s in (
+                    get_club_standing(club, reg.tournament) for reg in approved_regs
+                ) if s is not None
+            ]
+
             # Read-only tactics: the club's active formation + slots.
             # Shared helper returns (formation, slots); club derived from
             # request.user.managed_club (never from a URL param).
@@ -119,13 +146,45 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
         except (Club.DoesNotExist, AttributeError):
             context['has_club'] = False
             context['recent_players'] = []
+            context['upcoming_matches'] = []
+            context['club_standings'] = []
             context['formation'] = None
             context['lineup_slots'] = []
         return context
 
 
 # =======================================================
-# 3. ADD COACH VIEW
+# 3. COACH LOOKUP (AJAX)
+# =======================================================
+
+@login_required
+def coach_lookup(request):
+    """Return JSON with coach info for a given coach_id_number.
+
+    Used by the add-coach form for live auto-fill: the manager types a
+    Coach ID and the form fetches the coach's name, email, and phone so
+    they can confirm before assigning.
+    """
+    coach_id = request.GET.get('coach_id_number', '').strip()
+    profile = UserProfile.objects.filter(
+        coach_id_number=coach_id, role='coach'
+    ).select_related('user').first()
+
+    if not profile:
+        return JsonResponse({'found': False})
+    if profile.assigned_manager_id is not None:
+        return JsonResponse({'found': False, 'error': 'This coach is already assigned to another club.'})
+
+    return JsonResponse({
+        'found': True,
+        'full_name': f'{profile.user.first_name} {profile.user.last_name}'.strip(),
+        'email': profile.user.email,
+        'phone': profile.phone_number or '',
+    })
+
+
+# =======================================================
+# 4. ADD COACH VIEW (claim instead of create)
 # =======================================================
 
 class AddCoachView(LoginRequiredMixin, View):
@@ -152,82 +211,69 @@ class AddCoachView(LoginRequiredMixin, View):
         if response is not None:
             return response
 
-        full_name = request.POST.get('full_name')
-        license_level = request.POST.get('license_level')
-        coach_id_number = request.POST.get('coach_id_number')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
+        coach_id_number = request.POST.get('coach_id_number', '').strip()
 
         context = {
             'club': club,
             'coaches': club.club_coaches.all(),
         }
 
-        if not coach_id_number or not coach_id_number.startswith('coa'):
-            messages.error(request, "Coach Unique Code must start with 'coa' (e.g. coa65674).")
+        if not coach_id_number:
+            messages.error(request, "Please enter a Coach ID.")
             return render(request, 'clubs/add_coach.html', context)
 
-        if Coach.objects.filter(coach_id_number=coach_id_number).exists():
-            messages.error(request, "A coach with this unique code already exists.")
+        # Look up the coach by their auto-generated ID (COACH-XXXXXX format)
+        profile = UserProfile.objects.filter(
+            coach_id_number=coach_id_number, role='coach'
+        ).select_related('user').first()
+
+        if not profile:
+            messages.error(request, "No coach found with that ID. Make sure the coach has registered first.")
             return render(request, 'clubs/add_coach.html', context)
 
-        # Check if a User with this coach_id_number as username already exists
-        username = f"coach_{coach_id_number.replace('coa', '')}"
-        if User.objects.filter(username=username).exists():
-            messages.error(request, f"A user account for this coach already exists (username: {username}).")
+        if profile.assigned_manager_id is not None:
+            messages.error(request, "This coach is already assigned to another club.")
             return render(request, 'clubs/add_coach.html', context)
+
+        coach_user = profile.user
+        full_name = f'{coach_user.first_name} {coach_user.last_name}'.strip()
 
         try:
-            # 1. Create User account (password = coach_id_number as initial password)
-            coach_user = User.objects.create_user(
-                username=username,
-                email=email or f"{username}@temp.com",
-                password=coach_id_number,
-                first_name=full_name.split()[0] if full_name.split() else full_name,
-                last_name=' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
-            )
+            # Link the UserProfile to this manager
+            profile.assigned_manager = request.user
+            profile.save(update_fields=['assigned_manager'])
 
-            # 2. Create UserProfile with role='coach' and auto-verified
-            UserProfile.objects.create(
+            # Create CoachProfile (for coach app login compatibility)
+            CoachProfile.objects.get_or_create(
                 user=coach_user,
-                role='coach',
-                phone_number=phone or '',
-                is_verified=True,
-                coach_id_number=coach_id_number,
-                assigned_manager=request.user,
+                defaults={
+                    'club': club,
+                    'coach_id_number': coach_id_number,
+                    'full_name': full_name,
+                    'phone_number': profile.phone_number or '',
+                },
             )
 
-            # 3. Create CoachProfile (for coach app login compatibility)
-            CoachProfile.objects.create(
+            # Create clubs.Coach record (for manager dashboard compatibility)
+            Coach.objects.get_or_create(
                 user=coach_user,
-                club=club,
-                coach_id_number=coach_id_number,
-                full_name=full_name,
-                phone_number=phone or '',
+                defaults={
+                    'club': club,
+                    'full_name': full_name,
+                    'coach_id_number': coach_id_number,
+                    'email': coach_user.email,
+                    'phone': profile.phone_number or '',
+                },
             )
 
-            # 4. Create clubs.Coach record (for manager dashboard compatibility)
-            Coach.objects.create(
-                user=coach_user,
-                club=club,
-                full_name=full_name,
-                license_level=license_level,
-                coach_id_number=coach_id_number,
-                email=email,
-                phone=phone
+            messages.success(
+                request,
+                f"✅ Coach {full_name} ({coach_id_number}) has been added to your staff!"
             )
-
-            success_msg = (
-                f"✅ Coach {full_name} assigned successfully!<br>"
-                f"<strong>Login Credentials:</strong><br>"
-                f"Username: <strong>{username}</strong><br>"
-                f"Password: <strong>{coach_id_number}</strong>"
-            )
-            messages.success(request, success_msg)
             return redirect('clubs:add_coach')
 
         except Exception as e:
-            messages.error(request, f"Error registering coach: {e}")
+            messages.error(request, f"Error assigning coach: {e}")
             return render(request, 'clubs/add_coach.html', context)
 
 

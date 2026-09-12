@@ -96,6 +96,14 @@ class PlayerPerformance(models.Model):
     )
 
     # Match / Review Info
+    match = models.ForeignKey(
+        'matches.Match',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='player_performances',
+        help_text="Link to the Match record (optional for free-form reviews)"
+    )
     performance_date = models.DateField()
     match_title = models.CharField(
         max_length=200,

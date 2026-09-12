@@ -1,0 +1,180 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Generate Bracket - {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gb-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .gb-wrap {
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .gb-header {
+        margin-bottom: 24px;
+    }
+
+    .gb-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .gb-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .gb-card {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .gb-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+
+    .group-advancers {
+        margin-bottom: 16px;
+    }
+
+    .group-advancers h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 8px;
+    }
+
+    .team-chip {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--accent-soft-2);
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        margin: 3px 4px 3px 0;
+    }
+
+    .total-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--success-soft);
+        color: var(--success);
+        border: 1px solid var(--success-border);
+        margin-bottom: 16px;
+    }
+
+    .btn-submit {
+        padding: 12px 26px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .msg {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        font-size: 13px;
+    }
+
+    .msg.error {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gb-page">
+    <div class="gb-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="gb-header">
+            <h1>🏆 Generate Knockout Bracket</h1>
+            <p>{{ tournament.name }} — from group stage advancers</p>
+        </div>
+
+        <div class="gb-card">
+            <h3>Advancing Teams</h3>
+            <div class="total-badge">{{ total_advancing }} team{{ total_advancing|pluralize }} advancing</div>
+
+            {% for group_info in advancing_info %}
+            <div class="group-advancers">
+                <h4>Group {{ group_info.group }} ({{ group_info.advancers_count }} advancer{{ group_info.advancers_count|pluralize }})</h4>
+                {% for team in group_info.teams %}
+                <span class="team-chip">{{ team.name }}</span>
+                {% empty %}
+                <span style="font-size:12px; color:var(--text-muted);">No teams advancing</span>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="gb-card">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                This will create a single-elimination bracket with {{ total_advancing }} teams. The bracket will appear on the schedule page.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button type="submit" class="btn-submit">Generate Bracket</button>
+                    <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-back">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

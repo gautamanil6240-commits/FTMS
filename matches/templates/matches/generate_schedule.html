@@ -1,0 +1,150 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Generate Schedule - {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gen-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .gen-wrap {
+        width: 100%;
+        max-width: 640px;
+    }
+
+    .gen-header {
+        margin-bottom: 24px;
+    }
+
+    .gen-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .gen-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .gen-section {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .gen-notice {
+        background: var(--info-soft);
+        border: 1px solid var(--info-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 14px;
+        color: var(--text-primary);
+        line-height: 1.6;
+        margin-bottom: 18px;
+    }
+
+    .gen-notice strong {
+        color: var(--accent);
+    }
+
+    .gen-hint {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }
+
+    .gen-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-generate {
+        padding: 13px 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+        font-family: inherit;
+    }
+
+    .btn-generate:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        padding: 13px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        background: transparent;
+        transition: all 0.25s ease;
+        font-family: inherit;
+    }
+
+    .btn-cancel:hover {
+        background: var(--accent-soft);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gen-page">
+    <div class="gen-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;
+            {% if message.tags == 'error' %}background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);
+            {% else %}background:var(--success-soft);border:1px solid var(--accent);color:var(--accent);
+            {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="gen-header">
+            <h1>📅 Generate Schedule</h1>
+            <p>{{ tournament.name }}</p>
+        </div>
+
+        <div class="gen-section">
+            <div class="gen-notice">
+                <strong>{{ approved_count }}</strong> approved teams are currently registered.
+                This will generate <strong>{{ expected_matches }}</strong> unique fixtures.
+            </div>
+
+            <p class="gen-hint">
+                The tournament must already be closed for registration and no fixtures should exist yet.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="gen-actions">
+                    <button type="submit" class="btn-generate">⚙️ Generate Schedule</button>
+                    <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

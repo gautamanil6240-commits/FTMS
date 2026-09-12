@@ -1,0 +1,347 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Bracket - {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bracket-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .bracket-wrap {
+        width: 100%;
+        max-width: 1200px;
+        overflow-x: auto;
+    }
+
+    .bracket-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .bracket-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .bracket-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* ---- Bracket Layout ---- */
+    .bracket {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        min-height: 400px;
+    }
+
+    .bracket-round {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        min-width: 220px;
+        position: relative;
+    }
+
+    .round-label {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--accent);
+        padding: 10px 0 16px;
+    }
+
+    .bracket-matches {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        flex: 1;
+        padding: 0 12px;
+    }
+
+    /* ---- Match Box ---- */
+    .match-box {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--border-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        min-width: 200px;
+        transition: border-color 0.2s;
+    }
+
+    .match-box:hover {
+        border-color: var(--accent-border);
+    }
+
+    .match-box.completed {
+        border-color: var(--accent);
+    }
+
+    .match-team {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        font-size: 13px;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .match-team:last-child {
+        border-bottom: none;
+    }
+
+    .match-team.winner {
+        background: var(--accent-soft-2);
+        font-weight: 700;
+    }
+
+    .match-team .team-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .match-team .team-name.tbd {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    .match-team .score {
+        font-weight: 700;
+        min-width: 20px;
+        text-align: center;
+        margin-left: 8px;
+        font-size: 14px;
+    }
+
+    .match-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 12px;
+        font-size: 10px;
+        color: var(--text-muted);
+        background: rgba(0,0,0,0.15);
+    }
+
+    .match-meta .penalty {
+        color: var(--warning);
+        font-weight: 700;
+    }
+
+    .match-status {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .match-status.scheduled {
+        background: var(--accent-soft-2);
+        color: var(--accent);
+    }
+
+    .match-status.completed {
+        background: var(--success-soft);
+        color: var(--success);
+    }
+
+    .match-status.cancelled {
+        background: var(--danger-soft);
+        color: var(--danger);
+    }
+
+    /* ---- Connector Lines ---- */
+    .connector {
+        display: flex;
+        align-items: center;
+        min-width: 40px;
+        position: relative;
+    }
+
+    .connector::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 1px;
+        background: var(--border-soft);
+    }
+
+    /* ---- Final / Trophy ---- */
+    .final-round .bracket-matches {
+        justify-content: center;
+    }
+
+    .trophy-icon {
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    /* ---- Empty State ---- */
+    .empty-notice {
+        background: var(--bg-glass);
+        border: 1px dashed var(--border-strong);
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    /* ---- Messages ---- */
+    .msg {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        font-size: 13px;
+    }
+
+    .msg.error {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .msg.success {
+        background: var(--success-soft);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+    }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 768px) {
+        .bracket {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bracket-round {
+            min-width: 100%;
+            max-width: 320px;
+        }
+
+        .connector {
+            display: none;
+        }
+
+        .bracket-matches {
+            gap: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bracket-page">
+    <div class="bracket-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bracket-header">
+            <div>
+                <h1>🏆 Knockout Bracket</h1>
+                <p>{{ tournament.name }}</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'matches:schedule' tournament.pk %}" class="btn-back">📅 Schedule</a>
+                <a href="{% url 'standings:tournament_standings' tournament.pk %}" class="btn-back">📊 Standings</a>
+                <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-back">← Back to Tournament</a>
+            </div>
+        </div>
+
+        {% if bracket_data %}
+        <div class="bracket">
+            {% for round in bracket_data %}
+            <div class="bracket-round{% if forloop.last %} final-round{% endif %}">
+                <div class="round-label">{{ round.label }}</div>
+                <div class="bracket-matches">
+                    {% for match in round.matches %}
+                    <div class="match-box{% if match.status == 'completed' %} completed{% endif %}">
+                        <div class="match-team{% if match.winner_side == 'home' %} winner{% endif %}">
+                            <span class="team-name{% if not match.home_name %} tbd{% endif %}">
+                                {{ match.home_name|default:"TBD" }}
+                            </span>
+                            {% if match.home_score is not None %}
+                            <span class="score">{{ match.home_score }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="match-team{% if match.winner_side == 'away' %} winner{% endif %}">
+                            <span class="team-name{% if not match.away_name %} tbd{% endif %}">
+                                {{ match.away_name|default:"TBD" }}
+                            </span>
+                            {% if match.away_score is not None %}
+                            <span class="score">{{ match.away_score }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="match-meta">
+                            <span class="match-status {{ match.status }}">{{ match.status }}</span>
+                            {% if match.penalty_text %}
+                            <span class="penalty">{{ match.penalty_text }}</span>
+                            {% endif %}
+                            {% if match.date_text %}
+                            <span>{{ match.date_text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if not forloop.last %}
+            <div class="connector"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-notice">
+            No bracket matches have been generated yet.
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

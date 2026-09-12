@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from clubs.models import Club
 
 
@@ -56,8 +57,8 @@ class Tournament(models.Model):
         null=True
     )
 
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(help_text="Registration opens on this date")
+    end_date = models.DateField(help_text="Registration closes on this date")
 
     format = models.CharField(
         max_length=20,
@@ -96,12 +97,6 @@ class Tournament(models.Model):
         max_length=20,
         choices=GENDER_CATEGORY_CHOICES,
         default='men'
-    )
-
-    # ===== Schedule & Deadlines =====
-    registration_deadline = models.DateField(
-        blank=True,
-        null=True
     )
 
     # ===== Prize & Awards =====
@@ -164,7 +159,16 @@ class Tournament(models.Model):
         default='registration'
     )
 
+    completed_at = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            previous = Tournament.objects.filter(pk=self.pk).values_list('status', flat=True).first()
+            if previous != 'completed' and self.status == 'completed':
+                self.completed_at = timezone.now()
+        super().save(*args, **kwargs)
 
     @property
     def teams_count(self):
@@ -219,6 +223,21 @@ class TournamentRegistration(models.Model):
     reviewed_at = models.DateTimeField(
         null=True,
         blank=True
+    )
+
+    # Group stage: nullable label like 'A', 'B', etc.
+    # Set when the organizer distributes approved clubs into groups.
+    group_label = models.CharField(
+        max_length=10,
+        blank=True,
+        default='',
+        help_text="Group label (e.g. 'A', 'B') for group+knockout format",
+    )
+
+    # How many teams from this group advance to the knockout bracket.
+    advancers = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of teams from this group that advance to the bracket",
     )
 
     class Meta:

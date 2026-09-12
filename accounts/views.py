@@ -129,7 +129,15 @@ def register(request):
                 is_verified=False,
             )
 
-        messages.success(request, "Registration submitted successfully. Wait for admin verification.")
+        if role == 'coach':
+            profile.refresh_from_db()  # ensure auto-generated coach_id_number is loaded
+            messages.success(
+                request,
+                f'Registration successful! Your Coach ID is <strong>{profile.coach_id_number}</strong>. '
+                f'Give this to your club manager so they can add you to their staff.'
+            )
+        else:
+            messages.success(request, "Registration submitted successfully. Wait for admin verification.")
         return redirect('login')
 
     return render(request, f'auth/register_{role}.html')
@@ -142,7 +150,7 @@ def user_login(request):
     if request.user.is_authenticated:
         return get_redirect_for_user(request.user)
 
-    role = request.GET.get('role', '')
+    role = request.GET.get('role', '').lower()
     if request.method == 'POST':
         user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
 

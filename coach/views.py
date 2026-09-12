@@ -11,7 +11,12 @@ from django.contrib.auth.models import User
 from players.models import Player
 from clubs.models import Club
 from accounts.models import UserProfile
+from organizer.models import TournamentRegistration
+from standings.services import get_club_standing
+from matches.models import Match
 from .forms import CoachProfileEditForm, PlayerPerformanceForm
+from .services import get_completed_tournaments_for_coach, get_missing_performance_logs
+from notifications.services import notify
 
 # ==========================================
 # FORMATION SLOT COORDINATES
@@ -64,16 +69,39 @@ FORMATION_TEMPLATES = {
 }
 
 
-def _create_formation(club, formation_type='4-3-3'):
+def _create_formation(club, formation_type='4-3-3', carry_over_from=None):
     """Creates a Formation (with its positioned LineupSlots) for a club.
 
-    Every build/switch starts with an EMPTY pitch — no auto-assignment.
+    If *carry_over_from* is given (the club's previous Formation), players
+    are automatically carried over to the new formation's slots that share
+    the same ``position_hint`` — filled in slot order, first-come-first-served.
+    Players that don't fit (more of a position type than the new formation has
+    slots for) are left on the bench (unassigned).
+
     Historical Formation rows are never touched; a new row is created each
     time so past lineups remain as snapshots.
     """
     formation_type = formation_type if formation_type in FORMATION_TEMPLATES else '4-3-3'
     formation = Formation.objects.create(club=club, name=formation_type, formation_type=formation_type)
+
+    # Bucket the old formation's assigned players by position_hint so we can
+    # pop matching players into the new formation's slots.
+    carry_over_pool = {}
+    if carry_over_from is not None:
+        old_slots = carry_over_from.slots.filter(
+            player__isnull=False
+        ).select_related('player')
+        for old_slot in old_slots:
+            carry_over_pool.setdefault(old_slot.position_hint, []).append(
+                old_slot.player
+            )
+
     for slot_key, label, top, left, hint in FORMATION_TEMPLATES[formation_type]:
+        # Pop one matching player off the pool for this position type, if any
+        assigned_player = None
+        if carry_over_pool.get(hint):
+            assigned_player = carry_over_pool[hint].pop(0)
+
         LineupSlot.objects.create(
             formation=formation,
             slot_key=slot_key,
@@ -81,8 +109,36 @@ def _create_formation(club, formation_type='4-3-3'):
             top=top,
             left=left,
             position_hint=hint,
+            player=assigned_player,
+            auto_assigned=bool(assigned_player),
         )
     return formation
+
+
+def _tactics_context(my_club, formation):
+    """Builds the context the tactics section partial needs.
+
+    Shared by the full-page render and the AJAX switch-formation response so
+    the partial always gets the same data shape.
+    """
+    if my_club and formation:
+        slots = formation.slots.all()
+    else:
+        slots = []
+
+    # Bench / Unassigned: roster players who are not currently in any lineup slot
+    if formation:
+        assigned_ids = {s.player_id for s in slots if s.player_id}
+        bench_players = [p for p in my_club.players.all() if p.id not in assigned_ids]
+    else:
+        bench_players = list(my_club.players.all()) if my_club else []
+
+    return {
+        'formation': formation,
+        'lineup_slots': slots,
+        'bench_players': bench_players,
+        'formation_types': list(FORMATION_TEMPLATES.keys()),
+    }
 
 # ==========================================
 # REGISTER VIEW
@@ -371,9 +427,50 @@ def remove_player_from_roster(request, pk):
                 )
             player.club = None
             player.save()
+
+            # Notify the club manager about the removal
+            if my_club.manager:
+                notify(
+                    my_club.manager,
+                    f'{player.full_name} has been removed from the squad.',
+                    link='/clubs/dashboard/'
+                )
+
         messages.success(request, f"{player.full_name} has been removed from the squad.")
     else:
         messages.error(request, "You can only remove players from your own squad.")
+
+    return redirect('coach:coach_dashboard')
+
+
+# ==========================================
+# UPDATE MEDICAL STATUS
+# ==========================================
+@login_required
+def update_medical_status(request, player_id):
+    coach_profile = getattr(request.user, 'coach_profile', None)
+    club_coach = getattr(request.user, 'club_coach_profile', None)
+    my_club = coach_profile.club if coach_profile else (club_coach.club if club_coach else None)
+
+    player = get_object_or_404(Player, pk=player_id, club=my_club)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('medical_status')
+        if new_status in ('fit', 'injured', 'suspended'):
+            old_status = player.medical_status
+            player.medical_status = new_status
+            player.save(update_fields=['medical_status'])
+
+            if old_status != new_status:
+                player_user = User.objects.filter(email=player.email).first()
+                if player_user:
+                    notify(
+                        player_user,
+                        f'Your medical status has been updated to "{new_status.title()}".',
+                        link='/players/dashboard/'
+                    )
+
+            messages.success(request, f"{player.full_name}'s status updated to {new_status.title()}.")
 
     return redirect('coach:coach_dashboard')
 
@@ -385,6 +482,63 @@ def logout_coach_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('coach:login_coach_view')
+
+
+# ==========================================
+# QUICK LOG FROM REMINDER (Step 6 & 7)
+# ==========================================
+@login_required
+def log_performance_from_reminder(request, player_pk, match_pk):
+    """Handle performance logging from the dashboard reminder.
+
+    GET: show a pre-filled form for a specific player + match.
+    POST: save the performance record with match FK set.
+    """
+    my_club, coach_instance = _resolve_coach_context(request)
+    player = get_object_or_404(Player, pk=player_pk)
+    match = get_object_or_404(Match, pk=match_pk)
+
+    # Security: player must be in the coach's club
+    if not my_club or player.club != my_club:
+        messages.error(request, "You can only log performance for players in your own squad.")
+        return redirect('coach:coach_dashboard')
+
+    # Security: match must involve the coach's club
+    if match.home_team_id != my_club.id and match.away_team_id != my_club.id:
+        messages.error(request, "This match does not involve your club.")
+        return redirect('coach:coach_dashboard')
+
+    match_title = f"{match.home_team.name} vs {match.away_team.name}"
+
+    if request.method == 'POST':
+        form = PlayerPerformanceForm(request.POST)
+        if form.is_valid():
+            performance = form.save(commit=False)
+            performance.player = player
+            performance.coach = coach_instance
+            performance.match = match  # Step 7: set the match FK
+            performance.save()
+            messages.success(request, f"Performance record saved for {player.full_name} — {match_title}.")
+        else:
+            messages.error(request, "Please fix the errors in the performance form.")
+        return redirect('coach:coach_dashboard')
+
+    # GET: pre-fill the form with match data
+    initial_data = {
+        'performance_date': match.match_date.date() if match.match_date else None,
+        'match_title': match_title,
+        'goals': 0,
+        'assists': 0,
+        'minutes_played': 90,
+    }
+    form = PlayerPerformanceForm(initial=initial_data)
+
+    return render(request, 'coach/log_performance_reminder.html', {
+        'form': form,
+        'player': player,
+        'match': match,
+        'match_title': match_title,
+    })
 
 
 # ==========================================
@@ -460,21 +614,37 @@ def coach_dashboard(request):
             return redirect('coach:coach_dashboard')
 
         # --- Tactical Lineup: create / switch formation ---
-        # Every switch creates a NEW empty Formation row (no auto-assignment),
-        # leaving historical snapshots untouched, and points the club's
-        # active_formation at the new row.
+        # Switch creates a NEW Formation row, carrying over players from the
+        # current active formation to matching position slots where possible,
+        # leaving historical snapshots untouched.
         if 'switch_formation' in request.POST:
             if not my_club:
                 messages.error(request, "Your account is not assigned to any club yet.")
                 return redirect('coach:coach_dashboard')
             formation_type = request.POST.get('formation_type', '4-3-3').strip()
-            formation = _create_formation(my_club, formation_type)
+            # Capture the current formation BEFORE we replace active_formation
+            previous_formation = getattr(my_club, 'active_formation', None)
+            formation = _create_formation(my_club, formation_type, carry_over_from=previous_formation)
             my_club.active_formation = formation
             my_club.save(update_fields=['active_formation'])
-            messages.success(
-                request,
-                f"{formation_type} lineup built! Assign players to slots by clicking on the pitch."
-            )
+
+            # AJAX path: return just the tactics section so the page can swap
+            # it in place instead of reloading the whole dashboard.
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                context = _tactics_context(my_club, formation)
+                return render(request, 'coach/partials/_tactics_section.html', context)
+
+            carried = sum(1 for s in formation.slots.all() if s.player_id)
+            if carried:
+                messages.success(
+                    request,
+                    f"{formation_type} lineup ready — {carried} player(s) carried over automatically."
+                )
+            else:
+                messages.success(
+                    request,
+                    f"{formation_type} lineup built! Assign players to slots by clicking on the pitch."
+                )
             return redirect('coach:coach_dashboard')
 
         # --- Tactical Lineup: assign a player to a slot ---
@@ -493,9 +663,27 @@ def coach_dashboard(request):
 
             # A cleared slot (checkbox checked, or no player selected) empties the slot
             if clear_slot or not player_id:
+                previously_assigned = slot.player  # capture before clearing
                 slot.player = None
                 slot.auto_assigned = False
                 slot.save()
+
+                # Notify the previously-assigned player of their removal
+                if previously_assigned:
+                    removed_user = User.objects.filter(email=previously_assigned.email).first()
+                    if removed_user:
+                        notify(
+                            removed_user,
+                            f'You\'ve been removed from {slot.label} in {slot.formation.club.name}\'s lineup.',
+                            link='/players/dashboard/'
+                        )
+
+                # AJAX path: return just the tactics section so the page can
+                # swap it in place instead of reloading the whole dashboard.
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    context = _tactics_context(my_club, slot.formation)
+                    return render(request, 'coach/partials/_tactics_section.html', context)
+
                 messages.success(request, f"{slot.label} cleared.")
                 return redirect('coach:coach_dashboard')
 
@@ -526,6 +714,22 @@ def coach_dashboard(request):
                         f"{player.full_name} was just assigned elsewhere — please try again."
                     )
                     return redirect('coach:coach_dashboard')
+
+                # Notify the player of their new assignment
+                player_user = User.objects.filter(email=player.email).first()
+                if player_user:
+                    notify(
+                        player_user,
+                        f'You\'ve been assigned to {slot.label} in {slot.formation.club.name}\'s {slot.formation.formation_type} formation.',
+                        link='/players/dashboard/'
+                    )
+
+                # AJAX path: return just the tactics section so the page can
+                # swap it in place instead of reloading the whole dashboard.
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    context = _tactics_context(my_club, slot.formation)
+                    return render(request, 'coach/partials/_tactics_section.html', context)
+
                 messages.success(request, f"{player.full_name} assigned to {slot.label}.")
             else:
                 slot.player = None
@@ -546,26 +750,38 @@ def coach_dashboard(request):
     my_roster = Player.objects.filter(club=my_club) if my_club else []
     all_clubs = Club.objects.all().order_by('name')
 
-    # Tactical lineup data: the club's ACTIVE formation + its positioned slots
-    if my_club and getattr(my_club, 'active_formation', None):
-        formation = my_club.active_formation
-        slots = formation.slots.all()
-    else:
-        formation = None
-        slots = []
-
-    # All formation types available to build/switch to
-    formation_types = list(FORMATION_TEMPLATES.keys())
-
-    # Bench / Unassigned: roster players who are not currently in any lineup slot
-    if formation:
-        assigned_ids = {s.player_id for s in slots if s.player_id}
-        bench_players = [p for p in my_roster if p.id not in assigned_ids]
-    else:
-        bench_players = list(my_roster)
+    # Tactical lineup data: the club's ACTIVE formation + its positioned slots.
+    # Reuses the same helper the AJAX switch-formation path uses so the
+    # full-page render and the partial-only response stay identical.
+    formation = my_club.active_formation if (my_club and getattr(my_club, 'active_formation', None)) else None
+    tactics_ctx = _tactics_context(my_club, formation)
+    lineup_slots = tactics_ctx['lineup_slots']
+    bench_players = tactics_ctx['bench_players']
+    formation_types = tactics_ctx['formation_types']
 
     # Use whichever profile is available for the template context
     display_coach = coach_profile or club_coach
+
+    # Club standings: the coach's club position in each approved tournament
+    # — scoped to "your club only".
+    club_standings = []
+    if my_club:
+        approved_regs = TournamentRegistration.objects.filter(
+            club=my_club,
+            status='approved'
+        ).select_related('tournament')
+        for reg in approved_regs:
+            standing = get_club_standing(my_club, reg.tournament)
+            if standing:
+                club_standings.append(standing)
+
+    # Performance logging reminders: completed tournaments with missing logs
+    missing_performance_logs = []
+    if my_club:
+        completed_tournaments = get_completed_tournaments_for_coach(my_club)
+        for reg in completed_tournaments:
+            missing = get_missing_performance_logs(my_club, reg.tournament)
+            missing_performance_logs.extend(missing)
 
     return render(request, 'coach/coach_dashboard.html', {
         'coach': display_coach,
@@ -576,7 +792,9 @@ def coach_dashboard(request):
         'all_clubs': all_clubs,
         'performance_form': PlayerPerformanceForm(),
         'formation': formation,
-        'lineup_slots': slots,
+        'lineup_slots': lineup_slots,
         'bench_players': bench_players,
         'formation_types': formation_types,
+        'club_standings': club_standings,
+        'missing_performance_logs': missing_performance_logs,
     })

@@ -1,0 +1,507 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Enter Match Result{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .result-wrap {
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .result-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .result-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .result-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .result-section {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--accent-border);
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .field-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .field-row label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .field-row input,
+    .field-row select {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        padding: 9px 12px;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .field-row input:focus,
+    .field-row select:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .field-error {
+        color: #ff6b6b;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .form-error {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.35);
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #ff8a8a;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+    .entry-list {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 10px;
+        padding: 4px 12px;
+    }
+
+    .entry-row {
+        padding: 10px 4px;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .entry-row:last-child {
+        border-bottom: none;
+    }
+
+    .save-row {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-save {
+        padding: 13px 30px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+    }
+
+    .btn-save:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    /* ── Score stepper buttons ───────────────────────── */
+    .score-stepper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .score-stepper .step-btn {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 18px;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .score-stepper .step-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+    }
+
+    .score-stepper input {
+        flex: 1;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    /* ── Tab navigation ──────────────────────────────── */
+    .tab-nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .tab-btn {
+        padding: 11px 22px;
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 999px;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+        border-color: var(--accent-border);
+        color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-page">
+    <div class="result-wrap">
+
+        <div class="result-header">
+            <div>
+                <h1>📝 Enter Match Result</h1>
+                <p>{{ match.home_team.name }} vs {{ match.away_team.name }}</p>
+            </div>
+            <a href="{% url 'matches:schedule' match.tournament.pk %}" class="btn-back">← Back to Schedule</a>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="result-section">
+                <div class="section-label">⚽ Final Score</div>
+                <div class="field-grid">
+                    <div class="field-row">
+                        <label>{{ form.home_score.label }}</label>
+                        <div class="score-stepper">
+                            <button type="button" class="step-btn" onclick="document.getElementById('id_home_score').stepDown()">−</button>
+                            {{ form.home_score }}
+                            <button type="button" class="step-btn" onclick="document.getElementById('id_home_score').stepUp()">+</button>
+                        </div>
+                        {% if form.home_score.errors %}<div class="field-error">{{ form.home_score.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field-row">
+                        <label>{{ form.away_score.label }}</label>
+                        <div class="score-stepper">
+                            <button type="button" class="step-btn" onclick="document.getElementById('id_away_score').stepDown()">−</button>
+                            {{ form.away_score }}
+                            <button type="button" class="step-btn" onclick="document.getElementById('id_away_score').stepUp()">+</button>
+                        </div>
+                        {% if form.away_score.errors %}<div class="field-error">{{ form.away_score.errors }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-nav">
+                <button type="button" class="tab-btn active" data-tab="goals">⚽ Goals</button>
+                <button type="button" class="tab-btn" data-tab="cards">🟨 Cards</button>
+                <button type="button" class="tab-btn" data-tab="subs">🔄 Substitutions</button>
+            </div>
+
+            <div class="tab-panel" data-tab="goals">
+                <div class="result-section">
+                    <div class="section-label">🥅 Goals — {{ match.home_team.name }}</div>
+                    {{ home_goal_formset.management_form }}
+                    {% if home_goal_formset.non_form_errors %}
+                    <div class="form-error">{{ home_goal_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in home_goal_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player.label }}</label>
+                                    {{ form.player }}
+                                    {% if form.player.errors %}<div class="field-error">{{ form.player.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="section-label">🥅 Goals — {{ match.away_team.name }}</div>
+                    {{ away_goal_formset.management_form }}
+                    {% if away_goal_formset.non_form_errors %}
+                    <div class="form-error">{{ away_goal_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in away_goal_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player.label }}</label>
+                                    {{ form.player }}
+                                    {% if form.player.errors %}<div class="field-error">{{ form.player.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" data-tab="cards" style="display:none;">
+                <div class="result-section">
+                    <div class="section-label">🟨 Cards — {{ match.home_team.name }}</div>
+                    {{ home_card_formset.management_form }}
+                    {% if home_card_formset.non_form_errors %}
+                    <div class="form-error">{{ home_card_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in home_card_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player.label }}</label>
+                                    {{ form.player }}
+                                    {% if form.player.errors %}<div class="field-error">{{ form.player.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.card_type.label }}</label>
+                                    {{ form.card_type }}
+                                    {% if form.card_type.errors %}<div class="field-error">{{ form.card_type.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="section-label">🟨 Cards — {{ match.away_team.name }}</div>
+                    {{ away_card_formset.management_form }}
+                    {% if away_card_formset.non_form_errors %}
+                    <div class="form-error">{{ away_card_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in away_card_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player.label }}</label>
+                                    {{ form.player }}
+                                    {% if form.player.errors %}<div class="field-error">{{ form.player.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.card_type.label }}</label>
+                                    {{ form.card_type }}
+                                    {% if form.card_type.errors %}<div class="field-error">{{ form.card_type.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" data-tab="subs" style="display:none;">
+                <div class="result-section">
+                    <div class="section-label">🔄 Substitutions — {{ match.home_team.name }}</div>
+                    {{ home_sub_formset.management_form }}
+                    {% if home_sub_formset.non_form_errors %}
+                    <div class="form-error">{{ home_sub_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in home_sub_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player_out.label }}</label>
+                                    {{ form.player_out }}
+                                    {% if form.player_out.errors %}<div class="field-error">{{ form.player_out.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.player_in.label }}</label>
+                                    {{ form.player_in }}
+                                    {% if form.player_in.errors %}<div class="field-error">{{ form.player_in.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="section-label">🔄 Substitutions — {{ match.away_team.name }}</div>
+                    {{ away_sub_formset.management_form }}
+                    {% if away_sub_formset.non_form_errors %}
+                    <div class="form-error">{{ away_sub_formset.non_form_errors }}</div>
+                    {% endif %}
+                    <div class="entry-list">
+                    {% for form in away_sub_formset %}
+                        <div class="entry-row">
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="field-grid">
+                                <div class="field-row">
+                                    <label>{{ form.player_out.label }}</label>
+                                    {{ form.player_out }}
+                                    {% if form.player_out.errors %}<div class="field-error">{{ form.player_out.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.player_in.label }}</label>
+                                    {{ form.player_in }}
+                                    {% if form.player_in.errors %}<div class="field-error">{{ form.player_in.errors }}</div>{% endif %}
+                                </div>
+                                <div class="field-row">
+                                    <label>{{ form.minute.label }}</label>
+                                    {{ form.minute }}
+                                    {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="submit" class="btn-save">Save Match Result</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // Tabs: only the active panel is visible, but all panels (and their
+    // formset management + hidden inputs) stay in the DOM, so they POST
+    // normally even while hidden with display:none.
+    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.tab-btn').forEach(function (b) {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            var target = this.dataset.tab;
+            document.querySelectorAll('.tab-panel').forEach(function (panel) {
+                panel.style.display = (panel.dataset.tab === target) ? 'block' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

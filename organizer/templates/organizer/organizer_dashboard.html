@@ -15,6 +15,12 @@
     background-size: cover;
 }
 
+/* Light mode: force a solid light surface so the dashboard is fully light */
+html.light-mode .dashboard-page,
+body.light-mode .dashboard-page {
+    background: var(--bg-page) !important;
+}
+
 .dash-header {
     display: flex;
     justify-content: space-between;
@@ -196,6 +202,23 @@
 
 .btn-view:hover { background: var(--accent-soft); }
 
+.btn-delete {
+    padding: 6px 16px;
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-border);
+    color: var(--danger);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-delete:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
 .empty-box {
     text-align: center;
     padding: 60px 20px;
@@ -216,6 +239,17 @@
 
 {% block content %}
 <div class="dashboard-page">
+
+    {% if messages %}
+    {% for message in messages %}
+    <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;
+        {% if message.tags == 'error' %}background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);
+        {% else %}background:var(--success-soft);border:1px solid var(--accent);color:var(--accent);
+        {% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
 
     <!-- Header -->
     <div class="dash-header">
@@ -267,6 +301,28 @@
             <div class="stat-num">{{ pending_registrations }}</div>
             <div class="stat-label">Pending Approvals</div>
         </a>
+
+        {% for match in upcoming_matches %}
+        <a href="{% url 'matches:schedule' match.tournament.pk %}" class="stat-card" style="text-decoration:none;">
+            <div class="stat-icon">⚽</div>
+            <div class="stat-num" style="font-size: 18px;">{{ match.home_team.name }} vs {{ match.away_team.name }}</div>
+            <div class="stat-label">{{ match.tournament.name }}</div>
+        </a>
+        {% endfor %}
+
+        {% for match in recent_results %}
+        <a href="{% url 'matches:match_detail' match.pk %}" class="stat-card" style="text-decoration:none;">
+            <div class="stat-icon">📋</div>
+            <div class="stat-num" style="font-size: 18px;">{{ match.home_team.name }} {{ match.home_score }} - {{ match.away_score }} {{ match.away_team.name }}</div>
+            <div class="stat-label">{{ match.tournament.name }}</div>
+        </a>
+        {% empty %}
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-num" style="font-size: 18px;">—</div>
+            <div class="stat-label">No results yet</div>
+        </div>
+        {% endfor %}
     </div>
 
     <!-- Tournament List -->
@@ -280,7 +336,7 @@
                     <th>#</th>
                     <th>Tournament Name</th>
                     <th>Location</th>
-                    <th>Start Date</th>
+                    <th>Reg. Opens</th>
                     <th>Teams</th>
                     <th>Format</th>
                     <th>Status</th>
@@ -304,6 +360,12 @@
                     <td>
                         <a href="{% url 'organizer_tournament_detail' t.pk %}"
                            class="btn-view">View</a>
+                        <a href="{% url 'standings:tournament_standings' t.pk %}"
+                           class="btn-view" style="margin-left: 6px;">Standings</a>
+                        <a href="{% url 'edit_tournament' t.pk %}"
+                           class="btn-view" style="margin-left: 6px;">Edit</a>
+                        <a href="{% url 'delete_tournament' t.pk %}"
+                           class="btn-delete" style="margin-left: 6px;">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -127,7 +127,7 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{% if post_url %}{% url post_url %}{% else %}{% endif %}">
+        <form method="POST" action="{% if post_url %}{% url post_url %}{% if role %}?role={{ role }}{% endif %}{% else %}{% endif %}">
             {% csrf_token %}
 
             <div class="field-wrap">

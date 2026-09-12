@@ -1,0 +1,590 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Match Result - {{ match.home_team.name }} vs {{ match.away_team.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .match-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .match-wrap {
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .match-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .match-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .match-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+        background: transparent;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 16px;
+        padding: 30px 25px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .scoreboard-teams {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .scoreboard-team {
+        text-align: center;
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .scoreboard-team .team-name {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.4;
+    }
+
+    .scoreboard-team .team-tag {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    .scoreboard-score {
+        font-size: 46px;
+        font-weight: 800;
+        color: var(--accent);
+        letter-spacing: 4px;
+        white-space: nowrap;
+        text-shadow: 0 0 25px var(--accent-glow);
+    }
+
+    .scoreboard-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .scoreboard-meta .meta-chip {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .meta-chip.status-completed {
+        background: var(--success-soft);
+        border-color: var(--success-border);
+        color: var(--success);
+    }
+
+    .meta-chip.status-cancelled {
+        background: var(--danger-soft);
+        border-color: var(--danger-border);
+        color: var(--danger);
+    }
+
+    .meta-chip.status-scheduled {
+        background: var(--accent-soft-2);
+        border-color: var(--accent-border);
+        color: var(--accent);
+    }
+
+    /* Detail sections */
+    .detail-section {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 22px 24px;
+        margin-bottom: 16px;
+    }
+
+    .detail-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--accent-border);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .info-item .info-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .info-item .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .event-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .event-list li {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: var(--text-primary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .event-min {
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .event-empty {
+        color: var(--text-muted);
+        font-size: 14px;
+        font-style: italic;
+        background: var(--bg-glass);
+        border: 1px dashed var(--border-strong);
+        border-radius: 8px;
+        padding: 18px;
+        text-align: center;
+    }
+
+    /* Per-team goals */
+    .goals-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .team-goals {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 10px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .team-goals-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .team-goals-header .team-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .team-goals-header .team-count {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--accent);
+        background: var(--accent-soft-2);
+        border: 1px solid var(--accent-border);
+        border-radius: 8px;
+        padding: 2px 10px;
+        white-space: nowrap;
+    }
+
+    .team-goals .event-list {
+        gap: 6px;
+    }
+
+    .team-goals .event-list li {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .team-goals .event-empty {
+        padding: 12px;
+        font-size: 12px;
+        border-style: solid;
+        border-color: var(--border-soft);
+        background: transparent;
+    }
+
+    @media (max-width: 600px) {
+        .goals-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card-yellow {
+        color: var(--warning);
+        font-weight: 700;
+    }
+
+    .card-red {
+        color: var(--danger);
+        font-weight: 700;
+    }
+
+    .footer-row {
+        margin-top: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-edit {
+        padding: 11px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+        font-family: inherit;
+    }
+
+    .btn-edit:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 600px) {
+        .scoreboard-score {
+            font-size: 36px;
+        }
+        .scoreboard-team .team-name {
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="match-page">
+    <div class="match-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;
+            {% if message.tags == 'error' %}background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);
+            {% else %}background:var(--success-soft);border:1px solid var(--accent);color:var(--accent);
+            {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="match-header">
+            <div>
+                <h1>⚽ Match Result</h1>
+                <p>{{ match.tournament.name }}</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'standings:tournament_standings' match.tournament.pk %}" class="btn-back">📊 Standings</a>
+                <a href="{% url 'matches:schedule' match.tournament.pk %}" class="btn-back">← Back to Schedule</a>
+            </div>
+        </div>
+
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+            <div class="scoreboard-teams">
+                <div class="scoreboard-team">
+                    <div class="team-name">{{ match.home_team.name }}</div>
+                    <div class="team-tag">Home</div>
+                </div>
+                <div class="scoreboard-score">{{ match.home_score|default:'–' }} - {{ match.away_score|default:'–' }}</div>
+                <div class="scoreboard-team">
+                    <div class="team-name">{{ match.away_team.name }}</div>
+                    <div class="team-tag">Away</div>
+                </div>
+            </div>
+            <div class="scoreboard-meta">
+                <span class="meta-chip status-{{ match.status }}">
+                    {{ match.get_status_display }}
+                </span>
+                {% if match.match_date %}
+                <span class="meta-chip">📅 {{ match.match_date|date:'D, M d, Y · H:i' }}</span>
+                {% else %}
+                <span class="meta-chip">📅 Date TBD</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Goals (split by team) -->
+        <div class="detail-section">
+            <div class="section-label">🥅 Goals</div>
+            {% if goals %}
+            <div class="goals-grid">
+                <div class="team-goals">
+                    <div class="team-goals-header">
+                        <span class="team-name">{{ match.home_team.name }}</span>
+                        <span class="team-count">{{ home_goals|length }}</span>
+                    </div>
+                    {% if home_goals %}
+                    <ul class="event-list">
+                        {% for goal in home_goals %}
+                        <li>
+                            <span>{{ goal.player.full_name }}</span>
+                            <span class="event-min">{{ goal.minute|default:'?' }}'</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="event-empty">No goals</div>
+                    {% endif %}
+                </div>
+                <div class="team-goals">
+                    <div class="team-goals-header">
+                        <span class="team-name">{{ match.away_team.name }}</span>
+                        <span class="team-count">{{ away_goals|length }}</span>
+                    </div>
+                    {% if away_goals %}
+                    <ul class="event-list">
+                        {% for goal in away_goals %}
+                        <li>
+                            <span>{{ goal.player.full_name }}</span>
+                            <span class="event-min">{{ goal.minute|default:'?' }}'</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="event-empty">No goals</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="event-empty">No goals recorded.</div>
+            {% endif %}
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:0;">
+            <!-- Cards (split by team) -->
+            <div class="detail-section" style="margin-bottom:0;">
+                <div class="section-label">🟨 Cards — {{ match.home_team.name }}</div>
+                {% if home_cards %}
+                <ul class="event-list">
+                    {% for card in home_cards %}
+                    <li>
+                        <span>
+                            {% if card.card_type == 'red' %}<span class="card-red">🟥</span>
+                            {% else %}<span class="card-yellow">🟨</span>{% endif %}
+                            {{ card.player.full_name }}
+                        </span>
+                        <span class="event-min">{{ card.minute|default:'?' }}'</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="event-empty">No cards</div>
+                {% endif %}
+            </div>
+
+            <div class="detail-section" style="margin-bottom:0;">
+                <div class="section-label">🟨 Cards — {{ match.away_team.name }}</div>
+                {% if away_cards %}
+                <ul class="event-list">
+                    {% for card in away_cards %}
+                    <li>
+                        <span>
+                            {% if card.card_type == 'red' %}<span class="card-red">🟥</span>
+                            {% else %}<span class="card-yellow">🟨</span>{% endif %}
+                            {{ card.player.full_name }}
+                        </span>
+                        <span class="event-min">{{ card.minute|default:'?' }}'</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="event-empty">No cards</div>
+                {% endif %}
+            </div>
+
+            <!-- Substitutions (split by team) -->
+            <div class="detail-section" style="margin-bottom:0;">
+                <div class="section-label">🔄 Substitutions — {{ match.home_team.name }}</div>
+                {% if home_subs %}
+                <ul class="event-list">
+                    {% for sub in home_subs %}
+                    <li>
+                        <span>
+                            {{ sub.player_out.full_name }} <span style="color:var(--text-muted);">→</span> {{ sub.player_in.full_name }}
+                        </span>
+                        <span class="event-min">{{ sub.minute|default:'?' }}'</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="event-empty">No substitutions</div>
+                {% endif %}
+            </div>
+
+            <div class="detail-section" style="margin-bottom:0;">
+                <div class="section-label">🔄 Substitutions — {{ match.away_team.name }}</div>
+                {% if away_subs %}
+                <ul class="event-list">
+                    {% for sub in away_subs %}
+                    <li>
+                        <span>
+                            {{ sub.player_out.full_name }} <span style="color:var(--text-muted);">→</span> {{ sub.player_in.full_name }}
+                        </span>
+                        <span class="event-min">{{ sub.minute|default:'?' }}'</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="event-empty">No substitutions</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="detail-section">
+            <div class="section-label">💬 Comments</div>
+
+            {% if comments %}
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                {% for comment in comments %}
+                <div style="background:var(--bg-glass);border:1px solid var(--border-soft);border-radius:10px;padding:12px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:13px;font-weight:700;color:var(--accent);">{{ comment.author.username }}</span>
+                        <span style="font-size:11px;color:var(--text-muted);">{{ comment.created_at|timesince }} ago</span>
+                    </div>
+                    <p style="font-size:14px;color:var(--text-primary);margin:0;white-space:pre-line;">{{ comment.text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0;margin-bottom:16px;">No comments yet. Be the first to comment!</div>
+            {% endif %}
+
+            {% if user.is_authenticated and user.userprofile.role == 'viewer' %}
+            <form method="post" action="{% url 'comments:add_match_comment' match.pk %}">
+                {% csrf_token %}
+                <textarea name="text" maxlength="1000" rows="3" placeholder="Write your comment..." required
+                    style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--accent-border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+                <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+                    <button type="submit" class="btn-edit" style="padding:10px 20px;font-size:13px;">Post Comment</button>
+                </div>
+            </form>
+            {% elif user.is_authenticated %}
+            <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:12px 0;border-top:1px solid var(--border-soft);">Only viewer accounts can comment.</div>
+            {% else %}
+            <div style="text-align:center;padding:12px 0;border-top:1px solid var(--border-soft);">
+                <a href="{% url 'login' %}?role=viewer" style="color:var(--accent);font-size:13px;text-decoration:none;font-weight:600;">Log in to comment</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer-row">
+            {% if request.user.is_authenticated and request.user.userprofile.role == 'organizer' and match.tournament.organizer_id == request.user.id %}
+            <a href="{% url 'matches:enter_match_result' match.pk %}" class="btn-edit">✏️ Edit Result</a>
+            {% else %}
+            <span></span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

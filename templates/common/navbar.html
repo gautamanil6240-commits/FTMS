@@ -14,11 +14,6 @@
                 Home
             </a>
         </li>
-        <li>
-            <a href="#">
-                Tournaments
-            </a>
-        </li>
     </ul>
 
 <div class="nav-buttons">
@@ -33,21 +28,71 @@
 
         {% if user.is_authenticated %}
 
-            <a href="{% url 'organizer_dashboard' %}"
-               class="login-btn">
-                Dashboard
-            </a>
+            {% if user.userprofile.role == 'manager' %}
+               <a href="{% url 'clubs:manager_dashboard' %}" class="login-btn">
+                   Dashboard
+               </a>
+            {% elif user.userprofile.role == 'coach' %}
+               <a href="{% url 'coach:coach_dashboard' %}" class="login-btn">
+                   Dashboard
+               </a>
+            {% elif user.userprofile.role == 'player' %}
+               <a href="{% url 'players:player_dashboard' %}" class="login-btn">
+                   Dashboard
+               </a>
+            {% else %}
+               <a href="{% url 'organizer_dashboard' %}" class="login-btn">
+                   Dashboard
+               </a>
+            {% endif %}
+
+            {# ── Notification bell (click-toggle) ── #}
+            <div class="notif-wrap">
+                <button class="notif-bell" id="notifBellBtn">
+                    🔔
+                    {% if unread_notification_count > 0 %}
+                    <span class="notif-badge">{{ unread_notification_count }}</span>
+                    {% endif %}
+                </button>
+
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-dropdown-header">Notifications</div>
+
+                    {% if nav_notifications %}
+                        {% for n in nav_notifications %}
+                        <form method="post" action="{% url 'mark_notification_read' n.pk %}" class="notif-item-form">
+                            {% csrf_token %}
+                            <button type="submit" class="notif-item {% if not n.is_read %}unread{% endif %}">
+                                <span class="notif-text">{{ n.message }}</span>
+                                <span class="notif-time">{{ n.created_at|timesince }} ago</span>
+                            </button>
+                        </form>
+                        {% endfor %}
+
+                        {% if unread_notification_count > 0 %}
+                        <form method="post" action="{% url 'mark_all_read' %}" class="notif-mark-all-form">
+                            {% csrf_token %}
+                            <button type="submit" class="notif-mark-all">Mark all as read</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                        <div class="notif-empty">No notifications yet</div>
+                    {% endif %}
+
+                    <a href="{% url 'notification_list' %}" class="notif-view-all">View all notifications</a>
+                </div>
+            </div>
 
             <a href="{% url 'logout' %}"
                class="admin-btn">
-                Logout
+               Logout
             </a>
 
         {% else %}
 
             <a href="/admin/"
                class="admin-btn">
-                ⚙ Admin
+               ⚙ Admin
             </a>
 
         {% endif %}
@@ -55,3 +100,13 @@
     </div>
 
 </nav>
+
+<script>
+document.getElementById('notifBellBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('notifDropdown').classList.toggle('active');
+});
+document.addEventListener('click', () => {
+    document.getElementById('notifDropdown').classList.remove('active');
+});
+</script>

@@ -45,4 +45,98 @@
 
 </section>
 
+<!-- Upcoming / Registration Open -->
+<section class="home-tournaments">
+    <div class="home-tournaments-inner">
+        <div class="section-heading">
+            <span class="section-eyebrow">📝 Coming Soon</span>
+            <h2>Tournaments Open for Registration</h2>
+            <p class="section-sub">
+                Real tournaments, real clubs, real competition — pick one and get your team in before spots fill up.
+            </p>
+        </div>
+
+        {% if upcoming_tournaments %}
+        <div class="tournament-grid">
+            {% for t in upcoming_tournaments %}
+            <a href="{% url 'tournament_detail' t.pk %}" class="tournament-card">
+                <div class="tc-icon">🏆</div>
+                <h3>{{ t.name }}</h3>
+                <p class="tc-desc">{{ t.location }} · {{ t.get_format_display }} · {{ t.max_teams }} Teams</p>
+                <span class="tc-cta">Register your club →</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-tournaments">
+            <p>No tournaments open for registration right now — check back soon.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Ongoing -->
+<section class="home-tournaments">
+    <div class="home-tournaments-inner">
+        <div class="section-heading">
+            <span class="section-eyebrow">🔴 Live Now</span>
+            <h2>Ongoing Tournaments</h2>
+            <p class="section-sub">
+                Matches are underway — follow the action and check live standings.
+            </p>
+        </div>
+
+        {% if ongoing_tournaments %}
+        <div class="tournament-grid">
+            {% for t in ongoing_tournaments %}
+            <a href="{% url 'tournament_detail' t.pk %}" class="tournament-card">
+                <div class="tc-icon">⚽</div>
+                <h3>{{ t.name }}</h3>
+                <p class="tc-desc">{{ t.location }} · {{ t.get_format_display }} · {{ t.max_teams }} Teams</p>
+                <span class="tc-cta">View tournament →</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-tournaments">
+            <p>No tournaments are currently active.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recently Finished -->
+<section class="home-tournaments">
+    <div class="home-tournaments-inner">
+        <div class="section-heading">
+            <span class="section-eyebrow">✅ Results</span>
+            <h2>Recently Finished</h2>
+            <p class="section-sub">
+                Final standings and results from tournaments that wrapped up in the last 10 days.
+            </p>
+        </div>
+
+        {% if finished_tournaments %}
+        <div class="tournament-grid">
+            {% for t in finished_tournaments %}
+            <a href="{% url 'tournament_detail' t.pk %}" class="tournament-card">
+                <div class="tc-icon">🏆</div>
+                <h3>{{ t.name }}</h3>
+                <p class="tc-desc">{{ t.location }} · {{ t.get_format_display }} · {{ t.max_teams }} Teams</p>
+                <span class="tc-cta">View results →</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-tournaments">
+            <p>No recently finished tournaments to show.</p>
+        </div>
+        {% endif %}
+
+        <div class="view-all-wrap">
+            <a href="{% url 'tournament_list' %}" class="btn-view-all">View all tournaments</a>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

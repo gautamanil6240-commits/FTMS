@@ -244,8 +244,8 @@ body.light-mode .assign-page {
 
         <!-- Assign Coach Form -->
         <div class="assign-card">
-            <h1>🛡️ Assign New Coach</h1>
-            <p class="subtext">Register a coach to your staff using format: <code>coa65674</code></p>
+            <h1>🛡️ Assign Coach</h1>
+            <p class="subtext">Enter a coach's ID (e.g. <code>COACH-A1B2C3</code>) to look them up and add them to your staff.</p>
 
             {% if messages %}
             <div style="margin-bottom: 16px;">
@@ -255,46 +255,85 @@ body.light-mode .assign-page {
             </div>
             {% endif %}
 
-            <form method="POST" action="{% url 'clubs:add_coach' %}">
+            <form method="POST" action="{% url 'clubs:add_coach' %}" id="assignCoachForm">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label>Coach Full Name</label>
-                    <input type="text" name="full_name" placeholder="e.g. Roshan Adhikari" required>
+                    <label>Coach ID</label>
+                    <input type="text" name="coach_id_number" id="coachIdInput" placeholder="e.g. COACH-A1B2C3" required autocomplete="off">
+                    <div id="coachLookupStatus" style="font-size: 12px; margin-top: 4px; min-height: 18px;"></div>
                 </div>
 
                 <div class="form-group">
-                    <label>License Level</label>
-                    <select name="license_level" required>
-                        <option value="" disabled selected>Select License Level</option>
-                        <option value="UEFA Pro License">UEFA Pro License</option>
-                        <option value="UEFA A License">UEFA A License</option>
-                        <option value="UEFA B License">UEFA B License</option>
-                        <option value="AFC Pro License">AFC Pro License</option>
-                        <option value="AFC A Certified">AFC A Certified</option>
-                        <option value="AFC B Certified">AFC B Certified</option>
-                        <option value="AFC C Certificate">AFC C Certificate</option>
-                        <option value="FIFA Grassroots">FIFA Grassroots</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Coach Unique Code (<code>coanumber</code>)</label>
-                    <input type="text" name="coach_id_number" placeholder="e.g. coa65674" pattern="^coa[0-9]+$" title="Must start with 'coa' followed by numbers, e.g., coa65674" required>
+                    <label>Full Name</label>
+                    <input type="text" id="coachFullName" placeholder="Auto-filled after lookup" readonly style="background: var(--bg-glass); color: var(--text-muted); cursor: not-allowed;">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Email (Optional)</label>
-                        <input type="email" name="email" placeholder="coach@club.com">
+                        <label>Email</label>
+                        <input type="email" id="coachEmail" placeholder="Auto-filled after lookup" readonly style="background: var(--bg-glass); color: var(--text-muted); cursor: not-allowed;">
                     </div>
                     <div class="form-group">
-                        <label>Phone (Optional)</label>
-                        <input type="text" name="phone" placeholder="+123456789">
+                        <label>Phone</label>
+                        <input type="text" id="coachPhone" placeholder="Auto-filled after lookup" readonly style="background: var(--bg-glass); color: var(--text-muted); cursor: not-allowed;">
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">Assign Coach</button>
+                <button type="submit" class="btn-submit" id="submitBtn" disabled>Assign Coach</button>
             </form>
+
+            <script>
+            (function() {
+                const input = document.getElementById('coachIdInput');
+                const status = document.getElementById('coachLookupStatus');
+                const fullName = document.getElementById('coachFullName');
+                const email = document.getElementById('coachEmail');
+                const phone = document.getElementById('coachPhone');
+                const submitBtn = document.getElementById('submitBtn');
+                let debounceTimer = null;
+
+                input.addEventListener('input', function() {
+                    // Reset fields and status while typing
+                    fullName.value = '';
+                    email.value = '';
+                    phone.value = '';
+                    submitBtn.disabled = true;
+                    status.textContent = '';
+                    status.style.color = '';
+
+                    clearTimeout(debounceTimer);
+                    const val = input.value.trim();
+                    if (val.length < 8) return;  // COACH-XXXXXX is 12 chars, but start early
+
+                    debounceTimer = setTimeout(function() {
+                        status.textContent = 'Looking up coach...';
+                        status.style.color = 'var(--text-muted)';
+
+                        fetch("{% url 'clubs:coach_lookup' %}?coach_id_number=" + encodeURIComponent(val))
+                            .then(function(resp) { return resp.json(); })
+                            .then(function(data) {
+                                if (data.found) {
+                                    fullName.value = data.full_name || '';
+                                    email.value = data.email || '';
+                                    phone.value = data.phone || '';
+                                    submitBtn.disabled = false;
+                                    status.innerHTML = '\u2705 Coach found — confirm details and assign.';
+                                    status.style.color = 'var(--success)';
+                                } else {
+                                    status.innerHTML = data.error || '\u274c No coach found with that ID.';
+                                    status.style.color = 'var(--danger)';
+                                    submitBtn.disabled = true;
+                                }
+                            })
+                            .catch(function() {
+                                status.textContent = 'Lookup failed — try again.';
+                                status.style.color = 'var(--danger)';
+                                submitBtn.disabled = true;
+                            });
+                    }, 500);
+                });
+            })();
+            </script>
         </div>
 
         <!-- Current Coaching Staff -->
@@ -305,7 +344,6 @@ body.light-mode .assign-page {
                 <div class="staff-item">
                     <div>
                         <div class="staff-name">{{ coach.full_name }} <code>({{ coach.coach_id_number }})</code></div>
-                        <div class="staff-license">{{ coach.license_level }}</div>
                     </div>
                     <span class="staff-tag">Staff</span>
                 </div>

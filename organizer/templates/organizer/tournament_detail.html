@@ -20,7 +20,7 @@
 
     .detail-wrap {
         width: 100%;
-        max-width: 900px;
+        max-width: 1200px;
     }
 
     .detail-header {
@@ -136,8 +136,104 @@
         text-decoration: underline;
     }
 
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    .btn-action {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        display: inline-block;
+    }
+
+    .btn-action.primary {
+        background: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-action.primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn-action.outline {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+    }
+
+    .btn-action.outline:hover {
+        background: var(--accent-soft);
+        transform: translateY(-2px);
+    }
+
+    .btn-action.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border: 1px solid var(--danger-border);
+        box-shadow: none;
+    }
+
+    .btn-action.danger:hover {
+        background: var(--danger);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
     @media (max-width: 768px) {
         .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .hero-card {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 25px 28px;
+        margin-bottom: 20px;
+    }
+
+    .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .stat-strip .info-field {
+        padding: 10px 12px;
+    }
+
+    .detail-columns {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+        .stat-strip {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .detail-columns {
             grid-template-columns: 1fr;
         }
     }
@@ -148,21 +244,58 @@
 <div class="tournament-detail-page">
     <div class="detail-wrap">
 
-        <!-- Header Section -->
-        <div class="detail-header">
-            <div>
-                <span class="badge-status mb-2">{{ tournament.get_status_display }}</span>
-                <h1>🏆 {{ tournament.name }}</h1>
-                <p><i class="fas fa-map-marker-alt"></i> {{ tournament.location }}</p>
+        {% if messages %}
+        {% for message in messages %}
+        <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;
+            {% if message.tags == 'error' %}background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);
+            {% else %}background:var(--success-soft);border:1px solid var(--accent);color:var(--accent);
+            {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Hero Card -->
+        <div class="hero-card">
+            <div class="hero-top">
+                <div>
+                    <span class="badge-status mb-2">{{ tournament.get_status_display }}</span>
+                    <h1 style="font-size: 26px; margin: 10px 0 4px;">🏆 {{ tournament.name }}</h1>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ tournament.location }}</p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{% url 'standings:tournament_standings' tournament.pk %}" class="btn-action outline">📊 View Standings</a>
+                    {% if user.is_authenticated and user.userprofile.role == 'organizer' and tournament.organizer_id == user.id %}
+                    <a href="{% url 'matches:generate_schedule' tournament.pk %}" class="btn-action primary">Generate Schedule</a>
+                    <a href="{% url 'matches:schedule' tournament.pk %}" class="btn-action outline">View / Edit Schedule</a>
+                    <a href="{% url 'edit_tournament' tournament.pk %}" class="btn-action outline">✏️ Edit</a>
+                    <a href="{% url 'delete_tournament' tournament.pk %}" class="btn-action danger">🗑️ Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="stat-strip">
+                <div class="info-field">
+                    <label>Format</label>
+                    <span>{{ tournament.get_format_display }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Teams</label>
+                    <span>{{ tournament.teams_count }} / {{ tournament.max_teams }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Registration Opens</label>
+                    <span>{{ tournament.start_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="info-field">
+                    <label>Registration Closes</label>
+                    <span>{{ tournament.end_date|date:"M d, Y" }}</span>
+                </div>
             </div>
         </div>
 
-        {% if tournament.banner %}
-        <div class="info-section">
-            <div class="section-label">🖼️ Tournament Banner</div>
-            <img src="{{ tournament.banner.url }}" alt="{{ tournament.name }}" class="tournament-banner-img">
-        </div>
-        {% endif %}
+        <div class="detail-columns">
+        <div>
 
         <!-- Basic Information -->
         <div class="info-section">
@@ -202,6 +335,19 @@
             </div>
         </div>
 
+        <!-- Rules & Regulations -->
+        <div class="info-section">
+            <div class="section-label">📜 Rules & Regulations</div>
+            <div class="info-grid">
+                <div class="info-field full">
+                    <p style="white-space: pre-line;">{{ tournament.rules|default:"No specific rules provided yet." }}</p>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        <div>
+
         <!-- Category Rules -->
         <div class="info-section">
             <div class="section-label">🧬 Category Rules</div>
@@ -213,25 +359,6 @@
                 <div class="info-field">
                     <label>Gender Category</label>
                     <span>{{ tournament.get_gender_category_display|default:"Men's Tournament" }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Schedule & Deadlines -->
-        <div class="info-section">
-            <div class="section-label">📅 Schedule & Deadlines</div>
-            <div class="info-grid">
-                <div class="info-field">
-                    <label>Start Date</label>
-                    <span>{{ tournament.start_date|date:"M d, Y" }}</span>
-                </div>
-                <div class="info-field">
-                    <label>End Date</label>
-                    <span>{{ tournament.end_date|date:"M d, Y" }}</span>
-                </div>
-                <div class="info-field full">
-                    <label>Registration Close Deadline</label>
-                    <span>{{ tournament.registration_deadline|date:"M d, Y"|default:"Not specified" }}</span>
                 </div>
             </div>
         </div>
@@ -298,14 +425,45 @@
             </div>
         </div>
 
-        <!-- Rules & Regulations -->
+        </div>
+        </div>
+
+        <!-- Comments Section -->
         <div class="info-section">
-            <div class="section-label">📜 Rules & Regulations</div>
-            <div class="info-grid">
-                <div class="info-field full">
-                    <p style="white-space: pre-line;">{{ tournament.rules|default:"No specific rules provided yet." }}</p>
+            <div class="section-label">💬 Comments</div>
+
+            {% if comments %}
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                {% for comment in comments %}
+                <div style="background:var(--bg-glass);border:1px solid var(--border-soft);border-radius:10px;padding:12px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:13px;font-weight:700;color:var(--accent);">{{ comment.author.username }}</span>
+                        <span style="font-size:11px;color:var(--text-muted);">{{ comment.created_at|timesince }} ago</span>
+                    </div>
+                    <p style="font-size:14px;color:var(--text-primary);margin:0;white-space:pre-line;">{{ comment.text }}</p>
                 </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0;margin-bottom:16px;">No comments yet. Be the first to comment!</div>
+            {% endif %}
+
+            {% if user.is_authenticated and user.userprofile.role == 'viewer' %}
+            <form method="post" action="{% url 'comments:add_tournament_comment' tournament.pk %}">
+                {% csrf_token %}
+                <textarea name="text" maxlength="1000" rows="3" placeholder="Write your comment..." required
+                    style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--accent-border);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+                <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+                    <button type="submit" class="btn-action primary" style="padding:10px 20px;font-size:13px;">Post Comment</button>
+                </div>
+            </form>
+            {% elif user.is_authenticated %}
+            <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:12px 0;border-top:1px solid var(--border-soft);">Only viewer accounts can comment.</div>
+            {% else %}
+            <div style="text-align:center;padding:12px 0;border-top:1px solid var(--border-soft);">
+                <a href="{% url 'login' %}?role=viewer" style="color:var(--accent);font-size:13px;text-decoration:none;font-weight:600;">Log in to comment</a>
+            </div>
+            {% endif %}
         </div>
 
         <div class="back-link">

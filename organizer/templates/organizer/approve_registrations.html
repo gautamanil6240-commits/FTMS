@@ -13,6 +13,12 @@
         no-repeat center center fixed;
     background-size: cover;
 }
+
+/* Light mode: force a solid light surface so the page is fully light */
+html.light-mode .approve-page,
+body.light-mode .approve-page {
+    background: var(--bg-page) !important;
+}
 .approve-header { margin-bottom: 28px; }
 .approve-header h1 { font-size: 30px; color: var(--text-primary); }
 .approve-header p { color: var(--text-muted); font-size: 14px; }

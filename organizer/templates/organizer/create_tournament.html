@@ -21,6 +21,12 @@
         justify-content: center;
     }
 
+    /* Light mode: force a solid light surface */
+    html.light-mode .create-page,
+    body.light-mode .create-page {
+        background: var(--bg-page) !important;
+    }
+
     .create-wrap {
         width: 100%;
         max-width: 800px;
@@ -126,6 +132,146 @@
         border: 1px dashed var(--accent-border);
         color: var(--text-muted);
         cursor: pointer;
+    }
+
+    /* ── Icon-prefixed inputs ─────────────────────────── */
+    .field-icon-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg-glass);
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
+        padding: 0 14px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .field-icon-wrap .field-icon {
+        font-size: 15px;
+        line-height: 1;
+        opacity: 0.85;
+    }
+
+    .field-icon-wrap input,
+    .field-icon-wrap select,
+    .field-icon-wrap textarea {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        outline: none;
+        width: 100%;
+        padding: 12px 0;
+        font-size: 14px;
+        color: var(--text-primary);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .field-icon-wrap input:focus,
+    .field-icon-wrap select:focus,
+    .field-icon-wrap textarea:focus {
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .field-icon-wrap textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .field-icon-wrap:has(textarea) {
+        align-items: flex-start;
+        padding-top: 14px;
+    }
+
+    .field-icon-wrap:has(textarea) textarea {
+        padding-top: 0;
+    }
+
+    .field-icon-wrap input::placeholder,
+    .field-icon-wrap textarea::placeholder {
+        color: var(--text-faint);
+    }
+
+    .field-icon-wrap:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .field-icon-wrap:has(input[type="file"]) {
+        background: var(--accent-soft);
+        border: 1px dashed var(--accent-border);
+    }
+
+    .field-icon-wrap:has(input[type="file"]) input[type="file"] {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
+
+    .phone-prefix {
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 600;
+        padding-right: 10px;
+        border-right: 1px solid var(--border-soft);
+    }
+
+    /* ── Format pill selector ─────────────────────────── */
+    .format-pills {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .format-pill {
+        flex: 1;
+        min-width: 110px;
+        padding: 11px 14px;
+        background: var(--bg-glass);
+        border: 1px solid var(--border-strong);
+        border-radius: 999px;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .format-pill:hover {
+        border-color: var(--accent-border);
+        color: var(--text-primary);
+    }
+
+    .format-pill.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    /* ── Prize money cards ────────────────────────────── */
+    .prize-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .prize-card {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 18px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .prize-card .prize-card-icon {
+        font-size: 26px;
+        line-height: 1;
     }
 
     .awards-checkbox-grid {
@@ -272,6 +418,14 @@
         .form-grid {
             grid-template-columns: 1fr;
         }
+
+        .prize-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .format-pill {
+            flex: 1 1 100%;
+        }
     }
 </style>
 {% endblock %}
@@ -302,20 +456,32 @@
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Tournament Name</label>
-                        <input type="text" name="name" placeholder="e.g. Kathmandu Cup 2026" required>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🏆</span>
+                            <input type="text" name="name" placeholder="e.g. Kathmandu Cup 2026" required>
+                        </div>
                     </div>
                     <div class="form-field full">
                         <label>Description</label>
-                        <textarea name="description"
-                            placeholder="Brief description of the tournament rules, background, layout, or setup..."></textarea>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">📝</span>
+                            <textarea name="description"
+                                placeholder="Brief description of the tournament rules, background, layout, or setup..."></textarea>
+                        </div>
                     </div>
                     <div class="form-field">
                         <label>Location / Venue</label>
-                        <input type="text" name="location" placeholder="e.g. Dasharath Stadium, Kathmandu" required>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">📍</span>
+                            <input type="text" name="location" placeholder="e.g. Dasharath Stadium, Kathmandu" required>
+                        </div>
                     </div>
                     <div class="form-field">
                         <label>🖼️ Tournament Logo / Banner</label>
-                        <input type="file" name="banner" accept="image/*">
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🖼️</span>
+                            <input type="file" name="banner" accept="image/*">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -325,11 +491,15 @@
 <div class="form-grid">
                     <div class="form-field">
                         <label>👤 Contact Person Name</label>
-                        <input type="text" name="contact_person" placeholder="e.g. Ram Bahadur">
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">👤</span>
+                            <input type="text" name="contact_person" placeholder="e.g. Ram Bahadur">
+                        </div>
                     </div>
                     <div class="form-field">
-                        <label>Phone Number</label>
-                        <div class="phone-input-group">
+                        <label>📞 Phone Number</label>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">📞</span>
                             <span class="phone-prefix">+977</span>
                             <input type="tel" name="phone" placeholder="98XXXXXXXX" pattern="[9][0-9]{9}"
                             maxlength="10">
@@ -337,20 +507,26 @@
                     </div>
                     <div class="form-field">
                         <label>📝 Registration Type</label>
-                        <select name="registration_type" required>
-                            <option value="pre">Pre-Registration Only</option>
-                            <option value="open" selected>Open Registration</option>
-                            <option value="invite">Invitation Only</option>
-                        </select>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">📋</span>
+                            <select name="registration_type" required>
+                                <option value="pre">Pre-Registration Only</option>
+                                <option value="open" selected>Open Registration</option>
+                                <option value="invite">Invitation Only</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-field">
                         <label>⚡ Tournament Status</label>
-                        <select name="status" required>
-                            <option value="registration" selected>Registration Open</option>
-                            <option value="active">Active</option>
-                            <option value="upcoming">Upcoming</option>
-                            <option value="completed">Completed</option>
-                        </select>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">⚡</span>
+                            <select name="status" required>
+                                <option value="registration" selected>Registration Open</option>
+                                <option value="active">Active</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -360,21 +536,28 @@
                 <div class="form-grid">
                     <div class="form-field">
                         <label>🔞 Age Division</label>
-                        <select name="age_category" required>
-                            <option value="all">Open (All Ages)</option>
-                            <option value="u13">Under-13 (U13)</option>
-                            <option value="u15">Under-15 (U15)</option>
-                            <option value="u19">Under-19 (U19)</option>
-                            <option value="u23">Under-23 (U23)</option>
-                        </select>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🔞</span>
+                            <select name="age_category" required>
+                                <option value="all">Open (All Ages)</option>
+                                <option value="u13">Under-13 (U13)</option>
+                                <option value="u15">Under-15 (U15)</option>
+                                <option value="u19">Under-19 (U19)</option>
+                                <option value="u23">Under-23 (U23)</option>
+                                <option value="u25">Under-25 (U25)</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-field">
                         <label>🚻 Gender Category</label>
-                        <select name="gender_category" required>
-                            <option value="men">Men's Tournament</option>
-                            <option value="women">Women's Tournament</option>
-                            <option value="mixed">Mixed Category</option>
-                        </select>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🚻</span>
+                            <select name="gender_category" required>
+                                <option value="men">Men's Tournament</option>
+                                <option value="women">Women's Tournament</option>
+                                <option value="mixed">Mixed Category</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -383,19 +566,20 @@
                 <div class="section-label">📅 Schedule & Deadlines</div>
                 <div class="form-grid">
                     <div class="form-field">
-                        <label>Start Date</label>
-                        <input type="date" name="start_date" id="start_date" required>
+                        <label>📅 Registration Opens</label>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">📅</span>
+                            <input type="date" name="start_date" id="start_date" required>
+                        </div>
                     </div>
                     <div class="form-field">
-                        <label>End Date</label>
-                        <input type="date" name="end_date" id="end_date" required>
+                        <label>🗓️ Registration Closes</label>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🗓️</span>
+                            <input type="date" name="end_date" id="end_date" required>
+                        </div>
                     </div>
-                    <div class="form-field full">
-                        <label>⏰ Registration Close Deadline</label>
-                        <input type="date" name="registration_deadline" id="registration_deadline" required>
-                        <small style="color:var(--text-muted);font-size:11px;">Must be before or equal to the Start
-                            Date</small>
-                    </div>
+
                 </div>
             </div>
 
@@ -404,19 +588,26 @@
                 <div class="form-grid">
                     <div class="form-field">
                         <label>Format</label>
-                        <select name="format" required>
-                            <option value="league">League</option>
-                            <option value="knockout">Knockout</option>
-                            <option value="group_ko" selected>Group + Knockout</option>
-                        </select>
+                        <input type="hidden" name="format" id="id_format" value="group_ko">
+                        <div class="format-pills">
+                            <button type="button" class="format-pill" data-value="league">League</button>
+                            <button type="button" class="format-pill" data-value="knockout">Knockout</button>
+                            <button type="button" class="format-pill active" data-value="group_ko">Group + Knockout</button>
+                        </div>
                     </div>
                     <div class="form-field">
                         <label>Maximum Teams Limit</label>
-                        <input type="number" name="max_teams" value="24" min="2" max="128" required>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">👥</span>
+                            <input type="number" name="max_teams" value="24" min="2" max="128" required>
+                        </div>
                     </div>
                     <div class="form-field full">
                         <label>Players Roster Limit Per Team</label>
-                        <input type="number" name="players_per_team" value="15" min="5" max="35" required>
+                        <div class="field-icon-wrap">
+                            <span class="field-icon">🧑‍🤝‍🧑</span>
+                            <input type="number" name="players_per_team" value="15" min="5" max="35" required>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -429,29 +620,38 @@
                         style="font-size:11px;color:var(--text-muted); letter-spacing:1px;text-transform:uppercase; margin-bottom:12px;">
                         💰 Prize Money Pool (in NPR)
                     </div>
-                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                        <div class="form-field">
-                            <label>🥇 1st Place Prize (NPR)</label>
-                            <input type="number" name="prize_first" id="prize_first" placeholder="e.g. 100000" min="1"
-                                onchange="validatePrizes()" required>
-                            <small style="color:var(--text-muted);font-size:11px;">Minimum NPR 1</small>
+                    <div class="prize-grid">
+                        <div class="prize-card">
+                            <div class="prize-card-icon">🥇</div>
+                            <div class="form-field">
+                                <label>1st Place Prize (NPR)</label>
+                                <input type="number" name="prize_first" id="prize_first" placeholder="e.g. 100000" min="1"
+                                    onchange="validatePrizes()" required>
+                                <small style="color:var(--text-muted);font-size:11px;">Minimum NPR 1</small>
+                            </div>
                         </div>
 
-                        <div class="form-field">
-                            <label>🥈 2nd Place Prize (NPR)</label>
-                            <input type="number" name="prize_second" id="prize_second"
-                                placeholder="Must be less than 1st" min="0" onchange="validatePrizes()">
+                        <div class="prize-card">
+                            <div class="prize-card-icon">🥈</div>
+                            <div class="form-field">
+                                <label>2nd Place Prize (NPR)</label>
+                                <input type="number" name="prize_second" id="prize_second"
+                                    placeholder="Must be less than 1st" min="0" onchange="validatePrizes()">
+                            </div>
                         </div>
 
-                        <div class="form-field">
-                            <label>🥉 3rd Place Prize (Optional)</label>
-                            <select id="third_prize_option" onchange="toggleThirdPrize()">
-                                <option value="no" selected>No 3rd Prize</option>
-                                <option value="yes">Provide 3rd Prize</option>
-                            </select>
-                            <input type="number" name="prize_third" id="prize_third"
-                                placeholder="Enter 3rd prize amount" min="1" style="display:none; margin-top:10px;"
-                                onchange="validatePrizes()">
+                        <div class="prize-card">
+                            <div class="prize-card-icon">🥉</div>
+                            <div class="form-field">
+                                <label>3rd Place Prize (Optional)</label>
+                                <select id="third_prize_option" onchange="toggleThirdPrize()">
+                                    <option value="no" selected>No 3rd Prize</option>
+                                    <option value="yes">Provide 3rd Prize</option>
+                                </select>
+                                <input type="number" name="prize_third" id="prize_third"
+                                    placeholder="Enter 3rd prize amount" min="1" style="display:none; margin-top:10px;"
+                                    onchange="validatePrizes()">
+                            </div>
                         </div>
                     </div>
                     <div id="prize-error"
@@ -549,8 +749,11 @@
             <div class="form-section">
                 <div class="section-label">📜 Rules & Regulations</div>
                 <div class="form-field">
-                    <textarea name="rules" rows="6"
-                        placeholder="Write tournament rules here... (one rule per line)"></textarea>
+                    <div class="field-icon-wrap">
+                        <span class="field-icon">📜</span>
+                        <textarea name="rules" rows="6"
+                            placeholder="Write tournament rules here... (one rule per line)"></textarea>
+                    </div>
                 </div>
             </div>
 
@@ -632,21 +835,27 @@
     document.addEventListener("DOMContentLoaded", function () {
         const startDate = document.getElementById('start_date');
         const endDate = document.getElementById('end_date');
-        const regDeadline = document.getElementById('registration_deadline');
 
-        if (startDate && endDate && regDeadline) {
+        if (startDate && endDate) {
             startDate.addEventListener("change", function () {
                 endDate.min = this.value;
                 if (endDate.value && endDate.value < this.value) {
                     endDate.value = "";
                 }
-
-                regDeadline.max = this.value;
-                if (regDeadline.value && regDeadline.value > this.value) {
-                    regDeadline.value = "";
-                }
             });
         }
+
+        // Format pill buttons: keep the hidden input in sync so the same
+        // "format" field posts exactly as the old <select> did.
+        document.querySelectorAll('.format-pill').forEach(function (pill) {
+            pill.addEventListener('click', function () {
+                document.querySelectorAll('.format-pill').forEach(function (p) {
+                    p.classList.remove('active');
+                });
+                this.classList.add('active');
+                document.getElementById('id_format').value = this.dataset.value;
+            });
+        });
     });
 </script>
 {% endblock %}

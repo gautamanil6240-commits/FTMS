@@ -1,0 +1,186 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ tournament.name }} — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.92)),
+            url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=80')
+            no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* Light mode: force a solid light surface */
+    html.light-mode .delete-page,
+    body.light-mode .delete-page {
+        background: var(--bg-page) !important;
+    }
+
+    .delete-wrap {
+        width: 100%;
+        max-width: 560px;
+    }
+
+    .delete-card {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+    }
+
+    .delete-icon {
+        font-size: 52px;
+        margin-bottom: 14px;
+    }
+
+    .delete-card h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .delete-card p {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .tournament-name {
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    .warning-box {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger-border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        color: var(--danger);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        text-align: left;
+        line-height: 1.5;
+    }
+
+    .info-box {
+        background: var(--warning-soft);
+        border: 1px solid var(--warning-border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        color: var(--warning);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        text-align: left;
+        line-height: 1.5;
+    }
+
+    .delete-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .btn-danger {
+        padding: 12px 26px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        display: inline-block;
+        box-shadow: 0 4px 15px var(--danger-border);
+    }
+
+    .btn-danger:hover {
+        background: var(--danger);
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .btn-cancel {
+        padding: 12px 26px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        text-decoration: none;
+        transition: all 0.25s ease;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: var(--accent-soft);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page">
+    <div class="delete-wrap">
+
+        <div class="delete-card">
+            {% if can_delete %}
+            <div class="delete-icon">🗑️</div>
+            <h1>Delete "{{ tournament.name }}"?</h1>
+            <p>
+                You are about to permanently delete the tournament
+                <span class="tournament-name">{{ tournament.name }}</span>.
+                This will also remove its registrations and cannot be undone.
+            </p>
+
+            <div class="warning-box">
+                ⚠️ This action is <strong>permanent</strong>. Make sure you want to
+                remove this tournament before continuing.
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <button type="submit" class="btn-danger">Yes, Delete Tournament</button>
+                    <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+
+            {% else %}
+            <div class="delete-icon">🚫</div>
+            <h1>Cannot delete "{{ tournament.name }}"</h1>
+            <p>
+                This tournament cannot be deleted because it has either already
+                started or a schedule has been generated for it.
+            </p>
+
+            <div class="info-box">
+                ℹ️ Deleting is only allowed while a tournament is in
+                <strong>registration</strong> or <strong>upcoming</strong> status and has no
+                fixtures generated. Once it has started or has a schedule, it is locked.
+            </div>
+
+            <div class="delete-actions">
+                <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-cancel">← Back to Tournament</a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

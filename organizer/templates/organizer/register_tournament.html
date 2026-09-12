@@ -15,6 +15,12 @@
     display: flex;
     justify-content: center;
 }
+
+/* Light mode: force a solid light surface so the page is fully light */
+html.light-mode .reg-page,
+body.light-mode .reg-page {
+    background: var(--bg-page) !important;
+}
 .reg-wrap { width: 100%; max-width: 640px; }
 .reg-card {
     background: var(--coach-card-bottom);
@@ -62,7 +68,7 @@
             <div class="reg-info">
                 <div class="row"><span>Club</span><span>{{ club.name }}</span></div>
                 <div class="row"><span>Location</span><span>{{ tournament.location }}</span></div>
-                <div class="row"><span>Start Date</span><span>{{ tournament.start_date|date:"M d, Y" }}</span></div>
+                <div class="row"><span>Registration Opens</span><span>{{ tournament.start_date|date:"M d, Y" }}</span></div>
                 <div class="row"><span>Format</span><span>{{ tournament.get_format_display }}</span></div>
                 <div class="row"><span>Teams</span><span>{{ tournament.teams_count }}/{{ tournament.max_teams }}</span></div>
                 <div class="row"><span>Players / Team</span><span>{{ tournament.players_per_team }}</span></div>

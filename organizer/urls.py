@@ -36,6 +36,19 @@ urlpatterns = [
         name='organizer_tournament_detail'
     ),
 
+    # Organizer edit / delete tournament
+    path(
+        'tournament/<int:pk>/edit/',
+        views.edit_tournament,
+        name='edit_tournament'
+    ),
+
+    path(
+        'tournament/<int:pk>/delete/',
+        views.delete_tournament,
+        name='delete_tournament'
+    ),
+
     # Club manager registers their club for a tournament
     path(
         'register-tournament/<int:tournament_pk>/',
@@ -54,6 +67,23 @@ urlpatterns = [
         'approvals/<int:registration_pk>/<str:action>/',
         views.review_registration,
         name='review_registration'
+    ),
+
+    # Group + Knockout management
+    path(
+        'tournament/<int:tournament_pk>/distribute-groups/',
+        views.distribute_groups_view,
+        name='distribute_groups'
+    ),
+    path(
+        'tournament/<int:tournament_pk>/generate-group-schedule/',
+        views.generate_group_schedule,
+        name='generate_group_schedule'
+    ),
+    path(
+        'tournament/<int:tournament_pk>/generate-bracket-from-groups/',
+        views.generate_bracket_from_groups,
+        name='generate_bracket_from_groups'
     ),
 
 ]

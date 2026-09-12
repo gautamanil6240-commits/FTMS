@@ -741,6 +741,17 @@
     .bench-layout { grid-template-columns: 1fr; }
 }
 
+/* Dim the pitch briefly while a formation switch is in flight */
+#tactics-section.switching .pitch-wrap {
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+#tactics-section.switching .pitch-badge {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
 /* Mobile: deliberate redesign — larger tap targets, avatar + single-line name */
 @media (max-width: 600px) {
     .pitch-section { padding: 16px; }
@@ -886,6 +897,96 @@
     </div>
     {% endif %}
 
+<!-- Club Standings Section -->
+    <div class="section-title">🏆 My Standings</div>
+
+    <div class="t-table">
+        {% if club_standings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Tournament</th>
+                    <th>Position</th>
+                    <th>Played</th>
+                    <th>Points</th>
+                    <th>Record (W-D-L)</th>
+                    <th>GD</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for standing in club_standings %}
+                <tr>
+                    <td><strong style="color:var(--text-primary);">{{ standing.tournament.name }}</strong></td>
+                    <td><span style="font-weight: 700; color: var(--accent);">{{ standing.position_ordinal }}</span></td>
+                    <td>{{ standing.played }}</td>
+                    <td>{{ standing.points }} pts</td>
+                    <td>W{{ standing.won }} D{{ standing.drawn }} L{{ standing.lost }}</td>
+                    <td>{{ standing.goal_difference }}</td>
+                    <td><a href="{% url 'standings:tournament_standings' standing.tournament.pk %}" class="btn-view">View Table</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-box">
+            <div class="empty-icon">🏆</div>
+            <p>Your club isn't registered in any tournament yet — standings will appear here once your club joins a league.</p>
+        </div>
+        {% endif %}
+    </div>
+
+{% if missing_performance_logs %}
+<!-- Performance Logging Reminder -->
+<div style="background: linear-gradient(135deg, var(--warning-soft), var(--coach-card-top)); border: 1px solid var(--warning-border); border-radius: 14px; padding: 22px 28px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">⚠️</span>
+            <div>
+                <div style="font-size: 15px; font-weight: 700; color: var(--warning);">
+                    {{ missing_performance_logs|length }} performance log{{ missing_performance_logs|length|pluralize }} missing
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    You have completed matches without performance records for your roster players.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-height: 360px; overflow-y: auto; border: 1px solid var(--border-soft); border-radius: 10px;">
+        {% for entry in missing_performance_logs %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-soft); gap: 12px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">{{ entry.player.full_name }}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    {{ entry.match_title }}
+                    {% if entry.match.match_date %} · {{ entry.match.match_date|date:'M d, Y' }}{% endif %}
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
+                    {% if entry.goals > 0 %}
+                    <span style="font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft-2); border: 1px solid var(--accent-border); border-radius: 20px; padding: 2px 10px;">⚽ {{ entry.goals }} goal{{ entry.goals|pluralize }}</span>
+                    {% endif %}
+                    {% if entry.cards > 0 %}
+                    <span style="font-size: 11px; font-weight: 700; color: var(--warning); background: var(--warning-soft); border: 1px solid var(--warning-border); border-radius: 20px; padding: 2px 10px;">🟨 {{ entry.cards }} card{{ entry.cards|pluralize }}</span>
+                    {% endif %}
+                    {% if entry.was_subbed_in %}
+                    <span style="font-size: 11px; font-weight: 700; color: var(--info); background: var(--info-soft); border: 1px solid var(--info-border); border-radius: 20px; padding: 2px 10px;">🔄 Subbed in</span>
+                    {% endif %}
+                    {% if entry.was_subbed_out %}
+                    <span style="font-size: 11px; font-weight: 700; color: var(--info); background: var(--info-soft); border: 1px solid var(--info-border); border-radius: 20px; padding: 2px 10px;">🔄 Subbed out</span>
+                    {% endif %}
+                    {% if not entry.goals and not entry.cards and not entry.was_subbed_in and not entry.was_subbed_out %}
+                    <span style="font-size: 11px; color: var(--text-muted);">No recorded activity</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'coach:log_performance_from_reminder' entry.player.pk entry.match.pk %}" class="btn-action" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;">📊 Log Now</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Squad Roster Section -->
     <div class="section-title">⚽ My Current Squad Roster</div>
 
@@ -898,6 +999,7 @@
                     <th>Player Name</th>
                     <th>Position</th>
                     <th>Age / DOB</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -909,6 +1011,16 @@
 <td>{{ player.get_preferred_position_display|default:"Player" }}</td>
                     <td>{{ player.age|default:"N/A" }}</td>
 <td>
+                        <form method="post" action="{% url 'coach:update_medical_status' player.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <select name="medical_status" onchange="this.form.submit()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--bg-glass); color: var(--text-primary); font-size: 12px; cursor: pointer;">
+                                <option value="fit" {% if player.medical_status == 'fit' %}selected{% endif %}>✅ Fit</option>
+                                <option value="injured" {% if player.medical_status == 'injured' %}selected{% endif %}>🚑 Injured</option>
+                                <option value="suspended" {% if player.medical_status == 'suspended' %}selected{% endif %}>🟥 Suspended</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
                         <a href="{% url 'coach:player_detail' player.player_id %}" class="btn-view">View Profile</a>
                         <button type="button" class="btn-perf" data-player-id="{{ player.id }}" data-player-name="{{ player.full_name }}">Log Performance</button>
                         <a href="{% url 'coach:remove_player' player.id %}" class="btn-remove" onclick="return confirm('Remove {{ player.full_name }} from the squad?')">Remove</a>
@@ -928,119 +1040,7 @@
         {% endif %}
     </div>
 
-<!-- Tactical Lineup Section -->
-    <div class="section-title">⚽ Tactical Lineup</div>
-
-    <div class="pitch-section">
-<div class="pitch-head">
-                    <span class="pitch-badge" style="font-size: 16px;"><i class="fas fa-clipboard-list"></i> {% if formation %}{{ formation.name|default:"4-3-3" }}{% else %}No Formation Yet{% endif %}</span>
-                    {% if formation %}
-                        <span style="font-size: 12px; color: var(--text-muted);">Click a slot to assign / change a player</span>
-                    {% endif %}
-                </div>
-
-                {% if formation %}
-                <form method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; padding: 12px 14px; background: var(--bg-glass); border: 1px solid var(--accent-border); border-radius: 10px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="switch_formation" value="1">
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Switch Formation</label>
-                    <select name="formation_type" style="padding: 8px 12px; background: var(--bg-glass); border: 1px solid var(--border-strong); border-radius: 7px; color: var(--text-primary); font-size: 13px;">
-                        {% for ft in formation_types %}
-                        <option value="{{ ft }}" {% if formation.formation_type == ft %}selected{% endif %}>{{ ft }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit" class="btn-action btn-action-alt" style="padding: 8px 16px; font-size: 12px;">Build / Switch</button>
-                    <span style="font-size: 11px; color: var(--text-muted);">Switching creates a new empty lineup (previous lineups kept as history).</span>
-                </form>
-                {% endif %}
-
-        {% if formation %}
-        <div class="pitch-wrap">
-            <div class="pitch-field">
-                <div class="pitch-midline"></div>
-                <div class="pitch-center-circle"></div>
-                {% for slot in lineup_slots %}
-                <div class="pitch-slot {% if slot.player %}filled{% else %}empty{% endif %}"
-                     style="top: {{ slot.top }}%; left: {{ slot.left }}%;"
-                     data-slot-id="{{ slot.id }}"
-                     data-slot-name="{{ slot.label }}"
-                     data-slot-key="{{ slot.slot_key }}"
-                     title="{{ slot.label }}">
-{% if slot.player %}
-                        <span class="slot-key">{{ slot.slot_key }}</span>
-                        {% if slot.player.profile_photo %}
-                            <img class="slot-avatar" src="{{ slot.player.profile_photo.url }}" alt="{{ slot.player.full_name }}">
-                        {% else %}
-                            <span class="slot-avatar-fallback">{{ slot.player.full_name|first|upper }}</span>
-                        {% endif %}
-                        <span class="slot-name">{{ slot.player.full_name }}</span>
-                        <span class="slot-pos">{{ slot.player.get_preferred_position_display|default:"Player" }}</span>
-                        {% if slot.auto_assigned %}
-                            <span class="auto-badge">Auto</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="slot-key">{{ slot.slot_key }}</span>
-                        <span class="slot-empty-label">+ Add</span>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-<div class="slot-legend">
-            <span><span class="dot filled-dot"></span> Player assigned</span>
-            <span><span class="dot empty-dot"></span> Empty slot</span>
-            <span><span class="dot" style="background: var(--info); box-shadow: 0 0 6px var(--info-border);"></span> Auto-assigned</span>
-        </div>
-
-        {% if bench_players %}
-        <div class="bench-layout" style="margin-top: 24px;">
-            <div class="bench-panel">
-                <h4><i class="fas fa-chair"></i> Bench / Unassigned</h4>
-                {% if bench_players %}
-                <ul class="bench-list">
-                    {% for p in bench_players %}
-                    <li>
-                        {% if p.profile_photo %}
-                            <img class="bench-avatar" src="{{ p.profile_photo.url }}" alt="{{ p.full_name }}">
-                        {% else %}
-                            <span class="bench-avatar" style="display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-muted);">{{ p.full_name|first|upper }}</span>
-                        {% endif %}
-                        <span>{{ p.full_name }}</span>
-                        <span class="bench-pos">{{ p.get_preferred_position_display|default:"Player" }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="bench-empty">All roster players are on the pitch.</p>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-        {% else %}
-        <div class="pitch-wrap">
-            <div class="pitch-field">
-                <div class="pitch-midline"></div>
-                <div class="pitch-center-circle"></div>
-<div class="pitch-empty">
-                    <div class="pitch-empty-icon">⚽</div>
-                    <p>No lineup built yet. Pick a formation to start, then click slots to assign your roster players.</p>
-                    <form method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;">
-                        {% csrf_token %}
-                        <input type="hidden" name="switch_formation" value="1">
-                        <select name="formation_type" style="padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text-primary); font-size: 14px;">
-                            {% for ft in formation_types %}
-                            <option value="{{ ft }}">{{ ft }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn-action">
-                            <i class="fas fa-plus"></i> Build Lineup
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
+{% include 'coach/partials/_tactics_section.html' %}
 
 </div>
 
@@ -1215,7 +1215,11 @@
                 <select name="player_id" id="slotPlayerSelect">
                     <option value="">-- Select Player (or leave empty to clear) --</option>
                     {% for p in my_roster %}
-                    <option value="{{ p.id }}">{{ p.full_name }} ({{ p.get_preferred_position_display|default:"Player" }})</option>
+                    <option value="{{ p.id }}"
+                            data-medical="{{ p.medical_status }}"
+                            {% if p.medical_status != 'fit' %}style="color: #ef4444;"{% endif %}>
+                        {{ p.full_name }} ({{ p.get_preferred_position_display|default:"Player" }}){% if p.medical_status == 'injured' %} — 🚑 Injured{% elif p.medical_status == 'suspended' %} — 🟥 Suspended{% endif %}
+                    </option>
                     {% endfor %}
                 </select>
                 {% else %}
@@ -1297,20 +1301,128 @@ if (closePerfBtn) closePerfBtn.addEventListener('click', () => perfModal.classLi
   const slotLabelField = document.getElementById('slotLabelField');
   const slotPlayerSelect = document.getElementById('slotPlayerSelect');
 
-  document.querySelectorAll('.pitch-slot').forEach((slotEl) => {
-    slotEl.addEventListener('click', () => {
-      const slotId = slotEl.getAttribute('data-slot-id');
-      const slotName = slotEl.getAttribute('data-slot-name');
-      const slotKey = slotEl.getAttribute('data-slot-key');
-      slotIdField.value = slotId;
-      slotLabelField.value = `${slotKey} — ${slotName}`;
-      document.getElementById('slotModalTitle').textContent = `Assign ${slotName}`;
-      if (slotPlayerSelect) slotPlayerSelect.value = '';
-      slotModal.classList.add('active');
-    });
+  // Delegated listener so slot clicks keep working after the tactics section
+  // is swapped in place by the formation-switch AJAX call (new .pitch-slot
+  // elements wouldn't have direct listeners bound at page load).
+  document.addEventListener('click', (e) => {
+    const slotEl = e.target.closest('.pitch-slot');
+    if (!slotEl) return;
+    const slotId = slotEl.getAttribute('data-slot-id');
+    const slotName = slotEl.getAttribute('data-slot-name');
+    const slotKey = slotEl.getAttribute('data-slot-key');
+    slotIdField.value = slotId;
+    slotLabelField.value = `${slotKey} — ${slotName}`;
+    document.getElementById('slotModalTitle').textContent = `Assign ${slotName}`;
+    if (slotPlayerSelect) slotPlayerSelect.value = '';
+    slotModal.classList.add('active');
   });
 
   if (closeSlotBtn) closeSlotBtn.addEventListener('click', () => slotModal.classList.remove('active'));
+
+  // Formation switch via AJAX: changing the dropdown swaps only the tactics
+  // section, keeping the rest of the dashboard untouched. Delegated on
+  // document (not the select) so it keeps working after the section is
+  // replaced by a fresh copy from the response. Falls back to a normal POST
+  // if AJAX fails.
+  //
+  // AbortController guards against rapid-fire change events (e.g. arrow-key
+  // cycling through the <select>): only the most recent selection is allowed
+  // to finish and update the section — every earlier in-flight request is
+  // cancelled the instant a newer one starts.
+  let formationSwitchController = null;
+
+  document.addEventListener('change', (e) => {
+    if (!e.target.matches('#formation-select')) return;
+
+    const form = e.target.closest('form');
+    if (!form) return;
+
+    // Cancel any switch that's still in flight — only the latest
+    // selection should ever be allowed to update the section.
+    if (formationSwitchController) {
+      formationSwitchController.abort();
+    }
+    formationSwitchController = new AbortController();
+
+    const select = e.target;
+    const section = document.getElementById('tactics-section');
+    const formData = new FormData(form);   // capture BEFORE disabling
+    select.disabled = true;
+    if (section) section.classList.add('switching');
+
+    fetch(window.location.href, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+      signal: formationSwitchController.signal,
+    })
+      .then((resp) => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.text();
+      })
+      .then((html) => {
+        if (section) section.outerHTML = html;
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return; // superseded by a newer switch, ignore silently
+        // Fallback: full-page POST + redirect (works without JS).
+        select.disabled = false;
+        if (section) section.classList.remove('switching');
+        form.submit();
+      });
+  });
+
+  // Assign / clear slot via AJAX: intercepts the slot modal's submit and
+  // swaps the tactics section in place instead of reloading the full page.
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!form.querySelector('input[name="assign_slot"]')) return;
+
+    e.preventDefault();
+
+    // Medical status check: warn if assigning an injured/suspended player
+    const select = document.getElementById('slotPlayerSelect');
+    const selectedOption = select ? select.options[select.selectedIndex] : null;
+    const medicalStatus = selectedOption ? selectedOption.dataset.medical : null;
+    if (medicalStatus && medicalStatus !== 'fit') {
+      const label = medicalStatus === 'injured' ? 'injured' : 'suspended';
+      const confirmed = confirm(
+        `This player is currently marked as ${label}. Assign them anyway?`
+      );
+      if (!confirmed) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    // Capture form data BEFORE disabling anything — disabled fields are
+    // excluded from FormData by spec (same lesson as the formation switch).
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    fetch(window.location.href, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    })
+      .then((resp) => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.text();
+      })
+      .then((html) => {
+        const section = document.getElementById('tactics-section');
+        if (section) section.outerHTML = html;
+        slotModal.classList.remove('active'); // close the modal
+      })
+      .catch(() => {
+        // Fallback: normal form submit if AJAX fails.
+        if (submitBtn) submitBtn.disabled = false;
+        form.submit();
+      });
+  });
 
   window.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');

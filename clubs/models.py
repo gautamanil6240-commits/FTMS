@@ -71,6 +71,19 @@ class Club(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        # Detect is_verified transition: False → True fires a notification.
+        if self.pk:
+            previous = Club.objects.filter(pk=self.pk).values_list('is_verified', flat=True).first()
+            if previous is False and self.is_verified is True:
+                from notifications.services import notify
+                notify(
+                    self.manager,
+                    f'Your club "{self.name}" has been verified.',
+                    link='/clubs/dashboard/'
+                )
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

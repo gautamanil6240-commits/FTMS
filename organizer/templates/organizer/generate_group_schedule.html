@@ -1,0 +1,162 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Generate Group Schedule - {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gs-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .gs-wrap {
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .gs-header {
+        margin-bottom: 24px;
+    }
+
+    .gs-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .gs-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .gs-card {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .gs-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+
+    .group-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .group-row:last-child {
+        border-bottom: none;
+    }
+
+    .group-label {
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 16px;
+    }
+
+    .group-count {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .btn-submit {
+        padding: 12px 26px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .msg {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        font-size: 13px;
+    }
+
+    .msg.error {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gs-page">
+    <div class="gs-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="gs-header">
+            <h1>📅 Generate Group Schedule</h1>
+            <p>{{ tournament.name }} — {{ groups|length }} group{{ groups|length|pluralize }}</p>
+        </div>
+
+        <div class="gs-card">
+            <h3>Groups to Generate</h3>
+            {% for label in groups %}
+            <div class="group-row">
+                <span class="group-label">Group {{ label }}</span>
+                <span class="group-count">{{ group_sizes|dictsort:label|length }} team{{ group_sizes|dictsort:label|length|pluralize }} — {{ group_sizes|dictsort:label|length|add:"-1" }} match{{ group_sizes|dictsort:label|length|add:"-1"|pluralize }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="gs-card">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                This will create round-robin fixtures within each group. Each team plays every other team in their group once.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button type="submit" class="btn-submit">Generate Group Matches</button>
+                    <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-back">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

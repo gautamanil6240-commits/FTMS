@@ -8,6 +8,7 @@ from clubs.models import Club
 from accounts.models import UserProfile
 from django.shortcuts import get_object_or_404
 from coach.models import get_club_active_lineup
+from notifications.services import get_club_coach_users, notify
 
 def register(request, role):
     """Processes registration based on the role passed from the URL string."""
@@ -148,10 +149,27 @@ def sign_player(request, player_id):
     
     # Access the coach profile (adjust 'coachprofile' if your related_name is different)
     try:
-        coach = request.user.coachprofile 
+        coach = request.user.coach_profile
         if coach.club:
             player.club = coach.club
             player.save()
+
+            # Notify all coaches of the club about the new signing
+            for coach_user in get_club_coach_users(coach.club):
+                notify(
+                    coach_user,
+                    f'{player.full_name} has been added to the roster.',
+                    link='/coach/dashboard/'
+                )
+
+            # Notify the club manager about the new signing
+            if coach.club.manager:
+                notify(
+                    coach.club.manager,
+                    f'{player.full_name} has been added to the roster.',
+                    link='/clubs/dashboard/'
+                )
+
             messages.success(request, f"{player.full_name} has been added to your roster!")
         else:
             messages.error(request, "Your coach profile is not linked to any club.")

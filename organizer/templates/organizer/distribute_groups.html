@@ -1,0 +1,227 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Distribute Groups - {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dist-page {
+        min-height: 100vh;
+        padding: 80px 20px 60px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .dist-wrap {
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .dist-header {
+        margin-bottom: 24px;
+    }
+
+    .dist-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .dist-header p {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .dist-card {
+        background: var(--coach-card-bottom);
+        border: 1px solid var(--accent-border);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .dist-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-soft);
+        background: var(--bg-glass);
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .team-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .team-chip {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--accent-soft-2);
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+    }
+
+    .btn-submit {
+        padding: 12px 26px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--text-primary);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--accent-glow);
+        transition: all 0.25s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-soft);
+    }
+
+    .msg {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        font-size: 13px;
+    }
+
+    .msg.error {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .msg.success {
+        background: var(--success-soft);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+    }
+
+    .already-note {
+        padding: 14px 18px;
+        border-radius: 10px;
+        background: var(--warning-soft);
+        border: 1px solid var(--warning-border);
+        color: var(--warning);
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dist-page">
+    <div class="dist-wrap">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="dist-header">
+            <h1>📋 Distribute Groups</h1>
+            <p>{{ tournament.name }} — {{ registrations|length }} approved team{{ registrations|length|pluralize }}</p>
+        </div>
+
+        {% if already_distributed %}
+        <div class="already-note">
+            Groups are already distributed for this tournament. To re-distribute, reset group labels first (contact support or manually clear group_label on registrations).
+        </div>
+        {% endif %}
+
+        <div class="dist-card">
+            <h3>Approved Teams</h3>
+            <div class="team-list">
+                {% for reg in registrations %}
+                <span class="team-chip">
+                    {{ reg.club.name }}
+                    {% if reg.group_label %} → Group {{ reg.group_label }}{% endif %}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if not already_distributed %}
+        <div class="dist-card">
+            <h3>Group Settings</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Number of Groups</label>
+                        <input type="number" name="group_count" min="2" max="{{ registrations|length }}" value="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Advancers per Group</label>
+                        <input type="number" name="advancers_per_group" min="1" value="1" required>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button type="submit" class="btn-submit">Distribute Teams</button>
+                    <a href="{% url 'organizer_tournament_detail' tournament.pk %}" class="btn-back">Cancel</a>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

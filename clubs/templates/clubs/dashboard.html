@@ -591,6 +591,58 @@ body.light-mode .dashboard-page {
 
 <!-- Right: Squad Overview -->
         <div>
+            <!-- Club Standings -->
+            <div class="glass-card">
+                <h3>🏆 My Standings</h3>
+                {% if club_standings %}
+                <div class="squad-list">
+                    {% for standing in club_standings %}
+                    <div class="squad-item">
+                        <div style="display:flex; flex-direction:column; gap:3px;">
+                            <span class="player-name">{{ standing.tournament.name }}</span>
+                            <span style="font-size:11px; color:var(--text-muted);">Position {{ standing.position_ordinal }} · P{{ standing.played }} · {{ standing.points }} pts</span>
+                            <span style="font-size:11px; color:var(--text-muted);">W{{ standing.won }} D{{ standing.drawn }} L{{ standing.lost }} · GF {{ standing.goals_for }} : GA {{ standing.goals_against }} (GD {{ standing.goal_difference }})</span>
+                        </div>
+                        <a href="{% url 'standings:tournament_standings' standing.tournament.pk %}" style="background: var(--accent-soft-2); color: var(--accent); padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; white-space: nowrap;">View Table</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🏆</div>
+                    <p>Your club isn't registered in any tournament yet. Standings will appear here once your club joins a league.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Upcoming Matches -->
+            <div class="glass-card">
+                <h3>⚽ Upcoming Matches</h3>
+                {% if upcoming_matches %}
+                <div class="squad-list">
+                    {% for match in upcoming_matches %}
+                    <div class="squad-item">
+                        <div style="display:flex; flex-direction:column; gap:3px;">
+                            <span class="player-name">{{ match.home_team.name }} <span style="color:var(--text-muted); font-weight:600;">vs</span> {{ match.away_team.name }}</span>
+                            <span style="font-size:11px; color:var(--text-muted);">{{ match.tournament.name }}</span>
+                        </div>
+                        {% if match.match_date %}
+                        <span class="player-pos">📅 {{ match.match_date|date:"M d, Y" }}</span>
+                        {% else %}
+                        <span class="player-pos">Date TBD</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <p>No upcoming matches scheduled yet.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Squad Overview -->
             <div class="glass-card">
                 <h3>👥 Squad Overview</h3>
                 {% if recent_players %}
