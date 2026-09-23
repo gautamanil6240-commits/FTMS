@@ -15,6 +15,7 @@ db.sqlite3
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # Media/uploads
 media/
@@ -22,6 +23,11 @@ media/
 # IDE
 .vscode/
 .idea/
+
+# Stray root-level working copies (real files live in their apps)
+/FTMS_code.zip
+/services.py
+/tournament_detail.html
 
 # OS files
 .DS_Store

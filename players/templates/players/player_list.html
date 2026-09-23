@@ -1,0 +1,303 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Players — FTMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .players-page {
+        min-height: 100vh;
+        padding: 80px 50px 60px;
+        background:
+            linear-gradient(var(--auth-overlay-a), var(--auth-overlay-b)),
+            url("{% static 'images/homebg.png' %}")
+            no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light mode: force a solid light surface like the other portal pages */
+    html.light-mode .players-page,
+    body.light-mode .players-page {
+        background: var(--bg-page) !important;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        transition: 0.3s;
+    }
+
+    .back-link:hover {
+        color: var(--accent-hover);
+        gap: 12px;
+    }
+
+    .players-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .players-header h1 {
+        color: var(--text-primary);
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .players-header .count-tag {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid var(--accent-border);
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* Messages */
+    .msg {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .msg.error {
+        background: var(--danger-soft);
+        border: 1px solid var(--danger-border);
+        color: var(--danger);
+    }
+
+    .msg.success {
+        background: var(--success-soft);
+        border: 1px solid var(--success-border);
+        color: var(--success);
+    }
+
+    .msg.info {
+        background: var(--info-soft);
+        border: 1px solid var(--info-border);
+        color: var(--info);
+    }
+
+    /* Player cards */
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .player-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 22px;
+        text-align: center;
+        box-shadow: var(--shadow-card);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .player-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent-border);
+    }
+
+    .player-avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        margin: 0 auto 12px;
+        overflow: hidden;
+        border: 3px solid var(--accent);
+        background: var(--bg-glass);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    .player-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .player-card h3 {
+        color: var(--text-primary);
+        font-size: 16px;
+        margin: 0 0 4px;
+    }
+
+    .player-id-badge {
+        display: inline-block;
+        background: var(--accent-soft-2);
+        color: var(--accent);
+        font-family: monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+    }
+
+    .club-tag {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 50px;
+        margin-bottom: 14px;
+    }
+
+    .club-tag.free {
+        background: var(--warning-soft);
+        color: var(--warning);
+        border: 1px solid var(--warning-border);
+    }
+
+    .club-tag.signed {
+        background: var(--info-soft);
+        color: var(--info);
+        border: 1px solid var(--info-border);
+    }
+
+    .player-facts {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .player-facts li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-muted);
+        background: var(--bg-glass);
+        border-radius: 6px;
+        padding: 7px 10px;
+    }
+
+    .player-facts li span:last-child {
+        color: var(--text-soft);
+        font-weight: 600;
+    }
+
+    .btn-sign {
+        width: 100%;
+        padding: 11px;
+        background: var(--accent);
+        color: var(--accent-contrast);
+        border: none;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .btn-sign:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-card);
+        border: 1px dashed var(--border-strong);
+        border-radius: 16px;
+        color: var(--text-muted);
+    }
+
+    .empty-state .empty-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .players-page { padding: 80px 18px 40px; }
+        .players-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="players-page">
+    <a href="{% if my_club %}{% url 'coach:coach_dashboard' %}{% else %}{% url 'home' %}{% endif %}"
+       class="back-link">⬅️ Back</a>
+
+    <div class="players-header">
+        <h1>⚽ Registered Players</h1>
+        <span class="count-tag">{{ players|length }} player{{ players|length|pluralize }}</span>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="players-grid">
+        {% for player in players %}
+        <div class="player-card">
+            <div class="player-avatar">
+                {% if player.profile_photo %}
+                    <img src="{{ player.profile_photo.url }}" alt="{{ player.full_name }}">
+                {% else %}
+                    {{ player.full_name|first|upper }}
+                {% endif %}
+            </div>
+
+            <h3>{{ player.full_name }}</h3>
+            <div class="player-id-badge">ID {{ player.player_id }}</div>
+
+            {% if player.club %}
+                <div class="club-tag signed">📋 {{ player.club.name }}</div>
+            {% else %}
+                <div class="club-tag free">Free Agent</div>
+            {% endif %}
+
+            <ul class="player-facts">
+                <li><span>Position</span><span>{{ player.get_preferred_position_display }}</span></li>
+                <li><span>Age</span><span>{{ player.age }}</span></li>
+                {% if player.preferred_jersey_number %}
+                <li><span>Jersey</span><span>#{{ player.preferred_jersey_number }}</span></li>
+                {% endif %}
+            </ul>
+
+            {% if my_club and not player.club %}
+            <form method="POST" action="{% url 'players:sign_player' player.player_id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-sign">✍️ Sign to my club</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <p>No players registered yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

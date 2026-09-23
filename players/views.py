@@ -137,43 +137,79 @@ def player_dashboard(request):
     }
     return render(request, 'players/player_dashboard.html', context)
 
+@login_required
 def player_list(request):
-    """Fetches all registered players."""
-    players = Player.objects.all()
-    return render(request, 'players/player_list.html', {'players': players})
+    """Browse registered players (login required).
+
+    The raw queryset carries contact details and documents, so the template
+    only ever receives non-sensitive display fields (name, photo, position,
+    age, jersey, club) — never phone/email/citizenship.
+    """
+    players = Player.objects.select_related('club').order_by('full_name')
+
+    # Only a coach whose profile is linked to a club sees the "Sign" action.
+    coach_profile = getattr(request.user, 'coach_profile', None)
+    club_coach = getattr(request.user, 'club_coach_profile', None)
+    my_club = coach_profile.club if coach_profile else (club_coach.club if club_coach else None)
+
+    return render(request, 'players/player_list.html', {
+        'players': players,
+        'my_club': my_club,
+    })
 
 @login_required
 def sign_player(request, player_id):
-    """Assigns a free agent player to the logged-in coach's club."""
+    """Assigns a free agent player to the logged-in coach's club.
+
+    POST-only (state change must not happen on GET) and coach-only:
+    non-coach sessions are rejected before touching the roster.
+    """
+    if request.method != 'POST':
+        messages.error(request, "Invalid request method.")
+        return redirect('players:player_list')
+
+    # Role check FIRST — self-registered (coach_profile) and manager-assigned
+    # (club_coach_profile) coaches both count; everyone else is rejected
+    # before we even reveal whether the player exists.
+    coach_profile = getattr(request.user, 'coach_profile', None)
+    club_coach = getattr(request.user, 'club_coach_profile', None)
+    my_club = coach_profile.club if coach_profile else (club_coach.club if club_coach else None)
+
+    if my_club is None:
+        messages.error(request, "Only coaches assigned to a club can sign players.")
+        return redirect('players:player_list')
+
     player = get_object_or_404(Player, player_id=player_id)
-    
-    # Access the coach profile (adjust 'coachprofile' if your related_name is different)
-    try:
-        coach = request.user.coach_profile
-        if coach.club:
-            player.club = coach.club
-            player.save()
 
-            # Notify all coaches of the club about the new signing
-            for coach_user in get_club_coach_users(coach.club):
-                notify(
-                    coach_user,
-                    f'{player.full_name} has been added to the roster.',
-                    link='/coach/dashboard/'
-                )
-
-            # Notify the club manager about the new signing
-            if coach.club.manager:
-                notify(
-                    coach.club.manager,
-                    f'{player.full_name} has been added to the roster.',
-                    link='/clubs/dashboard/'
-                )
-
-            messages.success(request, f"{player.full_name} has been added to your roster!")
+    # Free agents only — never poach a player who is under contract elsewhere.
+    if player.club_id:
+        if player.club_id == my_club.id:
+            messages.info(request, f"{player.full_name} is already in your roster.")
         else:
-            messages.error(request, "Your coach profile is not linked to any club.")
-    except AttributeError:
-        messages.error(request, "You do not have a coach profile.")
-        
-    return redirect('coach:coach_dashboard')
+            messages.error(
+                request,
+                f"{player.full_name} is registered with {player.club.name} and cannot be signed.",
+            )
+        return redirect('players:player_list')
+    
+    player.club = my_club
+    player.save()
+
+    # Notify all coaches of the club about the new signing
+    for coach_user in get_club_coach_users(my_club):
+        notify(
+            coach_user,
+            f'{player.full_name} has been added to the roster.',
+            link='/coach/dashboard/'
+        )
+
+    # Notify the club manager about the new signing
+    if my_club.manager:
+        notify(
+            my_club.manager,
+            f'{player.full_name} has been added to the roster.',
+            link='/clubs/dashboard/'
+        )
+
+    messages.success(request, f"{player.full_name} has been added to your roster!")
+    return redirect('players:player_list')
