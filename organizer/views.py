@@ -250,6 +250,14 @@ def register_club_for_tournament(request, tournament_pk):
             status='pending',
             registered_by=request.user,
         )
+
+        # Notify the tournament organizer about the new registration
+        notify(
+            tournament.organizer,
+            f'{club.name} has registered for "{tournament.name}" — awaiting your approval.',
+            link='/organizer/approvals/'
+        )
+
         messages.success(request, 'Your club registration has been submitted for approval!')
         return redirect('clubs:my_registrations')
 

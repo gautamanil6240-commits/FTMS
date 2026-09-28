@@ -212,6 +212,12 @@ def generate_knockout_bracket(tournament):
         r1_match.away_team = non_bye_teams[2 * pair_idx + 1]
         pair_idx += 1
 
+    # Two-team bracket: no Round 2 exists (r2_count == 0), so the pairing
+    # passes above never ran — assign the finalists to the final directly.
+    if total_rounds == 1 and len(non_bye_teams) == 2 and rounds[1][0].home_team is None:
+        rounds[1][0].home_team = non_bye_teams[0]
+        rounds[1][0].away_team = non_bye_teams[1]
+
     # --- 6. Place bye teams directly into Round 2 slots ---
     # Determine which R2 slots are available (not reserved by R1 winners).
     # Bye teams fill available slots in order, spreading across the bracket.
@@ -314,6 +320,11 @@ def _generate_bracket_from_clubs(tournament, clubs):
         r1_match.home_team = non_bye_teams[2 * pair_idx]
         r1_match.away_team = non_bye_teams[2 * pair_idx + 1]
         pair_idx += 1
+
+    # Two-team bracket: same fix as generate_knockout_bracket.
+    if total_rounds == 1 and len(non_bye_teams) == 2 and rounds[1][0].home_team is None:
+        rounds[1][0].home_team = non_bye_teams[0]
+        rounds[1][0].away_team = non_bye_teams[1]
 
     # Place bye teams
     if total_rounds >= 2:
