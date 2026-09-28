@@ -5,12 +5,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models import Case, Count, IntegerField, OuterRef, Q, Subquery, Value, When
 from .models import Club, Coach, get_or_create_manager_club
 from accounts.models import UserProfile
 from coach.models import CoachProfile, get_club_active_lineup
 from players.models import Player
-from organizer.models import TournamentRegistration
+from organizer.models import Tournament, TournamentRegistration
 from matches.models import Match
 from standings.services import get_club_standing
 
@@ -143,6 +143,28 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
             formation, lineup_slots = get_club_active_lineup(club)
             context['formation'] = formation
             context['lineup_slots'] = lineup_slots
+
+            # Available tournaments: open for registration or active, with
+            # the club's own registration status annotated so the template
+            # can show Register / Pending / Registered / Full / View.
+            own_regs = TournamentRegistration.objects.filter(
+                tournament=OuterRef('pk'), club=club
+            ).values('status')[:1]
+            context['available_tournaments'] = (
+                Tournament.objects.filter(
+                    status__in=['registration', 'active']
+                ).annotate(
+                    approved_teams=Count(
+                        'registrations', filter=Q(registrations__status='approved')
+                    ),
+                    my_registration_status=Subquery(own_regs),
+                ).order_by(Case(
+                        When(status='registration', then=Value(0)),
+                        default=Value(1),
+                        output_field=IntegerField(),
+                    ), 'start_date'
+                )[:6]
+            )
         except (Club.DoesNotExist, AttributeError):
             context['has_club'] = False
             context['recent_players'] = []
@@ -150,6 +172,7 @@ class ClubManagerDashboardView(LoginRequiredMixin, TemplateView):
             context['club_standings'] = []
             context['formation'] = None
             context['lineup_slots'] = []
+            context['available_tournaments'] = []
         return context
 
 

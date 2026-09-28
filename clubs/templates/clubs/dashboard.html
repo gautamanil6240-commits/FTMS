@@ -481,6 +481,96 @@ body.light-mode .dashboard-page {
     }
 }
 
+/* Available Tournaments */
+.avail-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.avail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.avail-item:last-child { border-bottom: none; }
+
+.avail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.avail-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+.avail-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.avail-slots {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.avail-slots.open { color: var(--accent); }
+.avail-slots.full { color: var(--danger); }
+
+.avail-badge {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.avail-badge.register {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+.avail-badge.pending {
+    background: var(--warning-soft);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+}
+
+.avail-badge.approved {
+    background: var(--accent-soft-2);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+}
+
+.avail-badge.rejected {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
+}
+
+.avail-badge.full {
+    background: var(--bg-glass);
+    color: var(--text-muted);
+    border: 1px solid var(--border-soft);
+}
+
+.avail-badge.view {
+    background: var(--accent-soft-2);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+}
+
 @media (max-width: 768px) {
     .dashboard-page { padding: 80px 20px 40px; }
     .stats-row { grid-template-columns: 1fr 1fr; }
@@ -591,6 +681,52 @@ body.light-mode .dashboard-page {
 
 <!-- Right: Squad Overview -->
         <div>
+            <!-- Available Tournaments -->
+            <div class="glass-card">
+                <h3>🏟️ Available Tournaments</h3>
+                {% if available_tournaments %}
+                <div class="avail-list">
+                    {% for t in available_tournaments %}
+                    <div class="avail-item">
+                        <div class="avail-info">
+                            <span class="avail-name">{{ t.name }}</span>
+                            <span class="avail-meta">📍 {{ t.location }} · {{ t.get_format_display }} · 📅 Opens {{ t.start_date|date:"M d, Y" }}</span>
+                            {% if t.status == 'registration' %}
+                                {% if t.approved_teams >= t.max_teams %}
+                                <span class="avail-slots full">🔒 Full — {{ t.approved_teams }}/{{ t.max_teams }} teams</span>
+                                {% else %}
+                                <span class="avail-slots open">👥 {{ t.approved_teams }}/{{ t.max_teams }} teams registered</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="avail-slots">🟢 In progress</span>
+                            {% endif %}
+                        </div>
+
+                        {% if t.my_registration_status %}
+                            <span class="avail-badge {{ t.my_registration_status }}">
+                                {% if t.my_registration_status == 'pending' %}⏱️ Pending
+                                {% elif t.my_registration_status == 'approved' %}✅ Registered
+                                {% else %}❌ Not Accepted
+                                {% endif %}
+                            </span>
+                        {% elif t.status == 'registration' and t.approved_teams < t.max_teams %}
+                            <a href="{% url 'organizer_register_tournament' t.pk %}" class="avail-badge register">📝 Register</a>
+                        {% elif t.status == 'registration' %}
+                            <span class="avail-badge full">🔒 Full</span>
+                        {% else %}
+                            <a href="{% url 'tournament_detail' t.pk %}" class="avail-badge view">View</a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🏟️</div>
+                    <p>No tournaments are open right now. Check the <a href="{% url 'tournament_list' %}" style="color:var(--accent);">tournament list</a> for upcoming events.</p>
+                </div>
+                {% endif %}
+            </div>
+
             <!-- Club Standings -->
             <div class="glass-card">
                 <h3>🏆 My Standings</h3>
